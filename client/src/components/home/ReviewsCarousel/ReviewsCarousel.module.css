@@ -1,0 +1,189 @@
+.seccion {
+  margin-top: clamp(2rem, 1.5rem + 1.5vw, 3rem);
+  padding: clamp(1.25rem, 0.9rem + 1.2vw, 2rem)
+    clamp(0.75rem, 0.5rem + 1vw, 1rem);
+}
+
+.titulo {
+  font-size: clamp(1.05rem, 0.95rem + 0.4vw, 1.25rem);
+  font-weight: 700;
+  margin: 0 0 1rem;
+  padding-left: 0.5rem;
+  border-left: 3px solid var(--color-primary);
+  color: var(--color-text);
+}
+
+.track {
+  display: flex;
+  gap: clamp(0.75rem, 0.6rem + 0.6vw, 1rem);
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  cursor: grab;
+  touch-action: pan-y;
+  padding-bottom: 0.5rem;
+}
+
+.resumenPuntuacion {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0 0 1rem;
+  padding-left: 0.5rem;
+}
+
+.promedio {
+  font-size: clamp(1.4rem, 1.25rem + 0.6vw, 1.75rem);
+  font-weight: 800;
+  color: var(--color-text);
+  line-height: 1;
+}
+
+.resumenEstrellas {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.totalResenas {
+  font-size: 0.8rem;
+  color: #9ca3af;
+}
+
+.track::-webkit-scrollbar {
+  display: none;
+}
+
+.track:active {
+  cursor: grabbing;
+}
+
+.card {
+  flex: 0 0 clamp(230px, 65vw, 280px);
+  min-width: 0;
+  background: var(--color-background);
+  border: 1px solid var(--color-border);
+  border-radius: 0.75rem;
+  padding: clamp(1rem, 0.85rem + 0.6vw, 1.25rem);
+  display: flex;
+  flex-direction: column;
+  gap: clamp(0.6rem, 0.5rem + 0.4vw, 0.75rem);
+}
+
+.estrellas {
+  display: flex;
+  gap: 0.125rem;
+  flex-shrink: 0;
+}
+
+.estrellaLlena {
+  color: var(--color-primary);
+  font-size: 1.125rem;
+}
+
+.estrellaVacia {
+  color: var(--color-border);
+  font-size: 1.125rem;
+}
+
+.texto {
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--color-text);
+  display: -webkit-box;
+  -webkit-line-clamp: 5;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin: 0;
+  flex: 1;
+  overflow-wrap: break-word;
+}
+
+.autor {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  flex-shrink: 0;
+  min-width: 0;
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.autorInfo {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.autorNombre {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.autorLabel {
+  font-size: 0.7rem;
+  color: #9ca3af;
+}
+
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  padding: clamp(0.75rem, 0.6rem + 0.6vw, 1rem);
+}
+
+.modalCard {
+  position: relative;
+  background: var(--color-background);
+  border-radius: 10px;
+  padding: clamp(1.5rem, 1.2rem + 1.2vw, 2rem)
+    clamp(1.1rem, 0.9rem + 0.8vw, 1.75rem)
+    clamp(1.1rem, 0.9rem + 0.8vw, 1.75rem);
+  max-width: 28rem;
+  width: 100%;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
+}
+
+.modalCerrar {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  width: 2rem;
+  height: 2rem;
+  border: none;
+  border-radius: 50%;
+  background: var(--color-border);
+  color: var(--color-text);
+  cursor: pointer;
+  font-size: 0.9rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modalCerrar:hover {
+  opacity: 0.8;
+}
+
+.modalTexto {
+  font-size: 1rem;
+  line-height: 1.6;
+  margin: 0.75rem 0 1.25rem;
+  color: var(--color-text);
+  overflow-wrap: break-word;
+}

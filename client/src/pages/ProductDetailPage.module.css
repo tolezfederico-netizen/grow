@@ -1,0 +1,264 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.content {
+  flex: 1;
+}
+
+.layout {
+  display: flex;
+  gap: 1.5rem;
+  max-width: 100rem;
+  margin: 0 auto;
+  padding: clamp(1.5rem, 1rem + 2.5vw, 2.5rem)
+    clamp(0.75rem, 0.5rem + 1vw, 1rem) clamp(0.75rem, 0.5rem + 1vw, 1rem);
+}
+
+.cardColumn {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.specsColumn {
+  flex: 1.2;
+  min-width: 0;
+}
+
+.imgContainer {
+  background: #fff;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  max-height: clamp(11rem, 9rem + 8vw, 14rem);
+}
+
+.img {
+  width: 100%;
+  height: auto;
+  max-height: clamp(11rem, 9rem + 8vw, 14rem);
+  object-fit: contain;
+  display: block;
+}
+
+.placeholder {
+  width: 100%;
+  height: 10rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #d1d5db;
+}
+
+.nombre {
+  font-size: clamp(1.05rem, 0.95rem + 0.4vw, 1.15rem);
+  font-weight: 700;
+  margin: 0;
+  overflow-wrap: break-word;
+}
+
+.precio {
+  font-size: clamp(1.05rem, 0.95rem + 0.4vw, 1.15rem);
+  font-weight: 600;
+  margin: 0;
+}
+
+.select {
+  align-self: flex-start;
+  max-width: 100%;
+  padding: 0.5rem;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  font-size: 0.95rem;
+  background: #fff;
+  cursor: pointer;
+}
+
+.descripcion {
+  font-size: 0.95rem;
+  color: #4b5563;
+  line-height: 1.6;
+  margin: 0;
+  overflow-wrap: break-word;
+}
+
+.filaCompra {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.selectorCantidad {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.btnCantidad {
+  width: 1.75rem;
+  height: 1.75rem;
+  border: none;
+  border-radius: 6px;
+  background: var(--color-secondary);
+  color: var(--color-primary);
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.15s;
+  flex-shrink: 0;
+}
+
+.btnCantidad:hover {
+  opacity: 0.85;
+}
+
+.btnCantidad:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.cantidadValor {
+  min-width: 2rem;
+  text-align: center;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.boton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: clamp(0.5rem, 0.45rem + 0.3vw, 0.55rem)
+    clamp(0.9rem, 0.7rem + 1vw, 1.1rem);
+  border: none;
+  border-radius: 6px;
+  background: var(--color-primary);
+  color: var(--color-secondary);
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: opacity 0.15s;
+  white-space: nowrap;
+}
+
+.boton:hover {
+  opacity: 0.9;
+}
+
+.botonSinStock {
+  background: #9ca3af;
+  cursor: not-allowed;
+  opacity: 0.85;
+}
+
+.botonSinStock:hover {
+  opacity: 0.85;
+}
+
+.badgeConfianza {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.badgeIcono {
+  display: flex;
+  color: #000;
+  flex-shrink: 0;
+}
+
+.badgeIcono svg {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.badgeTexto {
+  font-weight: 600;
+  font-size: 0.8rem;
+  margin: 0;
+  color: var(--color-text);
+  overflow-wrap: break-word;
+}
+
+.badgeSubtexto {
+  font-size: 0.7rem;
+  color: #6b7280;
+  margin: 0.1rem 0 0;
+  overflow-wrap: break-word;
+}
+
+.compartir {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+}
+
+.compartirTitulo {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-text);
+  margin: 0;
+}
+
+.compartirBotones {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.compartirBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.8rem;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  background: #fff;
+  color: var(--color-text);
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    background 0.15s,
+    border-color 0.15s;
+  white-space: nowrap;
+}
+
+.compartirBtn:hover {
+  background: var(--color-border);
+}
+
+.specsTitle {
+  font-size: clamp(1rem, 0.9rem + 0.4vw, 1.1rem);
+  font-weight: 600;
+  margin: 0 0 0.75rem;
+}
+
+.specsText {
+  font-size: 0.95rem;
+  line-height: 1.7;
+  color: #4b5563;
+  white-space: pre-wrap;
+  margin: 0;
+}
+
+@media (max-width: 768px) {
+  .layout {
+    flex-direction: column;
+  }
+}

@@ -1,0 +1,137 @@
+.page {
+  display: flex;
+  min-height: 100vh;
+}
+
+.panelMarca {
+  flex: 1;
+  background: var(--color-brand-yellow);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(1.5rem, 1rem + 2vw, 3rem);
+}
+
+.logo {
+  width: 100%;
+  max-width: 22rem;
+  height: auto;
+  display: block;
+}
+
+.marcaTagline {
+  color: var(--color-brand-black);
+  opacity: 0.7;
+  font-size: 1rem;
+  margin-top: 1rem;
+}
+
+.panelForm {
+  flex: 1;
+  background: var(--color-brand-black);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(1.5rem, 1rem + 2vw, 3rem);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+  max-width: 22rem;
+}
+
+.formTitulo {
+  color: #fff;
+  text-align: center;
+  font-size: 1.25rem;
+  margin: 0 0 0.5rem;
+}
+
+.input {
+  padding: 0.625rem;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  font-size: 1rem;
+  background: #fff;
+  color: var(--color-text);
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--color-brand-yellow);
+  box-shadow: 0 0 0 2px
+    color-mix(in srgb, var(--color-brand-yellow) 40%, transparent);
+}
+
+.error {
+  color: #f87171;
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+.boton {
+  padding: 0.75rem;
+  border: none;
+  border-radius: 6px;
+  background: var(--color-brand-yellow);
+  color: var(--color-brand-black);
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.boton:hover {
+  opacity: 0.9;
+}
+
+.boton:disabled {
+  opacity: 0.6;
+}
+
+@media (max-width: 768px) {
+  .page {
+    flex-direction: column;
+  }
+
+  .panelMarca {
+    flex: none;
+    min-height: clamp(160px, 12rem + 10vw, 260px);
+    padding: clamp(1rem, 0.5rem + 2vw, 1.5rem);
+  }
+
+  .logo {
+    max-width: clamp(10rem, 8rem + 10vw, 14rem);
+  }
+
+  .marcaTagline {
+    margin-top: 0.5rem;
+  }
+
+  .panelForm {
+    flex: 1;
+    align-items: flex-start;
+    padding: clamp(1.5rem, 1rem + 4vw, 2.5rem) clamp(1rem, 0.5rem + 2vw, 1.5rem);
+  }
+}
+
+@media (max-width: 480px) {
+  .panelMarca {
+    min-height: clamp(100px, 8rem + 8vw, 160px);
+  }
+
+  .marcaTagline {
+    display: none;
+  }
+
+  .logo {
+    max-width: clamp(8rem, 6rem + 10vw, 10rem);
+  }
+
+  .form {
+    gap: 0.75rem;
+  }
+}

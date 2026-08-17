@@ -1,0 +1,373 @@
+.page {
+  width: 100%;
+  min-width: 0;
+  overflow-x: hidden;
+}
+
+.header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.headerFiltros {
+  margin-bottom: clamp(0.85rem, 0.75rem + 0.3vw, 1.15rem);
+}
+
+.inputBusquedaPanel {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  font-size: 0.9rem;
+  width: 16rem;
+  max-width: 100%;
+}
+
+.estadoVacioPaneles {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 3rem 1rem;
+  text-align: center;
+}
+
+.vacio {
+  color: #6b7280;
+  margin: 0;
+}
+
+.headerBtns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.btnNuevo {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 6px;
+  background: var(--color-brand-black);
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btnNuevo:hover {
+  background: var(--color-brand-yellow);
+  color: var(--color-brand-black);
+}
+
+.btnSeleccion {
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  background: var(--color-background);
+  color: var(--color-text);
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.barraSeleccion {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: clamp(0.85rem, 0.75rem + 0.3vw, 1.15rem);
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #f5c518;
+  border-radius: 6px;
+  background: #fff8e1;
+}
+
+.seleccionadosInfo {
+  font-size: 0.85rem;
+  color: #6b5300;
+}
+
+.checkboxSeleccion {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.35rem;
+  height: 1.35rem;
+  cursor: pointer;
+}
+
+.checkboxSeleccion input[type="checkbox"] {
+  position: absolute;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  cursor: pointer;
+}
+
+.checkmarkCirculo {
+  width: 1.2rem;
+  height: 1.2rem;
+  border: 2px solid var(--color-border);
+  border-radius: 50%;
+  background: var(--color-background);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    background 0.15s,
+    border-color 0.15s;
+}
+
+.checkboxSeleccion input[type="checkbox"]:checked + .checkmarkCirculo {
+  background: var(--color-brand-yellow);
+  border-color: var(--color-brand-yellow);
+}
+
+.checkmarkCirculo::after {
+  content: "";
+  width: 0.35rem;
+  height: 0.6rem;
+  border: solid var(--color-brand-black);
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg) scale(0);
+  transition: transform 0.15s;
+  margin-top: -0.1rem;
+}
+
+.checkboxSeleccion input[type="checkbox"]:checked + .checkmarkCirculo::after {
+  transform: rotate(45deg) scale(1);
+}
+
+.checkboxSeleccion input[type="checkbox"]:focus-visible + .checkmarkCirculo {
+  box-shadow: 0 0 0 2px
+    color-mix(in srgb, var(--color-brand-yellow) 40%, transparent);
+}
+
+.filaHeader {
+  display: grid;
+  grid-template-columns: var(--cols);
+  gap: 0.5rem;
+  padding: 0.5rem;
+  font-weight: 600;
+  border-bottom: 2px solid var(--color-border);
+}
+
+.filaPanel {
+  display: grid;
+  grid-template-columns: var(--cols);
+  align-items: start;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.selFila {
+  background: #f0f7ff;
+  border-left: 3px solid var(--color-brand-yellow);
+  padding-left: calc(0.5rem - 3px);
+}
+
+.linkFila {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-brand-black);
+  padding: 0;
+  text-align: left;
+}
+
+.flechaFila {
+  transition: transform 0.2s ease;
+  flex-shrink: 0;
+}
+
+.flechaFilaAbierta {
+  transform: rotate(180deg);
+}
+
+.sub {
+  display: block;
+  font-size: 0.8rem;
+  color: #6b7280;
+  font-weight: 400;
+  margin-top: 0.15rem;
+}
+
+.sinAsignar {
+  color: #9ca3af;
+  font-style: italic;
+  font-size: 0.85rem;
+}
+
+.badgeEstado {
+  display: inline-block;
+  padding: 0.15rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.activo {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.pausado {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.acciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.btnAccion {
+  background: none;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  padding: 0.25rem 0.5rem;
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+
+.btnConfirmarAccion {
+  padding: 0.4rem 0.85rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #fff;
+  transition: opacity 0.15s;
+}
+
+.btnConfirmarAccion:hover {
+  opacity: 0.9;
+}
+
+.btnConfirmarEliminar {
+  background: #dc2626;
+}
+
+.btnConfirmarPausar {
+  background: var(--color-brand-black);
+}
+
+.dragHandle {
+  display: inline-flex;
+  color: #9ca3af;
+  cursor: grab;
+  flex-shrink: 0;
+}
+
+.dragHandle:active {
+  cursor: grabbing;
+}
+
+.arrastrando {
+  opacity: 0.4;
+}
+
+.dragOver {
+  border-top: 2px solid var(--color-brand-yellow);
+}
+
+.celdaCheckbox {
+  display: flex;
+  align-items: center;
+}
+
+@media (max-width: 768px) {
+  .header {
+    align-items: stretch;
+  }
+
+  .header h2 {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .headerBtns {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+    width: 100%;
+  }
+
+  .btnNuevo,
+  .btnSeleccion {
+    width: 100%;
+  }
+
+  .inputBusquedaPanel {
+    width: 100%;
+  }
+
+  .filaHeader {
+    display: none;
+  }
+
+  .filaPanel {
+    grid-template-columns: repeat(2, 1fr);
+    row-gap: 0.4rem;
+    padding: 0.75rem 0.5rem;
+  }
+
+  .filaPanel > div:nth-child(1) {
+    grid-column: 1 / -1;
+  }
+
+  .filaPanel > div:nth-child(4),
+  .filaPanel > .acciones,
+  .filaPanel > .celdaCheckbox {
+    grid-column: 1 / -1;
+  }
+
+  .filaPanel [data-label]::before {
+    content: attr(data-label) ": ";
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: #6b7280;
+  }
+
+  .celdaCheckbox {
+    justify-content: flex-end;
+  }
+}
+
+@media (max-width: 480px) {
+  .filaPanel {
+    grid-template-columns: 1fr;
+  }
+
+  .filaPanel > div:nth-child(1),
+  .filaPanel > div:nth-child(2),
+  .filaPanel > div:nth-child(3),
+  .filaPanel > div:nth-child(4) {
+    grid-column: 1;
+  }
+
+  .acciones {
+    justify-content: stretch;
+  }
+
+  .btnAccion {
+    flex: 1 1 auto;
+    text-align: center;
+  }
+}

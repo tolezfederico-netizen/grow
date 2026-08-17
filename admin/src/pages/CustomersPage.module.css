@@ -1,0 +1,282 @@
+.page {
+  width: 100%;
+}
+
+.header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.busquedaOrden {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.inputBusqueda {
+  padding: 0.375rem 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  font-size: 0.85rem;
+  width: 16rem;
+  max-width: 100%;
+}
+
+.btnExportar {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.375rem 0.85rem;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: var(--color-background);
+  color: var(--color-text);
+  cursor: pointer;
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+.btnExportar:hover {
+  border-color: var(--color-brand-yellow);
+}
+
+.lista {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.cliente {
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  margin-bottom: 0.5rem;
+  padding: 0.75rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1.25rem;
+}
+
+.identidad {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-width: 10rem;
+  flex-shrink: 0;
+}
+
+.nombre {
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.campoEmail {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-width: 0;
+  flex: 0 1 18rem;
+  overflow: hidden;
+}
+
+.campoTelefono {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.etiqueta {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #6b7280;
+  font-weight: 700;
+}
+
+.valorFila {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.valor {
+  color: var(--color-text);
+  font-weight: 600;
+  word-break: break-word;
+}
+
+.contactoLink {
+  color: var(--color-brand-black);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.contactoLink:hover {
+  text-decoration: underline;
+}
+
+.contactoLinkEmail {
+  color: var(--color-brand-black);
+  text-decoration: none;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+.contactoLinkEmail:hover {
+  text-decoration: underline;
+}
+
+.btnCopiar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.2rem;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  background: none;
+  color: #9ca3af;
+  cursor: pointer;
+  vertical-align: middle;
+  line-height: 1;
+}
+
+.btnCopiar:hover {
+  color: var(--color-brand-black);
+  border-color: var(--color-brand-black);
+}
+
+.estadoVacio {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 3rem 1rem;
+  text-align: center;
+}
+
+.vacio {
+  color: #6b7280;
+}
+
+.vacioSecundario {
+  color: #9ca3af;
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+.stat {
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 0.75rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  background: var(--color-background);
+}
+
+.statValor {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-brand-black);
+}
+
+.statEtiqueta {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #6b7280;
+  font-weight: 700;
+}
+
+.avatarCliente {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background: var(--color-brand-yellow);
+  color: var(--color-brand-black);
+  font-weight: 700;
+  font-size: 0.9rem;
+  flex-shrink: 0;
+}
+
+.creadoEn {
+  color: #6b7280;
+  font-size: 0.85rem;
+  white-space: nowrap;
+  margin-left: auto;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+@media (max-width: 768px) {
+  .header {
+    align-items: stretch;
+  }
+
+  .header h2 {
+    margin-bottom: 0.25rem;
+  }
+
+  .busquedaOrden {
+    width: 100%;
+  }
+
+  .inputBusqueda {
+    width: 100%;
+  }
+
+  .btnExportar {
+    justify-content: center;
+    flex: 1 1 auto;
+  }
+
+  .campoEmail {
+    flex: 1 1 100%;
+    order: 2;
+  }
+
+  .campoTelefono {
+    order: 3;
+  }
+
+  .creadoEn {
+    order: 4;
+    margin-left: 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .identidad {
+    min-width: 0;
+    flex: 1 1 auto;
+  }
+
+  .creadoEn {
+    flex: 1 1 100%;
+    text-align: left;
+  }
+
+  .contactoLinkEmail {
+    max-width: 12rem;
+  }
+}

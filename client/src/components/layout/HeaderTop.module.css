@@ -1,0 +1,625 @@
+.top {
+  display: grid;
+  grid-template-columns: 1fr minmax(0, 36rem) 1fr;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.55rem 1rem;
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-secondary);
+  transition: padding 0.2s ease;
+}
+
+.logo {
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-weight: 800;
+  font-size: 1.25rem;
+  color: var(--color-primary);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.logoImg {
+  height: 1.7rem;
+  width: auto;
+  display: block;
+  transition: height 0.2s ease;
+}
+
+.searchWrap {
+  justify-self: center;
+  max-width: 36rem;
+  width: 100%;
+  position: relative;
+}
+
+.search {
+  width: 100%;
+  position: relative;
+}
+
+.searchIcon {
+  position: absolute;
+  left: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 1rem;
+  height: 1rem;
+  color: var(--color-text);
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+.searchInput {
+  width: 100%;
+  padding: 0.6rem 0.75rem 0.6rem 2.5rem;
+  border: none;
+  border-radius: 100px;
+  font-size: 1rem;
+  outline: none;
+  background: var(--color-background-muted);
+  box-sizing: border-box;
+  transition: box-shadow 0.15s ease;
+}
+
+.searchInput:focus {
+  box-shadow: 0 0 0 2px var(--color-primary);
+}
+
+.botones {
+  justify-self: end;
+  display: flex;
+  gap: 0.25rem;
+  align-items: center;
+  transform-origin: right center;
+  transition: transform 0.2s ease;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  min-height: 1.5rem;
+  box-sizing: border-box;
+  padding: 0.375rem 0.75rem;
+  line-height: 1;
+  border: none;
+  border-radius: 6px;
+  background: var(--color-primary);
+  color: var(--color-secondary);
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+
+.btn:hover {
+  opacity: 0.9;
+}
+
+.carrito {
+  display: inline-flex;
+  align-items: center;
+  min-height: 1.5rem;
+  box-sizing: border-box;
+  gap: 0.375rem;
+  padding: 0.375rem 0.75rem;
+  line-height: 1;
+  border: none;
+  border-radius: 6px;
+  background: var(--color-primary);
+  color: var(--color-secondary);
+  font-size: 0.85rem;
+  cursor: pointer;
+  position: relative;
+  transition: opacity 0.15s ease;
+}
+
+.carrito:hover {
+  opacity: 0.9;
+}
+
+.cartIcon {
+  width: 0.85rem;
+  height: 0.85rem;
+  flex-shrink: 0;
+  align-self: center;
+}
+
+.carritoTexto {
+  display: inline-flex;
+  align-items: center;
+  align-self: center;
+  line-height: 1;
+}
+
+.contador {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1rem;
+  height: 1rem;
+  font-size: 0.6rem;
+  border-radius: 50%;
+  background: #fff;
+  color: var(--color-secondary);
+  font-weight: 700;
+  margin-left: 0.125rem;
+  align-self: center;
+}
+
+.infoWrap {
+  position: relative;
+}
+
+.cuentaWrap {
+  position: relative;
+}
+
+.infoDropdown {
+  background: var(--color-background);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 1rem;
+  min-width: 16rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  z-index: 100;
+}
+
+.infoNombre {
+  font-weight: 700;
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.infoLine {
+  font-size: 0.85rem;
+  color: var(--color-secondary);
+  opacity: 0.65;
+  margin-bottom: 0.25rem;
+}
+
+.cuentaDropdown {
+  background: var(--color-background);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 0.375rem;
+  width: max-content;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  z-index: 100;
+}
+
+.cuentaItem {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  text-align: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  color: var(--color-text);
+  text-decoration: none;
+  box-sizing: border-box;
+  transition: background 0.15s;
+}
+
+.cuentaItem:hover {
+  background: var(--color-border);
+}
+
+.cuentaItemButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  text-align: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  font-size: 0.85rem;
+  color: var(--color-text);
+  cursor: pointer;
+  box-sizing: border-box;
+  transition: background 0.15s;
+}
+.cuentaItemButton:hover:not(:disabled) {
+  background: var(--color-border);
+}
+
+.cuentaItemButton:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.redes {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-top: 0.5rem;
+}
+
+.infoSucursalBlock {
+  padding-top: 0.75rem;
+  margin-top: 0.5rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.redLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3em;
+  font-size: 0.8rem;
+  color: var(--color-secondary);
+  text-decoration: none;
+}
+
+.redLink:hover {
+  opacity: 0.65;
+}
+
+.topScrolled {
+  padding: 0.4rem 1rem;
+}
+
+.topScrolled .logoImg {
+  height: 1.3rem;
+}
+
+.topScrolled .searchInput {
+  padding: 0.4rem 0.5rem 0.4rem 2.25rem;
+  font-size: 0.9rem;
+}
+
+.topScrolled .botones {
+  transform: scale(0.78);
+}
+
+.searchResults {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin-top: 0.5rem;
+  background: var(--color-background);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  z-index: 70;
+  padding: 0.25rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.resultCard {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.375rem 0.5rem;
+  border-radius: 6px;
+  cursor: pointer;
+  text-decoration: none;
+  color: var(--color-text);
+  transition: background 0.15s;
+}
+
+.resultCard + .resultCard {
+  margin-top: 0.125rem;
+}
+
+.resultCard:hover {
+  background: var(--color-border);
+}
+
+.resultImg {
+  width: 2.5rem;
+  height: 2.5rem;
+  object-fit: contain;
+  border-radius: 4px;
+  background: #f3f4f6;
+  flex-shrink: 0;
+}
+
+.resultNombre {
+  flex: 1;
+  font-size: 0.85rem;
+  font-weight: 600;
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  min-width: 0;
+}
+
+.resultPrecio {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--color-secondary);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* ---- Mobile: hamburguesa, búsqueda colapsable ---- */
+
+.hamburgerBtn,
+.mobileSearchBtn {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 2.2rem;
+  height: 2.2rem;
+  border: none;
+  border-radius: 6px;
+  background: none;
+  color: var(--color-primary);
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.hamburgerBtn {
+  justify-self: start;
+}
+
+.mobileSearchBtn {
+  justify-self: end;
+}
+
+.mobileSearchRow {
+  display: none;
+}
+
+.mobileSearchClose {
+  position: absolute;
+  right: 0.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+  color: var(--color-text);
+  padding: 0.25rem;
+}
+
+@media (max-width: 768px) {
+  .top {
+    grid-template-columns: auto 1fr auto;
+    padding: clamp(0.5rem, 0.4rem + 0.5vw, 0.55rem)
+      clamp(0.75rem, 0.5rem + 1vw, 1rem);
+  }
+
+  .hamburgerBtn,
+  .mobileSearchBtn {
+    display: inline-flex;
+  }
+
+  .logo {
+    justify-self: center;
+  }
+
+  .searchWrap,
+  .botones {
+    display: none;
+  }
+
+  .mobileSearchRow {
+    display: block;
+    grid-column: 1 / -1;
+    position: relative;
+    padding: 0 clamp(0.75rem, 0.5rem + 1vw, 1rem) 0.6rem;
+  }
+
+  .mobileSearchRow .searchInput {
+    padding-right: 2.25rem;
+  }
+}
+
+/* ---- Drawer (menú mobile) ---- */
+
+@keyframes drawerOverlayIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes drawerIn {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.drawerOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 90;
+  animation: drawerOverlayIn 0.15s ease-out;
+}
+
+.drawer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: min(85vw, 20rem);
+  background: var(--color-background);
+  z-index: 91;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 4px 0 16px rgba(0, 0, 0, 0.15);
+  overflow-y: auto;
+  animation: drawerIn 0.22s ease-out;
+}
+
+.drawerHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem;
+  border-bottom: 1px solid var(--color-border);
+  flex-shrink: 0;
+}
+
+.drawerTitulo {
+  font-weight: 800;
+  font-size: 1.05rem;
+  color: var(--color-primary);
+}
+
+.drawerCerrar {
+  background: none;
+  border: none;
+  font-size: 1.25rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0.25rem;
+  color: var(--color-text);
+}
+
+.drawerBody {
+  padding: 0.75rem 1rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.drawerSeccion {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  padding: 0.6rem 0.5rem;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--color-border) 40%, transparent);
+}
+
+.drawerSeccionTitulo {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-text);
+  opacity: 0.55;
+  margin: 0.15rem 0 0.4rem 0.5rem;
+}
+
+.drawerIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: currentColor;
+  opacity: 0.75;
+}
+
+.drawerLink {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.55rem 0.5rem;
+  border-left: 3px solid transparent;
+  border-radius: 6px;
+  color: var(--color-text);
+  text-decoration: none;
+  font-size: 0.92rem;
+  font-weight: 600;
+  overflow-wrap: break-word;
+  transition:
+    background 0.15s,
+    border-color 0.15s;
+}
+
+.drawerLink:hover,
+.drawerLink:active {
+  background: color-mix(in srgb, var(--color-primary) 12%, transparent);
+  border-left-color: var(--color-primary);
+}
+
+.drawerLinkButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0.3rem 0.5rem 0.15rem;
+  padding: 0.5rem 0.85rem;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background: none;
+  text-align: left;
+  color: var(--color-text);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  width: fit-content;
+  transition:
+    border-color 0.15s,
+    color 0.15s;
+}
+
+.drawerLinkButton:hover:not(:disabled) {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.drawerLinkButton:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.drawerCarrito {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.85rem 1rem;
+  border: none;
+  border-radius: 10px;
+  background: var(--color-primary);
+  color: var(--color-secondary);
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.drawerInfoRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 0.15rem 0.5rem;
+}
+
+.drawerInfoIcon {
+  display: flex;
+  align-items: center;
+  color: var(--color-primary);
+  flex-shrink: 0;
+  margin-top: 0.15rem;
+}
+
+.drawerTerminos {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.7rem 0.5rem 0.5rem;
+  margin-top: 0.15rem;
+  border-top: 1px solid var(--color-border);
+  color: var(--color-text);
+  text-decoration: none;
+  font-size: 0.85rem;
+  font-weight: 600;
+  opacity: 0.85;
+}
+
+.drawerTerminos:hover {
+  opacity: 1;
+}

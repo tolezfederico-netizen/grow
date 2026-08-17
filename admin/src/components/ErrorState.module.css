@@ -1,0 +1,21 @@
+.error {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: #dc2626;
+}
+
+.boton {
+  margin-top: 1rem;
+  padding: 0.5rem 1.5rem;
+  border: none;
+  border-radius: 6px;
+  background: var(--color-brand-black);
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.boton:hover {
+  background: var(--color-brand-yellow);
+  color: var(--color-brand-black);
+}

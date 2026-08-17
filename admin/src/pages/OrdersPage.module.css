@@ -1,0 +1,618 @@
+.page {
+  width: 100%;
+}
+
+.header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.filtros {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  align-items: start;
+  width: 100%;
+}
+
+.filaSecundaria {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.filtro {
+  padding: 0.375rem;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+.checkEliminados {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  cursor: pointer;
+  white-space: nowrap;
+  position: relative;
+}
+
+.checkboxHidden {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+.toggleSlider {
+  position: relative;
+  display: inline-block;
+  width: 2rem;
+  height: 1.1rem;
+  background: #d1d5db;
+  border-radius: 999px;
+  transition: background 0.2s;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.toggleSlider::after {
+  content: "";
+  position: absolute;
+  top: 0.15rem;
+  left: 0.15rem;
+  width: 0.8rem;
+  height: 0.8rem;
+  background: #fff;
+  border-radius: 50%;
+  transition: transform 0.2s;
+}
+
+.checkboxHidden:checked + .toggleSlider {
+  background: var(--color-brand-black);
+}
+
+.checkboxHidden:checked + .toggleSlider::after {
+  transform: translateX(0.9rem);
+}
+
+.totalFiltro {
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+}
+
+.vacio {
+  color: #6b7280;
+}
+
+.estadoVacio {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 3rem 1rem;
+  text-align: center;
+}
+
+.vacioSecundario {
+  color: #9ca3af;
+  font-size: 0.85rem;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.btnVerTodos {
+  background: none;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  padding: 0.3rem 0.75rem;
+  color: var(--color-text);
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+
+.btnVerTodos:hover {
+  border-color: var(--color-brand-yellow);
+}
+
+.inputBusqueda {
+  padding: 0.375rem 1.75rem 0.375rem 0.375rem;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  font-size: 0.85rem;
+  width: 12rem;
+}
+
+.busquedaLabel {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.btnLimpiarBusqueda {
+  position: absolute;
+  right: 0.25rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #9ca3af;
+  cursor: pointer;
+  font-size: 0.75rem;
+  padding: 0.125rem;
+  line-height: 1;
+}
+
+.btnLimpiarBusqueda:hover {
+  color: var(--color-text);
+}
+
+.busquedaOrden {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.selectOrden {
+  padding: 0.5rem 2.25rem 0.5rem 0.75rem;
+  min-width: 9rem;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  background-color: var(--color-background);
+  color: var(--color-text);
+  font-size: 0.9rem;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 1rem;
+}
+
+.pedido {
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  margin-bottom: 0.5rem;
+  transition: border-color 0.15s;
+}
+
+.pedidoExpandido {
+  border-color: var(--color-brand-yellow);
+}
+
+.resumen {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  padding: 0.75rem;
+  cursor: pointer;
+  align-items: center;
+  transition: background-color 0.15s;
+}
+
+.resumen:hover {
+  background: #f9fafb;
+}
+
+.cliente {
+  flex: 1;
+  min-width: 8rem;
+  font-weight: 600;
+}
+
+.avatarCliente {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background: var(--color-brand-yellow);
+  color: var(--color-brand-black);
+  font-size: 0.85rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.estado {
+  text-transform: capitalize;
+  padding: 0.125rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.estadoPendiente {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.estadoConfirmado {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.estadoListoParaRetirar {
+  background: #ede9fe;
+  color: #5b21b6;
+}
+
+.estadoCompletado {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.estadoCancelado {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.arrow {
+  font-size: 0.8rem;
+  color: #9ca3af;
+  flex-shrink: 0;
+}
+
+.total {
+  font-weight: 700;
+  min-width: 5rem;
+  text-align: right;
+}
+
+.fecha {
+  color: #6b7280;
+  font-size: 0.85rem;
+  min-width: 6rem;
+  text-align: right;
+  font-weight: 500;
+}
+
+.cantidadItems {
+  color: #9ca3af;
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+
+.detalle {
+  padding: 0.75rem;
+  border-top: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  font-size: 0.9rem;
+}
+
+.contactoLink {
+  color: var(--color-brand-black);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.contactoLink:hover {
+  text-decoration: underline;
+}
+
+.itemsTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.itemsTable th {
+  padding: 0.375rem;
+  border-bottom: 2px solid var(--color-border);
+  text-align: left;
+  background: #f9fafb;
+}
+
+.itemsTable td {
+  padding: 0.375rem;
+  border-bottom: 1px solid var(--color-border);
+  text-align: left;
+  color: var(--color-text);
+}
+
+.itemsTable tbody tr:nth-child(even) {
+  background: #f9fafb;
+}
+
+.totalRow td {
+  border-top: 2px solid var(--color-border);
+  border-bottom: none;
+  font-weight: 700;
+}
+
+.totalValue {
+  text-align: right;
+}
+
+.transiciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.btnEstado {
+  padding: 0.375rem 0.75rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.btnEstadoConfirmado {
+  background: var(--color-brand-black);
+  color: #fff;
+}
+
+.btnEstadoListoParaRetirar {
+  background: #7c3aed;
+  color: #fff;
+}
+
+.btnEstadoCompletado {
+  background: #059669;
+  color: #fff;
+}
+
+.btnEstadoCancelado {
+  background: none;
+  border: 1px solid #ef4444;
+  color: #ef4444;
+}
+
+.accionesPedido {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  border-top: 1px solid var(--color-border);
+  padding-top: 0.75rem;
+}
+
+.btnEliminar {
+  margin-left: auto;
+  padding: 0.375rem 0.75rem;
+  border: 1px solid #ef4444;
+  border-radius: 4px;
+  background: none;
+  color: #ef4444;
+  cursor: pointer;
+  font-size: 0.8rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.eliminado {
+  opacity: 0.6;
+}
+
+.badgeEliminado {
+  font-size: 0.75rem;
+  background: none;
+  border: 1px solid #ef4444;
+  color: #ef4444;
+  padding: 0.125rem 0.375rem;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+
+.btnCopiar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.2rem;
+  margin-left: 0.4rem;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  background: none;
+  color: #9ca3af;
+  cursor: pointer;
+  vertical-align: middle;
+  line-height: 1;
+}
+
+.btnCopiar:hover {
+  color: var(--color-brand-black);
+  border-color: var(--color-brand-black);
+}
+
+.filtroBotones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.btnFiltroEstado {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.375rem 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: var(--color-background);
+  color: var(--color-text);
+  cursor: pointer;
+  font-size: 0.85rem;
+  white-space: nowrap;
+  flex: 1 1 auto;
+  justify-content: center;
+  max-width: 14rem;
+}
+
+.btnFiltroEstado:hover {
+  border-color: var(--color-brand-yellow);
+}
+
+.btnFiltroPendiente {
+  background: #fef3c7;
+  color: #92400e;
+  border-color: transparent;
+}
+.btnFiltroConfirmado {
+  background: #dbeafe;
+  color: #1e40af;
+  border-color: transparent;
+}
+.btnFiltroListoParaRetirar {
+  background: #ede9fe;
+  color: #5b21b6;
+  border-color: transparent;
+}
+.btnFiltroCompletado {
+  background: #d1fae5;
+  color: #065f46;
+  border-color: transparent;
+}
+.btnFiltroCancelado {
+  background: #fee2e2;
+  color: #991b1b;
+  border-color: transparent;
+}
+
+.btnFiltroPendiente:hover,
+.btnFiltroConfirmado:hover,
+.btnFiltroListoParaRetirar:hover,
+.btnFiltroCompletado:hover,
+.btnFiltroCancelado:hover {
+  border-color: transparent;
+  opacity: 0.9;
+}
+
+.btnFiltroPendienteActivo {
+  background: color-mix(in srgb, #fef3c7, black 20%);
+}
+.btnFiltroConfirmadoActivo {
+  background: color-mix(in srgb, #dbeafe, black 20%);
+}
+.btnFiltroListoParaRetirarActivo {
+  background: color-mix(in srgb, #ede9fe, black 20%);
+}
+.btnFiltroCompletadoActivo {
+  background: color-mix(in srgb, #d1fae5, black 20%);
+}
+.btnFiltroCanceladoActivo {
+  background: color-mix(in srgb, #fee2e2, black 20%);
+}
+
+.btnFiltroEstadoActivo {
+  border-color: var(--color-brand-black);
+  background: var(--color-brand-black);
+  color: #fff;
+}
+
+.contadorEstado {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.4rem;
+  padding: 0 0.3rem;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.08);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.btnFiltroEstadoActivo .contadorEstado {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.tablaWrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+@media (max-width: 768px) {
+  .inputBusqueda {
+    width: 100%;
+  }
+
+  .busquedaOrden {
+    width: 100%;
+  }
+
+  .busquedaLabel {
+    flex: 1 1 12rem;
+  }
+
+  .selectOrden {
+    flex: 1 1 9rem;
+  }
+
+  .cantidadItems {
+    display: none;
+  }
+
+  .fecha {
+    min-width: 4.5rem;
+  }
+
+  .total {
+    min-width: 4rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .avatarCliente {
+    display: none;
+  }
+
+  .cliente {
+    flex: 1 1 100%;
+    min-width: 0;
+  }
+
+  .btnFiltroEstado {
+    font-size: 0.8rem;
+    padding: 0.3rem 0.6rem;
+  }
+
+  .accionesPedido {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .btnEliminar {
+    margin-left: 0;
+    justify-content: center;
+    width: 100%;
+  }
+
+  .transiciones {
+    justify-content: stretch;
+  }
+
+  .btnEstado {
+    flex: 1 1 auto;
+    justify-content: center;
+  }
+
+  .itemsTable th,
+  .itemsTable td {
+    padding: 0.3rem;
+    font-size: 0.8rem;
+  }
+}

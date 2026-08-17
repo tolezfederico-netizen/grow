@@ -1,0 +1,135 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: clamp(1rem, 0.6rem + 2vw, 2rem) clamp(0.75rem, 0.5rem + 1vw, 1rem);
+  z-index: 100;
+  overflow-y: auto;
+}
+
+.modal {
+  background: var(--color-background);
+  border-radius: 8px;
+  padding: clamp(1.1rem, 0.7rem + 1.5vw, 1.5rem);
+  width: 100%;
+  max-width: 36rem;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.btnCerrar {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: clamp(1.1rem, 1rem + 0.3vw, 1.25rem);
+  color: #9ca3af;
+  line-height: 1;
+  padding: 0.25rem;
+  flex-shrink: 0;
+}
+
+.btnCerrar:hover {
+  color: var(--color-text);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 1rem;
+  min-width: 0;
+}
+
+.input {
+  padding: clamp(0.45rem, 0.35rem + 0.4vw, 0.5rem);
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  font-size: 0.9rem;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--color-brand-yellow);
+  box-shadow: 0 0 0 2px
+    color-mix(in srgb, var(--color-brand-yellow) 30%, transparent);
+}
+
+.checkRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  cursor: pointer;
+  line-height: 1.4;
+  overflow-wrap: break-word;
+}
+
+.checkRow input {
+  margin-top: 0.15rem;
+  flex-shrink: 0;
+}
+
+.avisoLimite {
+  color: #9ca3af;
+  font-size: 0.8rem;
+  margin: 0;
+  overflow-wrap: break-word;
+}
+
+.error {
+  color: #dc2626;
+  font-size: 0.85rem;
+  overflow-wrap: break-word;
+}
+
+.acciones {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+}
+
+.btnCancelar {
+  padding: clamp(0.45rem, 0.35rem + 0.4vw, 0.5rem)
+    clamp(1rem, 0.7rem + 1.2vw, 1.5rem);
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  background: none;
+  cursor: pointer;
+}
+
+.btnGuardar {
+  padding: clamp(0.45rem, 0.35rem + 0.4vw, 0.5rem)
+    clamp(1rem, 0.7rem + 1.2vw, 1.5rem);
+  border: none;
+  border-radius: 4px;
+  background: var(--color-brand-black);
+  color: #fff;
+  cursor: pointer;
+}
+
+.btnGuardar:disabled {
+  opacity: 0.6;
+}
+
+@media (max-width: 480px) {
+  .acciones {
+    flex-direction: column-reverse;
+    gap: 0.5rem;
+  }
+
+  .btnCancelar,
+  .btnGuardar {
+    width: 100%;
+  }
+}

@@ -1,0 +1,25 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --color-primary: #4f46e5;
+  --color-secondary: #10b981;
+  --color-background: #ffffff;
+  --color-text: #111827;
+  --color-border: #e5e7eb;
+
+  --color-brand-yellow: rgb(253, 206, 5);
+  --color-brand-black: rgb(34, 30, 31);
+}
+
+body {
+  font-family: system-ui, -apple-system, sans-serif;
+  color: var(--color-text);
+  background-color: var(--color-background);
+  line-height: 1.5;
+}

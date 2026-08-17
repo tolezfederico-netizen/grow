@@ -1,0 +1,125 @@
+.nav {
+  display: flex;
+  gap: 0;
+  padding: 0 1rem 0 0;
+  background: var(--color-primary);
+  border-bottom: 0.5px solid var(--color-secondary);
+  transition: padding 0.2s ease;
+}
+
+.item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.55rem 0.85rem;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--color-secondary);
+  white-space: nowrap;
+  border-radius: 0;
+  transition: background 0.15s ease, color 0.15s ease, padding 0.2s ease, font-size 0.2s ease;
+}
+
+.item:first-child {
+  padding-left: 0.85rem;
+}
+
+.flecha {
+  display: flex;
+  align-items: center;
+  color: var(--color-secondary);
+  transition: transform 0.2s ease;
+}
+
+.flechaActiva {
+  transform: rotate(180deg);
+}
+
+
+
+.activo {
+  background: var(--color-secondary);
+  color: #fff;
+  border-radius: 0;
+}
+
+.activo .flecha {
+  color: #fff;
+}
+
+.accionesDerecha {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.ayudaWrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.sucursalesBtn {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem 0.5rem;
+  border: none;
+  border-radius: 4px;
+  background: var(--color-secondary);
+  color: var(--color-primary);
+  font-size: 0.68rem;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+  white-space: nowrap;
+  text-decoration: none;
+  transition: opacity 0.15s;
+}
+
+.sucursalesBtn:hover {
+  opacity: 0.85;
+}
+
+.ayudaDropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 0.375rem;
+  background: var(--color-background);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 0.375rem;
+  min-width: 12rem;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  z-index: 70;
+}
+
+.ayudaLink {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  color: var(--color-text);
+  text-decoration: none;
+  transition: background 0.15s;
+}
+
+.ayudaLink:hover {
+  background: var(--color-border);
+}
+
+.navScrolled .item {
+  padding: 0.35rem 0.65rem;
+  font-size: 0.75rem;
+}
+
+.navScrolled .sucursalesBtn {
+  padding: 0.15rem 0.4rem;
+  font-size: 0.6rem;
+}

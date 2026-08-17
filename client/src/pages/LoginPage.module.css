@@ -1,0 +1,145 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: linear-gradient(180deg, #f7f3ea 0%, #fffaf2 100%);
+}
+
+.page {
+  flex: 1;
+  display: grid;
+  place-items: center;
+  padding: clamp(1.25rem, 0.8rem + 2vw, 2rem) clamp(0.75rem, 0.5rem + 1vw, 1rem);
+}
+
+.card {
+  width: min(100%, 24rem);
+  background: #ffffff;
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  padding: clamp(1rem, 0.85rem + 0.6vw, 1.1rem);
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.08);
+}
+
+.kicker {
+  margin: 0 0 0.25rem;
+  color: var(--color-primary);
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.title {
+  margin: 0 0 0.4rem;
+  font-size: clamp(1.2rem, 1.05rem + 0.6vw, 1.4rem);
+}
+
+.text {
+  margin: 0 0 1rem;
+  color: #6b7280;
+  line-height: 1.45;
+  font-size: 0.9rem;
+}
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.inputWrapper {
+  position: relative;
+}
+
+.inputIcon {
+  position: absolute;
+  left: 0.7rem;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.6rem 0.6rem 0.6rem 2.15rem;
+  border: 1px solid var(--color-border);
+  border-radius: 9px;
+  font-size: 0.92rem;
+}
+
+.inputError {
+  border-color: #dc2626;
+}
+
+.errorCampo {
+  color: #dc2626;
+  font-size: 0.78rem;
+  margin: 0.25rem 0 0;
+  overflow-wrap: break-word;
+}
+
+.error {
+  color: #dc2626;
+  font-size: 0.92rem;
+  margin: 0.15rem 0 0;
+  overflow-wrap: break-word;
+}
+
+.boton,
+.botonSecundario {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: clamp(0.6rem, 0.5rem + 0.4vw, 0.7rem) 1rem;
+  border: none;
+  border-radius: 9px;
+  background: var(--color-primary);
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.92rem;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.boton:disabled {
+  opacity: 0.65;
+  cursor: default;
+}
+
+.linkTexto {
+  margin: 1rem 0 0;
+  text-align: center;
+  color: #4b5563;
+}
+
+.linkTexto a {
+  color: var(--color-primary);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.linkTexto a:hover {
+  text-decoration: underline;
+}
+
+.exitoBox {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 0.75rem 0 0.25rem;
+}
+
+.exitoTitulo {
+  margin: 0;
+  font-weight: 700;
+  font-size: 1.05rem;
+}
+
+.exitoTexto {
+  margin: 0;
+  color: #4b5563;
+  line-height: 1.5;
+  overflow-wrap: break-word;
+}

@@ -1,0 +1,260 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.page {
+  flex: 1;
+  max-width: 64rem;
+  margin: 0 auto;
+  padding: clamp(0.75rem, 0.4rem + 1.5vw, 1rem);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  align-items: start;
+}
+
+.layout > div {
+  min-width: 0;
+}
+
+@media (max-width: 768px) {
+  .layout {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+}
+
+.titulo {
+  font-size: clamp(1.1rem, 1rem + 0.4vw, 1.25rem);
+  margin-bottom: 1rem;
+  padding-left: 0.5rem;
+  border-left: 3px solid var(--color-primary);
+}
+
+.vacio {
+  text-align: center;
+  color: #9ca3af;
+  margin: 0;
+}
+
+.vacioCentrado {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.25rem;
+  padding: 2rem 1rem 0;
+}
+
+.botonVacio {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.75rem 2rem;
+  border: none;
+  border-radius: 6px;
+  background: var(--color-primary);
+  color: var(--color-secondary);
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  text-decoration: none;
+  transition: opacity 0.15s;
+}
+
+.botonVacio:hover {
+  opacity: 0.9;
+}
+
+.items {
+  margin-bottom: 1rem;
+}
+
+.total {
+  text-align: right;
+  font-size: clamp(1.2rem, 1rem + 1vw, 1.5rem);
+  font-weight: 700;
+  padding-top: 0.75rem;
+  border-top: 2px solid var(--color-border);
+  margin-bottom: 1.5rem;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.input {
+  width: 100%;
+  padding: 0.625rem 0.625rem 0.625rem 2.5rem;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  font-size: 1rem;
+  box-sizing: border-box;
+}
+
+.inputWrapper {
+  position: relative;
+}
+
+.inputIcon {
+  position: absolute;
+  left: 0.625rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1rem;
+  pointer-events: none;
+}
+
+.resumenCompacto {
+  text-align: center;
+  padding: 0;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background: #f9fafb;
+  margin-bottom: 1rem;
+  overflow: hidden;
+}
+
+.resumenCompactoTexto {
+  font-size: 1rem;
+  font-weight: 600;
+  padding: 0.75rem;
+  margin: 0;
+}
+
+.avisoRetiro {
+  font-size: 0.75rem;
+  color: #6b7280;
+  padding: 0.5rem 0.75rem;
+  margin: 0;
+  border-top: 1px solid var(--color-border);
+}
+
+.alerta {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  background-color: #fff8e1;
+  border: 1px solid #f0e0a8;
+  color: #6b5300;
+  padding: clamp(0.65rem, 0.5rem + 0.7vw, 0.75rem)
+    clamp(0.75rem, 0.6rem + 0.7vw, 1rem);
+  border-radius: 8px;
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+  overflow-wrap: break-word;
+}
+
+.alertaIcono {
+  flex-shrink: 0;
+  display: flex;
+}
+
+.error {
+  color: #dc2626;
+  font-size: 0.9rem;
+  margin-bottom: 0.75rem;
+  overflow-wrap: break-word;
+}
+
+.errorCampo {
+  color: #dc2626;
+  font-size: 0.78rem;
+  margin: 0.25rem 0 0;
+  overflow-wrap: break-word;
+}
+
+.inputError {
+  border-color: #dc2626;
+}
+
+.boton {
+  display: inline-block;
+  width: 100%;
+  padding: clamp(0.85rem, 0.7rem + 0.7vw, 1rem);
+  border: none;
+  border-radius: 6px;
+  background: var(--color-primary);
+  color: #fff;
+  font-weight: 600;
+  font-size: 1.05rem;
+  cursor: pointer;
+  text-align: center;
+  text-decoration: none;
+}
+
+.botonSeguirComprando {
+  display: inline-block;
+  max-width: fit-content;
+  padding: 0.6rem 1.5rem;
+  border: none;
+  border-radius: 6px;
+  background: var(--color-primary);
+  color: #fff;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  text-align: center;
+  text-decoration: none;
+}
+
+.boton:disabled,
+.botonSeguirComprando:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.confirmacion {
+  text-align: center;
+  padding: clamp(2rem, 1.5rem + 2.5vw, 3rem) 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  align-items: center;
+}
+
+.badgeConfianza {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.destacadosVacio {
+  margin-top: -1.5rem;
+}
+
+.badgeIcono {
+  display: flex;
+  color: #000;
+  flex-shrink: 0;
+}
+
+.badgeIcono svg {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.badgeTexto {
+  font-weight: 600;
+  font-size: 0.8rem;
+  margin: 0;
+  color: var(--color-text);
+  overflow-wrap: break-word;
+}
+
+.badgeSubtexto {
+  font-size: 0.7rem;
+  color: #6b7280;
+  margin: 0.1rem 0 0;
+  overflow-wrap: break-word;
+}
