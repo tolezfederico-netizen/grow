@@ -1,71 +1,91 @@
-import { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
-import { usePaneles } from '../../hooks/usePaneles'
-import { useSucursales } from '../../hooks/useSucursales'
-import { parseRedSocial, RedSocialIcon } from '../../utils/redesSociales'
-import styles from './Footer.module.css'
+import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import { usePaneles } from "../../hooks/usePaneles";
+import { useSucursales } from "../../hooks/useSucursales";
+import { parseRedSocial, RedSocialIcon } from "../../utils/redesSociales";
+import styles from "./Footer.module.css";
 
 export default function Footer() {
-  const { paneles, config, loading } = usePaneles()
-  const sucursales = useSucursales()
+  const { paneles, config, loading } = usePaneles();
+  const sucursales = useSucursales();
 
-  if (loading) return null
+  if (loading) return null;
 
   const sucursalesList = config
     ? [
         { nombre: config.nombre_tienda, direccion: config.direccion },
-        ...sucursales.map(s => ({ nombre: s.nombre, direccion: s.direccion })),
+        ...sucursales.map((s) => ({
+          nombre: s.nombre,
+          direccion: s.direccion,
+        })),
       ]
-    : []
+    : [];
 
-  if (loading) return null
+  if (loading) return null;
 
   return (
     <footer className={styles.footer}>
       <div className={styles.inner}>
         {paneles.length > 0 && (
-          <section className={styles.section}>
+          <section className={`${styles.section} ${styles.categorias}`}>
             <h3 className={styles.sectionTitle}>Categorías</h3>
-            {paneles.map(p => (
-              <Link key={p.id} to={`/productos/panel/${p.id}`} className={styles.link}>{p.titulo}</Link>
+            {paneles.map((p) => (
+              <Link
+                key={p.id}
+                to={`/productos/panel/${p.id}`}
+                className={styles.link}
+              >
+                {p.titulo}
+              </Link>
             ))}
           </section>
         )}
 
         {sucursalesList.length > 0 && (
-          <section className={styles.section}>
+          <section className={`${styles.section} ${styles.contacto}`}>
             <h3 className={styles.sectionTitle}>Contacto</h3>
-            {sucursalesList.map(s => (
+            {sucursalesList.map((s) => (
               <div key={s.direccion} className={styles.sucursalBlock}>
                 <p className={styles.sucursalNombre}>{s.nombre}</p>
                 <p className={styles.text}>{s.direccion}</p>
               </div>
             ))}
             <p className={styles.text}>{config!.telefono}</p>
-            {config!.email_contacto && <p className={styles.text}>{config!.email_contacto}</p>}
+            {config!.email_contacto && (
+              <p className={styles.text}>{config!.email_contacto}</p>
+            )}
           </section>
         )}
 
         {config && Object.keys(config.redes_sociales).length > 0 && (
-          <section className={styles.section}>
+          <section className={`${styles.section} ${styles.redesSection}`}>
             <h3 className={styles.sectionTitle}>Sigamos conectados</h3>
             <div className={styles.redes}>
               {Object.entries(config.redes_sociales).map(([red, url]) => {
-                const parsed = parseRedSocial(red, url)
-                if (!parsed) return null
+                const parsed = parseRedSocial(red, url);
+                if (!parsed) return null;
                 return (
-                  <a key={red} href={parsed.href} target="_blank" rel="noopener noreferrer" className={styles.red}>
+                  <a
+                    key={red}
+                    href={parsed.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={styles.red}
+                  >
                     <RedSocialIcon red={red} />
                     <span>{parsed.label}</span>
                   </a>
-                )
+                );
               })}
             </div>
           </section>
         )}
       </div>
 
-      <p className={styles.copy}>Copyright Grow Shop - 2026. Todos los derechos reservados Creado por Garel</p>
+      <p className={styles.copy}>
+        Copyright Grow Shop - 2026. Todos los derechos reservados Creado por
+        Garel
+      </p>
     </footer>
-  )
+  );
 }

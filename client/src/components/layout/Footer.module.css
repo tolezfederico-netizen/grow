@@ -11,7 +11,6 @@
   max-width: 64rem;
   margin: 0 auto;
 }
-
 .section {
   flex: 1 1 14rem;
   display: flex;
@@ -89,4 +88,59 @@
   padding: 0.5rem 1rem;
   margin: 1.25rem -1rem 0;
   opacity: 1;
+}
+
+/* Mobile (<=60rem): en vez de las 3 secciones apiladas verticalmente
+   (comportamiento por defecto de .inner con flex-wrap), se arma un
+   grid de 2 columnas: Categorías + Sigamos conectados a la izquierda
+   (ambas listas de ítems cortos, longitud de contenido pareja), y
+   Contacto sola a la derecha (necesita más ancho por las direcciones
+   completas). Requiere las clases .categorias/.contacto/.redesSection
+   agregadas en Footer.tsx para poder ubicar cada sección en su área
+   del grid — .section (flex) no se toca para no afectar desktop. */
+@media (max-width: 60rem) {
+  .inner {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas:
+      "cat cont"
+      "red cont";
+    gap: 1.5rem 1rem;
+    align-items: start;
+  }
+
+  .section {
+    flex: unset;
+  }
+
+  .categorias {
+    grid-area: cat;
+  }
+
+  .contacto {
+    grid-area: cont;
+  }
+
+  .redesSection {
+    grid-area: red;
+  }
+}
+
+/* Pantallas muy anchas (2000px+): el max-width fijo de 64rem dejaba
+   demasiado espacio vacío a los costados en monitores grandes /
+   ultra-wide, con todo el contenido apretado en el centro. Se
+   ensancha progresivamente el bloque de contenido, manteniendo el
+   mismo layout de 3 columnas pero más separadas entre sí. */
+@media (min-width: 125rem) {
+  .inner {
+    max-width: 90rem;
+    gap: 2.5rem;
+  }
+}
+
+@media (min-width: 160rem) {
+  .inner {
+    max-width: 110rem;
+    gap: 3.5rem;
+  }
 }
