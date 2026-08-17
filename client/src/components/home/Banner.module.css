@@ -290,6 +290,7 @@
   width: clamp(1.4rem, 1.1rem + 0.8vw, 1.7rem);
   height: clamp(1.4rem, 1.1rem + 0.8vw, 1.7rem);
   margin-top: 0.1rem;
+  color: var(--color-primary);
 }
 
 .cardText {
@@ -385,19 +386,30 @@
 /* Layout centrado en vez de fila con todo a la izquierda, desde
    el mismo punto en que las cards pasan a 1 columna (79.5625rem
    / 1273px) — incluye textos un poco más chicos en este rango
-   intermedio, antes del ajuste fino de phone chico (30rem). */
+   intermedio, antes del ajuste fino de phone chico (30rem).
+   Mismo criterio visual que mobile: fondo decorativo oculto,
+   padding/gap comprimidos, ícono chico, bordes redondeados y
+   sombra liviana (ícono ya sale en amarillo por la regla base
+   de .cardIcon, sin necesidad de repetirlo acá). */
 @media (max-width: 79.5625rem) {
+  .cardBgDecorativo {
+    display: none;
+  }
+
   .cardContenido {
     flex-direction: column;
     align-items: center;
     text-align: center;
-    padding: 1rem 1rem 1.3rem;
+    padding: 0.6rem 0.8rem 0.7rem;
+    gap: 0.25rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
   }
 
   .cardIcon {
-    width: 1.8rem;
-    height: 1.8rem;
-    margin: 0 0 0.3rem;
+    width: 1.3rem;
+    height: 1.3rem;
+    margin: 0 0 0.15rem;
   }
 
   .cardText {
@@ -433,7 +445,6 @@
     justify-content: center;
   }
 }
-
 /* Phone chico — ajuste fino adicional sobre el layout centrado.
    Los valores acá deben ser <= los del bloque de 79.5625rem para
    mantener la progresión de achicado hacia mobile. */
@@ -463,5 +474,70 @@
 
   .redLabel {
     font-size: 0.58rem;
+  }
+}
+
+/* Mobile real (<=60rem): Opción B — layout centrado heredado del
+   bloque de 79.5625rem, comprimido (menos padding/gap, ícono chico,
+   sin fondo decorativo extra) + acento visual: ícono en amarillo
+   (var(--color-primary)) contra fondo negro, mismo criterio
+   cromático que .topBar, para dar jerarquía label/valor. Bordes
+   redondeados y sombra liviana para no verse plano contra el amarillo
+   de fondo. Va al final del archivo a propósito, para ganar por
+   cascada sobre los bloques de 79.5625rem y 30rem sin tocarlos. */
+@media (max-width: 60rem) {
+  .cards {
+    gap: 0.4rem;
+  }
+
+  .cardBgDecorativo {
+    display: none;
+  }
+
+  .cardContenido {
+    padding: 0.55rem 0.7rem 0.65rem;
+    gap: 0.2rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  }
+
+  .cardIcon {
+    width: 1.15rem;
+    height: 1.15rem;
+    margin: 0 0 0.1rem;
+  }
+
+  .cardText,
+  .cardBody {
+    gap: 0.2rem;
+  }
+}
+/* Mobile real (<=60rem): botones de sucursal y "Abrir en Maps" más
+   chicos, para que las sucursales quepan en una sola fila y no se
+   apilen tapando el mapa. El overlay "Abrir en Maps" (mapOverlay)
+   seguía siendo demasiado grande y le restaba espacio vertical al
+   selector de sucursales, forzando su apilamiento — se lo achica
+   mucho más y se separan mejor ambas posiciones (bottom) para que
+   no se compriman entre sí. */
+@media (max-width: 60rem) {
+  .sucursalSelector {
+    bottom: 2.5rem;
+    gap: 0.3rem;
+  }
+
+  .sucursalBtn {
+    padding: 0.3rem 0.5rem;
+    font-size: 0.62rem;
+    flex-shrink: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .mapOverlay {
+    padding: 0.25rem 0.55rem;
+    font-size: 0.6rem;
+    bottom: 0.4rem;
+    border-radius: 5px;
   }
 }
