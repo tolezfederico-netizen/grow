@@ -1,0 +1,25 @@
+name: Supabase Keep Alive
+
+"on":
+  schedule:
+    # Corre cada 3 días a las 09:00 UTC
+    - cron: "0 9 */3 * *"
+  workflow_dispatch: {} # permite ejecutarlo manualmente desde la pestaña Actions
+
+jobs:
+  ping-supabase:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Supabase REST endpoint
+        run: |
+          response=$(curl -s -o /dev/null -w "%{http_code}" \
+            "${{ secrets.SUPABASE_URL }}/rest/v1/" \
+            -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}")
+          echo "Respuesta HTTP: $response"
+          if [ "$response" -ge 200 ] && [ "$response" -lt 500 ]; then
+            echo "Ping exitoso (Supabase respondió, base activa)."
+          else
+            echo "Advertencia: respuesta inesperada ($response)."
+            exit 1
+          fi
