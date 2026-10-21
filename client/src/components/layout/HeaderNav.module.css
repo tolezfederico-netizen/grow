@@ -1,5 +1,8 @@
+/* wrap: la cantidad de paneles la define cada negocio; si no entran en una
+   línea, pasan a la siguiente en vez de desbordar la página */
 .nav {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 0.2rem;
   padding: 0.3rem 1rem;
@@ -142,4 +145,30 @@
 .navScrolled .sucursalesBtn {
   padding: 0.16rem 0.42rem;
   font-size: 0.62rem;
+}
+
+/* Anchos medianos (antes de la hamburguesa): todo más compacto para que
+   paneles, Términos y Ayuda entren en una línea */
+@media (max-width: 60rem) {
+  .nav,
+  .navScrolled {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+
+  .item,
+  .navScrolled .item {
+    gap: 0.2rem;
+    padding: 0.24rem 0.38rem;
+    font-size: 0.64rem;
+  }
+
+  .accionesDerecha {
+    gap: 0.3rem;
+  }
+
+  .sucursalesBtn {
+    padding: 0.2rem 0.4rem;
+    font-size: 0.62rem;
+  }
 }
