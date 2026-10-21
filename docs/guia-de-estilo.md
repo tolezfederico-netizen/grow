@@ -71,7 +71,7 @@ En cada iteración el pedido fue achicar. Referencias que funcionaron:
 
 ### 3.6 Fondo punteado
 - Usar siempre las variables `--punteado-*`.
-- Está en: el desplegable de categorías, la sección del Banner, la lista de productos del carrito y el cuerpo del menú mobile.
+- Está en: el desplegable de categorías, la sección del Banner, la lista de productos del carrito, el cuerpo del menú mobile y la franja del detalle de producto.
 - Va **detrás de zonas con tarjetas blancas** encima. **No** usarlo en cada tarjeta, ni detrás de texto chico, totales o botones de acción.
 
 ## 4. Lo que el usuario rechazó (no repetir)
@@ -96,7 +96,7 @@ En cada iteración el pedido fue achicar. Referencias que funcionaron:
 | Footer | ✅ | `layout/Footer` |
 | Carrito lateral | ✅ | `cart/CartDrawer`, `cart/CartItemRow` |
 | Catálogo `/productos` (barra lateral, badge "Compra Protegida", grilla) | ✅ | `pages/ProductsPage`, `product/ArticulosSidebar` |
-| Detalle de producto | ⏳ | `pages/ProductDetailPage` |
+| Detalle de producto (franja punteada con viñetas de imagen, compra y especificaciones) | ✅ | `pages/ProductDetailPage` |
 | Checkout `/resumen` y modal de confirmación | ⏳ | `pages/ResumePage`, `common/ConfirmarPedidoModal` |
 | Cuenta (login, registro, Mi Cuenta, detalle de pedido) | ⏳ | `pages/LoginPage`, `RegisterPage`, `MiCuentaPage`, `common/PedidoDetalleModal` |
 | Términos y condiciones | ⏳ | `pages/TerminosCondicionesPage` |
