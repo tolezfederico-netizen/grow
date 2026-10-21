@@ -16,6 +16,7 @@ Todo sale de `client/src/index.css` (`:root`). No hardcodear colores ni valores 
 | `--color-secondary` | `#221E1F` (negro) | Bordes, texto, sombras, barra de categorías |
 | `--color-background` | `#FFFFFF` | Fondos de tarjetas, botones secundarios |
 | `--color-background-muted` | `#F3F4F6` | Placeholders, estados deshabilitados |
+| `--color-error` | `#DC2626` | Borde y texto de errores de formulario |
 | `--font-display` | Archivo Black | Títulos de sección, navegación, precios, totales, nombres en mayúsculas |
 | `--font-ui` | Space Grotesk | Todo el resto del texto |
 | `--brutal-border` | `2px solid` negro | Borde estándar |
@@ -98,7 +99,7 @@ En cada iteración el pedido fue achicar. Referencias que funcionaron:
 | Catálogo `/productos` (barra lateral, badge "Compra Protegida", grilla) | ✅ | `pages/ProductsPage`, `product/ArticulosSidebar` |
 | Detalle de producto (franja punteada con viñetas de imagen, compra y especificaciones) | ✅ | `pages/ProductDetailPage` |
 | Checkout `/resumen` y modal de confirmación | ⏳ | `pages/ResumePage`, `common/ConfirmarPedidoModal` |
-| Cuenta (login, registro, Mi Cuenta, detalle de pedido) | ⏳ | `pages/LoginPage`, `RegisterPage`, `MiCuentaPage`, `common/PedidoDetalleModal` |
+| Cuenta (login, registro, Mi Cuenta, detalle de pedido) | ⏳ (login y registro listos: comparten el mismo CSS) | `pages/LoginPage`, `RegisterPage`, `MiCuentaPage`, `common/PedidoDetalleModal` |
 | Términos y condiciones | ⏳ | `pages/TerminosCondicionesPage` |
 | Botones flotantes (WhatsApp, volver arriba): en mobile tapan parte del footer | ⏳ | `layout/WhatsappFloatButton`, `layout/ScrollToTopButton` |
 | Menú hamburguesa mobile (drawer) | ✅ (mismo esquema que el carrito lateral) | `layout/HeaderTop` (sección drawer) |

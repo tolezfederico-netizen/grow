@@ -13,6 +13,7 @@
   --color-text: #111827;
   --color-border: #e5e7eb;
   --color-background-muted: #f3f4f6;
+  --color-error: #dc2626;
 
   /* Estilo neo-brutalista (bordes gruesos y sombras duras desplazadas) */
   --font-display: "Archivo Black", system-ui, sans-serif;

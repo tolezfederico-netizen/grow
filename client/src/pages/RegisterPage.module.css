@@ -1,144 +1,190 @@
+/* Franja punteada de fondo con el formulario como viñeta blanca encima */
 .wrapper {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  background: linear-gradient(180deg, #f7f3ea 0%, #fffaf2 100%);
+  background-color: var(--punteado-color);
+  background-image: var(--punteado-imagen);
+  background-size: var(--punteado-tamano);
+  font-family: var(--font-ui);
+  color: var(--color-secondary);
 }
 
 .page {
   flex: 1;
   display: grid;
   place-items: center;
-  padding: clamp(1.25rem, 0.8rem + 2vw, 2rem) clamp(0.75rem, 0.5rem + 1vw, 1rem);
+  padding: 1.75rem 1rem 0;
 }
 
 .card {
-  width: min(100%, 26rem);
-  background: #ffffff;
-  border: 1px solid var(--color-border);
-  border-radius: 16px;
-  padding: clamp(1rem, 0.85rem + 0.6vw, 1.1rem);
-  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.08);
+  width: min(100%, 23rem);
+  padding: 1.1rem 1.1rem 1.2rem;
+  border: var(--brutal-border);
+  border-radius: var(--brutal-radius);
+  background: var(--color-background);
+  box-shadow: var(--brutal-shadow);
 }
 
-.kicker {
-  margin: 0 0 0.25rem;
-  color: var(--color-primary);
-  font-size: 0.85rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
+/* Mismo título que las secciones: resaltador amarillo que sigue cada línea */
 .title {
-  margin: 0 0 0.4rem;
-  font-size: clamp(1.2rem, 1.05rem + 0.6vw, 1.4rem);
+  display: inline;
+  padding: 0 0.2rem;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 400;
+  line-height: 1.4;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  background: linear-gradient(transparent 58%, var(--color-primary) 58%);
 }
 
 .text {
-  margin: 0 0 1rem;
-  color: #6b7280;
+  margin: 0.45rem 0 0.9rem;
+  font-size: 0.8rem;
+  font-weight: 500;
   line-height: 1.45;
-  font-size: 0.9rem;
+  opacity: 0.7;
 }
+
 .form {
   display: flex;
   flex-direction: column;
-  gap: 0.65rem;
+  gap: 0.6rem;
 }
 
 .inputWrapper {
   position: relative;
 }
 
+/* Alto fijo igual al del input: el ícono no se mueve cuando aparece el error */
 .inputIcon {
   position: absolute;
-  left: 0.7rem;
-  top: 50%;
-  transform: translateY(-50%);
+  left: 0.6rem;
+  top: 0;
+  height: 2.3rem;
+  display: flex;
+  align-items: center;
+  color: var(--color-secondary);
   pointer-events: none;
 }
 
 .input {
   width: 100%;
+  height: 2.3rem;
   box-sizing: border-box;
-  padding: 0.6rem 0.6rem 0.6rem 2.15rem;
-  border: 1px solid var(--color-border);
-  border-radius: 9px;
-  font-size: 0.92rem;
+  padding: 0 0.6rem 0 2.05rem;
+  border: var(--brutal-border);
+  border-radius: 6px;
+  background: var(--color-background);
+  color: var(--color-secondary);
+  font-family: var(--font-ui);
+  font-size: 0.82rem;
+  font-weight: 500;
+  outline: none;
+}
+
+.input::placeholder {
+  color: var(--color-secondary);
+  opacity: 0.5;
+}
+
+.input:focus {
+  box-shadow: var(--brutal-shadow-sm);
 }
 
 .inputError {
-  border-color: #dc2626;
+  border-color: var(--color-error);
 }
 
 .errorCampo {
-  color: #dc2626;
-  font-size: 0.78rem;
   margin: 0.25rem 0 0;
+  color: var(--color-error);
+  font-size: 0.72rem;
+  font-weight: 600;
   overflow-wrap: break-word;
 }
 
 .error {
-  color: #dc2626;
-  font-size: 0.92rem;
-  margin: 0.15rem 0 0;
+  margin: 0.1rem 0 0;
+  color: var(--color-error);
+  font-size: 0.8rem;
+  font-weight: 600;
   overflow-wrap: break-word;
 }
 
+/* Botón principal (amarillo) */
 .boton,
 .botonSecundario {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   width: 100%;
-  padding: clamp(0.6rem, 0.5rem + 0.4vw, 0.7rem) 1rem;
-  border: none;
-  border-radius: 9px;
+  margin-top: 0.15rem;
+  padding: 0.6rem 1rem;
+  border: var(--brutal-border);
+  border-radius: 6px;
   background: var(--color-primary);
-  color: #fff;
+  color: var(--color-secondary);
+  box-shadow: var(--brutal-shadow-sm);
+  font-family: var(--font-ui);
+  font-size: 0.85rem;
   font-weight: 700;
-  font-size: 0.92rem;
+  line-height: 1;
   text-decoration: none;
   cursor: pointer;
 }
+
 .boton:disabled {
-  opacity: 0.65;
-  cursor: default;
+  border-style: dashed;
+  background: var(--color-background-muted);
+  box-shadow: none;
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .linkTexto {
-  margin: 1rem 0 0;
+  margin: 0.9rem 0 0;
   text-align: center;
-  color: #4b5563;
+  font-size: 0.8rem;
+  font-weight: 500;
 }
 
 .linkTexto a {
-  color: var(--color-primary);
+  color: var(--color-secondary);
   font-weight: 700;
-  text-decoration: none;
-}
-
-.linkTexto a:hover {
   text-decoration: underline;
+  text-decoration-color: var(--color-primary);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
 }
 
 .exitoBox {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
-  padding: 0.75rem 0 0.25rem;
+  gap: 0.6rem;
+  padding: 0.25rem 0 0.1rem;
 }
 
 .exitoTitulo {
   margin: 0;
-  font-weight: 700;
-  font-size: 1.05rem;
+  font-family: var(--font-display);
+  font-size: 0.9rem;
+  text-transform: uppercase;
 }
 
 .exitoTexto {
   margin: 0;
-  color: #4b5563;
+  font-size: 0.8rem;
   line-height: 1.5;
+  opacity: 0.75;
   overflow-wrap: break-word;
+}
+
+@media (max-width: 37.5rem) {
+  .page {
+    padding: 1.25rem 0.75rem 0;
+  }
 }
