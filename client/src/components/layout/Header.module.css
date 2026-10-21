@@ -17,12 +17,9 @@
   left: 0;
   right: 0;
   z-index: 60;
-  background-color: color-mix(in srgb, var(--color-primary) 8%, var(--color-background));
-  background-image: radial-gradient(
-    color-mix(in srgb, var(--color-secondary) 14%, transparent) 1.2px,
-    transparent 1.2px
-  );
-  background-size: 18px 18px;
+  background-color: var(--punteado-color);
+  background-image: var(--punteado-imagen);
+  background-size: var(--punteado-tamano);
   border-bottom: var(--brutal-border);
   box-shadow: 0 10px 0 color-mix(in srgb, var(--color-secondary) 10%, transparent);
 }

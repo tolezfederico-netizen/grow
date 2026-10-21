@@ -4,12 +4,9 @@
   padding: 1.75rem 1rem 2rem;
   border-top: var(--brutal-border);
   border-bottom: var(--brutal-border);
-  background-color: color-mix(in srgb, var(--color-primary) 8%, var(--color-background));
-  background-image: radial-gradient(
-    color-mix(in srgb, var(--color-secondary) 14%, transparent) 1.2px,
-    transparent 1.2px
-  );
-  background-size: 18px 18px;
+  background-color: var(--punteado-color);
+  background-image: var(--punteado-imagen);
+  background-size: var(--punteado-tamano);
   font-family: var(--font-ui);
 }
 

@@ -23,6 +23,14 @@
   --brutal-shadow-sm: 2px 2px 0 var(--color-secondary);
   --brutal-shadow-lg: 4px 4px 0 var(--color-secondary);
   --brutal-radius: 8px;
+
+  /* Fondo punteado crema (desplegable de categorías, Banner, carrito) */
+  --punteado-color: color-mix(in srgb, var(--color-primary) 8%, var(--color-background));
+  --punteado-imagen: radial-gradient(
+    color-mix(in srgb, var(--color-secondary) 14%, transparent) 1.2px,
+    transparent 1.2px
+  );
+  --punteado-tamano: 18px 18px;
 }
 
 body {
