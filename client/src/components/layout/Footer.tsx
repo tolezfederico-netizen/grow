@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { usePaneles } from "../../hooks/usePaneles";
 import { useSucursales } from "../../hooks/useSucursales";
 import { parseRedSocial, RedSocialIcon } from "../../utils/redesSociales";
+import logo from "../../assets/logo.png";
 import styles from "./Footer.module.css";
 
 export default function Footer() {
@@ -26,18 +27,30 @@ export default function Footer() {
   return (
     <footer className={styles.footer}>
       <div className={styles.inner}>
+        <section className={`${styles.section} ${styles.marca}`}>
+          <Link to="/" className={styles.logo}>
+            <img
+              src={logo}
+              alt={config?.nombre_tienda ?? "Grow"}
+              className={styles.logoImg}
+            />
+          </Link>
+        </section>
+
         {paneles.length > 0 && (
           <section className={`${styles.section} ${styles.categorias}`}>
             <h3 className={styles.sectionTitle}>Categorías</h3>
-            {paneles.map((p) => (
-              <Link
-                key={p.id}
-                to={`/productos/panel/${p.id}`}
-                className={styles.link}
-              >
-                {p.titulo}
-              </Link>
-            ))}
+            <div className={styles.categoriasLinks}>
+              {paneles.map((p) => (
+                <Link
+                  key={p.id}
+                  to={`/productos/panel/${p.id}`}
+                  className={styles.link}
+                >
+                  {p.titulo}
+                </Link>
+              ))}
+            </div>
           </section>
         )}
 
