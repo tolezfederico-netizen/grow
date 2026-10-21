@@ -23,7 +23,7 @@
 
 .imgContainer {
   width: 100%;
-  aspect-ratio: 4 / 3;
+  aspect-ratio: 3 / 2;
   overflow: hidden;
   background: var(--color-background);
   border-bottom: var(--brutal-border);
@@ -95,6 +95,12 @@
   margin-top: 0.1rem;
 }
 
+/* Sin descripción: el precio reserva su línea (alto de .desc + gap) para quedar
+   siempre a la misma altura en todas las tarjetas */
+.nombre + .precio {
+  margin-top: calc(0.1rem + 0.66rem * 1.35 + 0.3rem);
+}
+
 .select {
   width: 100%;
   padding: 0.28rem 1.5rem 0.28rem 0.4rem;
@@ -118,13 +124,10 @@
   box-shadow: var(--brutal-shadow-sm);
 }
 
+/* Sin variantes no se reserva el espacio del select: en cada fila las tarjetas
+   se estiran parejo y los botones quedan abajo por el margin-top: auto */
 .selectPlaceholder {
-  padding: 0.28rem;
-  border: var(--brutal-border-thin);
-  border-radius: 6px;
-  font-size: 0.68rem;
-  visibility: hidden;
-  pointer-events: none;
+  display: none;
 }
 
 .acciones {

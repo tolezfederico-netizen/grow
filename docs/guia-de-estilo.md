@@ -55,7 +55,8 @@ En cada iteración el pedido fue achicar. Referencias que funcionaron:
 
 ### 3.3 Tarjetas
 - **En fila o grilla** (productos, reseñas, viñetas del Banner, productos del carrito): borde parejo en los 4 lados y **sin sombra en reposo**. Una sombra dura en tarjetas una al lado de la otra se lee como "borde más grueso a la derecha" y confunde.
-- La tarjeta de producto (`ProductCard`) se levanta al pasar el mouse (`translate(-2px, -2px)` + `--brutal-shadow`).
+- La tarjeta de producto (`ProductCard`) se levanta al pasar el mouse (`translate(-2px, -2px)` + `--brutal-shadow`) **solo en Destacados**. En la grilla del catálogo (`/productos`) el hover está anulado desde `ProductsPage.module.css`: con muchas tarjetas, el efecto constante resta profesionalismo.
+- Precio siempre a la misma altura: el título reserva 2 líneas y, si no hay descripción, el precio reserva su línea (`.nombre + .precio`).
 - Excepción: las tarjetas de categoría del desplegable del header (`CategoryCard`) tienen sombra en reposo, se levantan en hover y el pie se pinta de amarillo. Al usuario le gusta ese efecto ahí.
 - Las imágenes van con `object-fit: contain` y un poco de padding, sobre blanco, sin recortar.
 
@@ -94,7 +95,7 @@ En cada iteración el pedido fue achicar. Referencias que funcionaron:
 | Reseñas | ✅ | `home/ReviewsCarousel` |
 | Footer | ✅ | `layout/Footer` |
 | Carrito lateral | ✅ | `cart/CartDrawer`, `cart/CartItemRow` |
-| Catálogo `/productos` (barra lateral, badge "Compra Protegida", grilla) | ⏳ (la tarjeta y la grilla ya se ajustaron) | `pages/ProductsPage`, `product/ArticulosSidebar` |
+| Catálogo `/productos` (barra lateral, badge "Compra Protegida", grilla) | ✅ | `pages/ProductsPage`, `product/ArticulosSidebar` |
 | Detalle de producto | ⏳ | `pages/ProductDetailPage` |
 | Checkout `/resumen` y modal de confirmación | ⏳ | `pages/ResumePage`, `common/ConfirmarPedidoModal` |
 | Cuenta (login, registro, Mi Cuenta, detalle de pedido) | ⏳ | `pages/LoginPage`, `RegisterPage`, `MiCuentaPage`, `common/PedidoDetalleModal` |
