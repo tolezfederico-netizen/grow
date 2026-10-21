@@ -17,14 +17,13 @@ interface ProductoData {
   estado: string
 }
 
+// Cuántas tarjetas entran apuntando a ~200px por tarjeta (descontando flechas y márgenes)
+const ANCHO_TARJETA = 200
+const ESPACIO_FLECHAS = 120
+
 function calcularVisibles(ancho: number): number {
-  if (ancho >= 2200) return 7
-  if (ancho >= 1800) return 6
-  if (ancho >= 1500) return 5
-  if (ancho >= 1200) return 4
-  if (ancho >= 900) return 3
-  if (ancho >= 600) return 2
-  return 1
+  const cantidad = Math.floor((ancho - ESPACIO_FLECHAS) / ANCHO_TARJETA)
+  return Math.min(8, Math.max(1, cantidad))
 }
 
 export default function FeaturedCarousel() {
