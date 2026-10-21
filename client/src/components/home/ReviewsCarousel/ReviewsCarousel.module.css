@@ -1,53 +1,64 @@
+/* Sección limpia: sin hovers ni animaciones, solo bordes */
 .seccion {
-  margin-top: clamp(2rem, 1.5rem + 1.5vw, 3rem);
-  padding: clamp(1.25rem, 0.9rem + 1.2vw, 2rem)
-    clamp(0.75rem, 0.5rem + 1vw, 1rem);
+  padding: 1.75rem 1rem 2.25rem;
+  font-family: var(--font-ui);
 }
 
+/* Mismo título que Destacados y Retiro en nuestros locales */
+/* inline + clone: si el título ocupa dos líneas, el resaltador sigue cada línea */
 .titulo {
-  font-size: clamp(1.05rem, 0.95rem + 0.4vw, 1.25rem);
-  font-weight: 700;
-  margin: 0 0 1rem;
-  padding-left: 0.5rem;
-  border-left: 3px solid var(--color-primary);
-  color: var(--color-text);
-}
-
-.track {
-  display: flex;
-  gap: clamp(0.75rem, 0.6rem + 0.6vw, 1rem);
-  overflow-x: auto;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-  cursor: grab;
-  touch-action: pan-y;
-  padding-bottom: 0.5rem;
+  display: inline;
+  margin-left: 0.6rem;
+  padding: 0 0.2rem;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 400;
+  line-height: 1.4;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  color: var(--color-secondary);
+  background: linear-gradient(transparent 58%, var(--color-primary) 58%);
 }
 
 .resumenPuntuacion {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  margin: 0 0 1rem;
-  padding-left: 0.5rem;
+  gap: 0.6rem;
+  margin: 0.7rem 0 1rem;
+  padding-left: 0.8rem;
 }
 
 .promedio {
-  font-size: clamp(1.4rem, 1.25rem + 0.6vw, 1.75rem);
-  font-weight: 800;
-  color: var(--color-text);
+  font-family: var(--font-display);
+  font-size: 1.6rem;
   line-height: 1;
+  color: var(--color-secondary);
 }
 
 .resumenEstrellas {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.45rem;
 }
 
 .totalResenas {
-  font-size: 0.8rem;
-  color: #9ca3af;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--color-secondary);
+  opacity: 0.6;
+}
+
+.track {
+  display: flex;
+  gap: 0.9rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  cursor: grab;
+  touch-action: pan-y;
+  padding: 0 0.15rem 0.5rem;
 }
 
 .track::-webkit-scrollbar {
@@ -59,37 +70,45 @@
 }
 
 .card {
-  flex: 0 0 clamp(230px, 65vw, 280px);
+  flex: 0 0 clamp(220px, 70vw, 260px);
   min-width: 0;
+  box-sizing: border-box;
   background: var(--color-background);
-  border: 1px solid var(--color-border);
-  border-radius: 0.75rem;
-  padding: clamp(1rem, 0.85rem + 0.6vw, 1.25rem);
+  border: var(--brutal-border);
+  border-radius: var(--brutal-radius);
+  padding: 1rem;
   display: flex;
   flex-direction: column;
-  gap: clamp(0.6rem, 0.5rem + 0.4vw, 0.75rem);
+  gap: 0.65rem;
 }
 
+/* Estrellas amarillas con contorno negro para que se lean sobre blanco */
 .estrellas {
   display: flex;
-  gap: 0.125rem;
+  gap: 0.1rem;
   flex-shrink: 0;
+}
+
+.estrellaLlena,
+.estrellaVacia {
+  font-size: 1.05rem;
+  line-height: 1;
+  -webkit-text-stroke: 0.6px var(--color-secondary);
 }
 
 .estrellaLlena {
   color: var(--color-primary);
-  font-size: 1.125rem;
 }
 
 .estrellaVacia {
-  color: var(--color-border);
-  font-size: 1.125rem;
+  color: var(--color-background);
 }
 
 .texto {
-  font-size: 0.875rem;
+  font-size: 0.82rem;
+  font-weight: 500;
   line-height: 1.5;
-  color: var(--color-text);
+  color: var(--color-secondary);
   display: -webkit-box;
   -webkit-line-clamp: 5;
   -webkit-box-orient: vertical;
@@ -103,14 +122,18 @@
 .autor {
   display: flex;
   align-items: center;
-  gap: 0.625rem;
+  gap: 0.6rem;
   flex-shrink: 0;
   min-width: 0;
+  padding-top: 0.65rem;
+  border-top: 1.5px dashed var(--color-secondary);
 }
 
 .avatar {
-  width: 40px;
-  height: 40px;
+  width: 34px;
+  height: 34px;
+  box-sizing: border-box;
+  border: var(--brutal-border);
   border-radius: 50%;
   object-fit: cover;
   flex-shrink: 0;
@@ -123,67 +146,75 @@
 }
 
 .autorNombre {
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: var(--color-text);
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--color-secondary);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .autorLabel {
-  font-size: 0.7rem;
-  color: #9ca3af;
+  font-size: 0.68rem;
+  font-weight: 500;
+  color: var(--color-secondary);
+  opacity: 0.6;
 }
+
+/* ---- Modal con la reseña completa ---- */
 
 .modalOverlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.55);
+  background: color-mix(in srgb, var(--color-secondary) 55%, transparent);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 200;
-  padding: clamp(0.75rem, 0.6rem + 0.6vw, 1rem);
+  padding: 1rem;
 }
 
 .modalCard {
   position: relative;
+  box-sizing: border-box;
   background: var(--color-background);
-  border-radius: 10px;
-  padding: clamp(1.5rem, 1.2rem + 1.2vw, 2rem)
-    clamp(1.1rem, 0.9rem + 0.8vw, 1.75rem)
-    clamp(1.1rem, 0.9rem + 0.8vw, 1.75rem);
+  border: var(--brutal-border);
+  border-radius: var(--brutal-radius);
+  box-shadow: var(--brutal-shadow-lg);
+  padding: 1.5rem 1.4rem 1.3rem;
   max-width: 28rem;
   width: 100%;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
+  font-family: var(--font-ui);
+}
+
+/* El foco lo recibe el modal al abrirse (useModalAccesible); el borde ya lo marca */
+.modalCard:focus {
+  outline: none;
 }
 
 .modalCerrar {
   position: absolute;
-  top: 0.75rem;
-  right: 0.75rem;
-  width: 2rem;
-  height: 2rem;
-  border: none;
-  border-radius: 50%;
-  background: var(--color-border);
-  color: var(--color-text);
+  top: 0.7rem;
+  right: 0.7rem;
+  width: 1.9rem;
+  height: 1.9rem;
+  border: var(--brutal-border);
+  border-radius: 6px;
+  background: var(--color-background);
+  color: var(--color-secondary);
   cursor: pointer;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
+  font-weight: 700;
   display: inline-flex;
   align-items: center;
   justify-content: center;
 }
 
-.modalCerrar:hover {
-  opacity: 0.8;
-}
-
 .modalTexto {
-  font-size: 1rem;
+  font-size: 0.95rem;
+  font-weight: 500;
   line-height: 1.6;
-  margin: 0.75rem 0 1.25rem;
-  color: var(--color-text);
+  margin: 0.75rem 0 1.1rem;
+  color: var(--color-secondary);
   overflow-wrap: break-word;
 }

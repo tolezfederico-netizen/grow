@@ -20,14 +20,17 @@
 
 /* ---- Título de la sección ---- */
 
+/* inline + clone: si el título ocupa dos líneas, el resaltador sigue cada línea */
 .titulo {
-  display: inline-block;
-  margin: 0 0 1rem 0.6rem;
+  display: inline;
+  margin-left: 0.6rem;
   padding: 0 0.2rem;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
   font-family: var(--font-display);
   font-size: 1.15rem;
   font-weight: 400;
-  line-height: 1.15;
+  line-height: 1.4;
   letter-spacing: 0.01em;
   text-transform: uppercase;
   color: var(--color-secondary);
@@ -39,6 +42,7 @@
 /* Escritorio: mapa a la izquierda; a la derecha el local arriba y
    horario + contacto lado a lado abajo */
 .grilla {
+  margin-top: 0.85rem;
   display: grid;
   grid-template-columns: minmax(0, 1.5fr) minmax(0, 0.5fr) minmax(0, 0.5fr);
   grid-template-areas:
