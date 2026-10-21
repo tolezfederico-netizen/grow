@@ -71,7 +71,7 @@ En cada iteración el pedido fue achicar. Referencias que funcionaron:
 
 ### 3.6 Fondo punteado
 - Usar siempre las variables `--punteado-*`.
-- Está en: el desplegable de categorías, la sección del Banner y la lista de productos del carrito.
+- Está en: el desplegable de categorías, la sección del Banner, la lista de productos del carrito y el cuerpo del menú mobile.
 - Va **detrás de zonas con tarjetas blancas** encima. **No** usarlo en cada tarjeta, ni detrás de texto chico, totales o botones de acción.
 
 ## 4. Lo que el usuario rechazó (no repetir)
@@ -101,7 +101,7 @@ En cada iteración el pedido fue achicar. Referencias que funcionaron:
 | Cuenta (login, registro, Mi Cuenta, detalle de pedido) | ⏳ | `pages/LoginPage`, `RegisterPage`, `MiCuentaPage`, `common/PedidoDetalleModal` |
 | Términos y condiciones | ⏳ | `pages/TerminosCondicionesPage` |
 | Botones flotantes (WhatsApp, volver arriba): en mobile tapan parte del footer | ⏳ | `layout/WhatsappFloatButton`, `layout/ScrollToTopButton` |
-| Menú hamburguesa mobile (drawer) | ⏳ | `layout/HeaderTop` (sección drawer) |
+| Menú hamburguesa mobile (drawer) | ✅ (mismo esquema que el carrito lateral) | `layout/HeaderTop` (sección drawer) |
 | Estados de carga y error | ⏳ | `common/LoadingState`, `common/ErrorState` |
 | Admin | ⏳ (sin empezar) | `admin/` |
 
