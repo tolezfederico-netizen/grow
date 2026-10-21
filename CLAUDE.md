@@ -6,6 +6,14 @@ Estado actual: proyecto terminado y desplegado, en etapa de venta (sin usuarios 
 
 Documentación de arquitectura completa (incremental por versión): [docs/arquitectura/](docs/arquitectura/README.md). La vigente es [arquitectura-v12.md](docs/arquitectura/arquitectura-v12.md); las bases de cada área están en v6, v7 y v8. Leerlas cuando haga falta el detalle o el porqué de una decisión.
 
+## Rediseño visual en curso (client)
+
+Estilo neo-brutalista / cómic. Antes de tocar estilos, leer [docs/guia-de-estilo.md](docs/guia-de-estilo.md) (variables, componentes, estado por sección y forma de trabajo). Lo esencial:
+- Solo estética: CSS primero; JSX solo si el layout lo exige; nunca cambiar lógica.
+- Usar las variables `--brutal-*`, `--font-*` y `--punteado-*` de `client/src/index.css`; nada hardcodeado.
+- Compacto. Botones sin hover (ni movimiento ni color). Resaltador amarillo solo en títulos de sección. Tarjetas en fila con borde parejo y sin sombra. Nada inclinado salvo el logo del header. Imágenes reales del admin, no íconos.
+- Verificar en el navegador (1366, ~1920, ~1000 y 375px), typecheck + build, y un commit por sección cuando el usuario lo pida.
+
 ## Principios rectores
 
 - **Genericidad**: ningún dato de un negocio particular en el código. Nombre, dirección, horarios, redes, sucursales, catálogo, mensaje de alerta, etc. viven en Supabase.
