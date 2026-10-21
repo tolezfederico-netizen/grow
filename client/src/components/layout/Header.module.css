@@ -3,12 +3,12 @@
   top: 0;
   z-index: 50;
   background: var(--color-background);
+  font-family: var(--font-ui);
 }
 
 .navGroup {
   position: relative;
   z-index: 56;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
 }
 
 .dropdown {
@@ -17,9 +17,14 @@
   left: 0;
   right: 0;
   z-index: 60;
-  background: var(--color-background);
-  border-bottom: 1px solid var(--color-border);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+  background-color: color-mix(in srgb, var(--color-primary) 8%, var(--color-background));
+  background-image: radial-gradient(
+    color-mix(in srgb, var(--color-secondary) 14%, transparent) 1.2px,
+    transparent 1.2px
+  );
+  background-size: 18px 18px;
+  border-bottom: var(--brutal-border);
+  box-shadow: 0 10px 0 color-mix(in srgb, var(--color-secondary) 10%, transparent);
 }
 
 .backdrop {

@@ -13,6 +13,16 @@
   --color-text: #111827;
   --color-border: #e5e7eb;
   --color-background-muted: #f3f4f6;
+
+  /* Estilo neo-brutalista (bordes gruesos y sombras duras desplazadas) */
+  --font-display: "Archivo Black", system-ui, sans-serif;
+  --font-ui: "Space Grotesk", system-ui, -apple-system, sans-serif;
+  --brutal-border: 2px solid var(--color-secondary);
+  --brutal-border-thin: 1.5px solid var(--color-secondary);
+  --brutal-shadow: 3px 3px 0 var(--color-secondary);
+  --brutal-shadow-sm: 2px 2px 0 var(--color-secondary);
+  --brutal-shadow-lg: 4px 4px 0 var(--color-secondary);
+  --brutal-radius: 8px;
 }
 
 body {

@@ -1,7 +1,8 @@
 .container {
   width: 100%;
-  background-color: var(--color-primary);
-  padding: 18px 0;
+  background-color: var(--color-secondary);
+  border-bottom: var(--brutal-border);
+  padding: 8px 0;
   overflow: hidden;
   position: relative;
 }
@@ -19,9 +20,11 @@
 
 .text {
   padding-right: 4rem;
-  color: white;
-  font-size: 1.15rem;
-  font-weight: 600;
+  color: var(--color-primary);
+  font-family: var(--font-display);
+  font-size: 0.8rem;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
 }
 
 @keyframes scroll {
