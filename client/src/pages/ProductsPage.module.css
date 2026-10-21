@@ -1,3 +1,17 @@
+/* Franja con fondo punteado de borde a borde: sidebar y tarjetas blancas encima.
+   min-height como en el detalle: con pocos productos el footer no queda a media pantalla */
+.franja {
+  min-height: 100vh;
+  background-color: var(--punteado-color);
+  background-image: var(--punteado-imagen);
+  background-size: var(--punteado-tamano);
+}
+
+/* El footer trae margin-top: acá lo anulamos para que la franja llegue hasta él */
+.franja + footer {
+  margin-top: 0;
+}
+
 .layout {
   display: flex;
   gap: 1.25rem;

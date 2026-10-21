@@ -141,51 +141,53 @@ export default function ProductsPage() {
 
   return (
     <>
-      <div className={styles.layout}>
-        <ArticulosSidebar
-          busqueda={busqueda}
-          setBusqueda={setBusqueda}
-          categoriaActiva={categoriaActual}
-          panelActivo={panelId}
-        />
-        <div className={styles.page}>
-          <div className={styles.barra}>
-            {(categoriaActual || panelId) && (
-              <Link to="/productos" className={styles.verTodos}>← Ver todos los productos</Link>
+      <div className={styles.franja}>
+        <div className={styles.layout}>
+          <ArticulosSidebar
+            busqueda={busqueda}
+            setBusqueda={setBusqueda}
+            categoriaActiva={categoriaActual}
+            panelActivo={panelId}
+          />
+          <div className={styles.page}>
+            <div className={styles.barra}>
+              {(categoriaActual || panelId) && (
+                <Link to="/productos" className={styles.verTodos}>← Ver todos los productos</Link>
+              )}
+
+              <div className={styles.badgeConfianza}>
+                <span className={styles.badgeIcono}>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                  </svg>
+                  <span className={styles.badgeTexto}>Compra Protegida</span>
+                </span>
+                <p className={styles.badgeSubtexto}>Tus datos cuidados durante toda la compra</p>
+              </div>
+            </div>
+
+            {productos.length === 0 ? (
+              <p className={styles.vacio}>No hay productos disponibles.</p>
+            ) : (
+              <div className={styles.grid}>
+                {productos.map(p => (
+                  <ProductCard
+                    key={p.id}
+                    id={p.id}
+                    nombre={p.nombre}
+                    descripcion={p.descripcion}
+                    imagenUrl={p.imagenUrl}
+                    tieneVariantes={p.tieneVariantes}
+                    precioBase={p.precioBase}
+                    variantes={p.variantes}
+                    precioMinimo={p.precioMinimo}
+                    estado={p.estado}
+                    onAddToCart={addItem}
+                  />
+                ))}
+              </div>
             )}
-
-            <div className={styles.badgeConfianza}>
-              <span className={styles.badgeIcono}>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-                </svg>
-                <span className={styles.badgeTexto}>Compra Protegida</span>
-              </span>
-              <p className={styles.badgeSubtexto}>Tus datos cuidados durante toda la compra</p>
-            </div>
           </div>
-
-          {productos.length === 0 ? (
-            <p className={styles.vacio}>No hay productos disponibles.</p>
-          ) : (
-            <div className={styles.grid}>
-              {productos.map(p => (
-                <ProductCard
-                  key={p.id}
-                  id={p.id}
-                  nombre={p.nombre}
-                  descripcion={p.descripcion}
-                  imagenUrl={p.imagenUrl}
-                  tieneVariantes={p.tieneVariantes}
-                  precioBase={p.precioBase}
-                  variantes={p.variantes}
-                  precioMinimo={p.precioMinimo}
-                  estado={p.estado}
-                  onAddToCart={addItem}
-                />
-              ))}
-            </div>
-          )}
         </div>
       </div>
       <Footer />

@@ -71,7 +71,7 @@ En cada iteración el pedido fue achicar. Referencias que funcionaron:
 
 ### 3.6 Fondo punteado
 - Usar siempre las variables `--punteado-*`.
-- Está en: el desplegable de categorías, la sección del Banner, la lista de productos del carrito, el cuerpo del menú mobile y la franja del detalle de producto.
+- Está en: el desplegable de categorías, la sección del Banner, la lista de productos del carrito, el cuerpo del menú mobile y las franjas del catálogo y del detalle de producto (estas dos anulan el `margin-top` del footer para que el punteado llegue hasta él).
 - Va **detrás de zonas con tarjetas blancas** encima. **No** usarlo en cada tarjeta, ni detrás de texto chico, totales o botones de acción.
 
 ## 4. Lo que el usuario rechazó (no repetir)
