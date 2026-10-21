@@ -1,177 +1,183 @@
+/* Sección armada como una página de cómic: viñetas con borde sobre fondo punteado */
 .banner {
+  margin-top: 2rem;
+  padding: 1.75rem 1rem 2rem;
+  border-top: var(--brutal-border);
+  border-bottom: var(--brutal-border);
+  background-color: color-mix(in srgb, var(--color-primary) 8%, var(--color-background));
+  background-image: radial-gradient(
+    color-mix(in srgb, var(--color-secondary) 14%, transparent) 1.2px,
+    transparent 1.2px
+  );
+  background-size: 18px 18px;
+  font-family: var(--font-ui);
+}
+
+.inner {
+  max-width: 80rem;
+  margin: 0 auto;
+}
+
+/* ---- Título de la sección ---- */
+
+.titulo {
+  display: inline-block;
+  margin: 0 0 1rem 0.6rem;
+  padding: 0 0.2rem;
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 400;
+  line-height: 1.15;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  color: var(--color-secondary);
+  background: linear-gradient(transparent 58%, var(--color-primary) 58%);
+}
+
+/* ---- Grilla de viñetas ---- */
+
+/* Escritorio: mapa a la izquierda; a la derecha el local arriba y
+   horario + contacto lado a lado abajo */
+.grilla {
   display: grid;
-  grid-template-columns: 1.2fr 1fr;
-  align-items: stretch;
-  min-height: 26rem;
-  max-width: 1920px;
-  margin: 3rem auto 0;
+  grid-template-columns: minmax(0, 1.5fr) minmax(0, 0.5fr) minmax(0, 0.5fr);
+  grid-template-areas:
+    "mapa local    local"
+    "mapa horario  contacto";
+  gap: 1rem;
 }
 
-@media (max-width: 60rem) {
-  .banner {
-    grid-template-columns: 1fr;
-    min-height: auto;
-  }
+.grillaSinContacto {
+  grid-template-areas:
+    "mapa local   local"
+    "mapa horario horario";
 }
 
-.mapCol {
+.panel {
   position: relative;
+  min-width: 0;
+  border: var(--brutal-border);
+  border-radius: var(--brutal-radius);
+  background: var(--color-background);
+  color: var(--color-secondary);
+}
+
+.panelMapa {
+  grid-area: mapa;
+  min-height: 22rem;
   overflow: hidden;
 }
 
-.mapLink {
-  display: block;
-  width: 100%;
-  height: 100%;
-  position: relative;
+.panelLocal {
+  grid-area: local;
+  padding: 1.1rem 1.1rem 1.2rem;
+  background: var(--color-primary);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.3rem;
 }
+
+.panelHorario {
+  grid-area: horario;
+}
+
+.panelContacto {
+  grid-area: contacto;
+}
+
+.panelHorario,
+.panelContacto {
+  padding: 0.85rem 0.9rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+/* ---- Viñeta del mapa ---- */
 
 .map {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   border: none;
   display: block;
-  min-height: 26rem;
 }
 
-@media (max-width: 60rem) {
-  .map {
-    min-height: 15rem;
-  }
-}
-
-.mapOverlay {
-  position: absolute;
-  bottom: 1rem;
-  left: 50%;
-  transform: translateX(-50%);
-  background: rgba(0, 0, 0, 0.7);
-  color: #fff;
-  padding: 0.6rem 1.25rem;
-  border-radius: 8px;
-  font-size: 0.85rem;
-  font-weight: 600;
-  pointer-events: auto;
-  cursor: pointer;
-  white-space: nowrap;
-  z-index: 2;
-}
-.sucursalSelector {
-  position: absolute;
-  bottom: 4rem;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 0.5rem;
-  max-width: calc(100% - 1.5rem);
-  z-index: 2;
-}
-
-.sucursalBtn {
-  padding: 0.5rem 1rem;
-  border: none;
-  border-radius: 6px;
-  background: rgba(0, 0, 0, 0.55);
-  color: #fff;
-  font-size: 0.8rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.15s;
-  white-space: nowrap;
-}
-
-.sucursalBtn:hover {
-  background: rgba(0, 0, 0, 0.7);
-}
-
-.sucursalBtnActivo {
-  background: var(--color-primary);
-  color: var(--color-secondary);
-}
-
-.info {
-  background: var(--color-primary);
-  color: #fff;
-  padding: 1.8rem 1.5rem;
-  display: flex;
-  flex-direction: column;
-}
-
-.infoInner {
-  width: 100%;
-  max-width: 34rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  gap: 0.35rem;
-  margin: 10px auto 0;
-}
-
-.topBar {
-  background: var(--color-secondary);
-  color: var(--color-primary);
-  text-align: center;
-  padding: 0.7rem 1rem;
-  font-size: 0.95rem;
-  font-weight: 800;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  margin: -1.8rem -1.5rem 1rem;
-  align-self: stretch;
-}
-
-@media (max-width: 60rem) {
-  .info {
-    order: -1;
-  }
-}
-
-.eyebrow {
-  font-size: 0.95rem;
-  font-weight: 800;
-  color: var(--color-secondary);
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  opacity: 1;
-  margin: 0;
-}
-
+/* Logo en recuadro negro, igual que en el header */
 .mapLogo {
   position: absolute;
   top: 0.75rem;
   right: 0.75rem;
-  height: 2.5rem;
+  height: 2.2rem;
   width: auto;
+  padding: 0.3rem 0.55rem;
+  box-sizing: border-box;
+  border-radius: var(--brutal-radius);
+  background: var(--color-secondary);
+  box-shadow: 2px 2px 0 var(--color-background);
   object-fit: contain;
   pointer-events: none;
   z-index: 2;
 }
 
-@media (max-width: 60rem) {
-  .mapLogo {
-    height: 2rem;
-  }
+/* ---- Viñeta del local ---- */
+
+.sucursales {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-bottom: 0.6rem;
+}
+
+.sucursalBtn {
+  padding: 0.32rem 0.65rem;
+  border: var(--brutal-border);
+  border-radius: 6px;
+  background: var(--color-background);
+  color: var(--color-secondary);
+  font-family: var(--font-ui);
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.sucursalBtnActivo {
+  background: var(--color-secondary);
+  color: var(--color-primary);
+}
+
+.eyebrow {
+  margin: 0;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.7;
 }
 
 .nombre {
-  font-size: 1.9rem;
-  font-weight: 700;
-  margin: -0.25rem 0 0;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.35);
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.7rem;
+  font-weight: 400;
+  line-height: 1.1;
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
 }
 
 .direccion {
-  font-weight: 700;
-  text-transform: uppercase;
-  font-size: 1.05rem;
   margin: 0;
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 0.375rem;
+  gap: 0.3rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
 }
 
 .pin {
@@ -197,89 +203,55 @@
   }
 }
 
-.cards {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  grid-auto-rows: 1fr;
-  align-items: stretch;
-  gap: clamp(0.6rem, 0.3rem + 1vw, 1.1rem);
-  width: 100%;
-  max-width: 100%;
-  padding: 0 clamp(0.25rem, 0.1rem + 1vw, 0.5rem);
-  margin: clamp(1.5rem, 1rem + 2vw, 3rem) 0 clamp(1rem, 0.6rem + 1.5vw, 2rem);
-  position: relative;
-}
-
-/* Las cards pasan a 1 columna en 1273px exactos — todavía mantienen
-   el layout en fila (ícono izquierda, texto izquierda) hasta 60rem,
-   donde recién pasan a layout centrado (ver media query más abajo). */
-@media (max-width: 79.5625rem) {
-  .cards {
-    grid-template-columns: 1fr;
-    grid-auto-rows: auto;
-  }
-}
-
-@media (max-width: 60rem) {
-  .cards {
-    max-width: 100%;
-    padding: 0 0.5rem;
-  }
-}
-
-.card {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  min-width: 0;
-  box-sizing: border-box;
-}
-
-/* Cards más angostas y centradas desde el mismo punto en que pasan
-   a 1 columna (79.5625rem / 1273px) */
-@media (max-width: 79.5625rem) {
-  .card {
-    max-width: 26rem;
-    margin: 0 auto;
-  }
-}
-
-@media (max-width: 30rem) {
-  .card {
-    max-width: 20rem;
-  }
-}
-
-.cardBgDecorativo {
-  position: absolute;
-  top: -6%;
-  bottom: -6%;
-  left: 8%;
-  right: 8%;
-  background: var(--color-secondary);
-  border-radius: 8px;
-  z-index: 0;
-}
-
-/* Card en fila: ícono a la izquierda, contenido a la derecha.
-   Se mantiene en desktop y tablet; en mobile pasa a columna centrada
-   (ver media query más abajo). */
-.cardContenido {
-  position: relative;
-  z-index: 1;
-  width: 100%;
-  height: 100%;
-  box-sizing: border-box;
-  background: var(--color-secondary);
-  border-radius: 0;
-  padding: clamp(0.8rem, 0.6rem + 0.6vw, 1.1rem)
-    clamp(0.6rem, 0.4rem + 0.6vw, 0.7rem) clamp(0.9rem, 0.7rem + 0.6vw, 1.4rem);
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+/* "Abrir en Maps" y la etiqueta de envíos en la misma fila */
+.acciones {
   display: flex;
-  flex-direction: row;
-  align-items: flex-start;
+  flex-wrap: wrap;
+  align-items: stretch;
   gap: 0.6rem;
-  overflow-wrap: break-word;
+  margin-top: 0.8rem;
+}
+
+.btnMaps {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.42rem 0.8rem;
+  border: var(--brutal-border);
+  border-radius: 6px;
+  background: var(--color-background);
+  color: var(--color-secondary);
+  box-shadow: var(--brutal-shadow-sm);
+  font-size: 0.8rem;
+  font-weight: 700;
+  line-height: 1;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+/* Etiqueta, no botón: sin sombra para diferenciarla de "Abrir en Maps" */
+.sticker {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.38rem 0.65rem;
+  border: var(--brutal-border);
+  border-radius: 6px;
+  background: var(--color-secondary);
+  color: var(--color-primary);
+  font-family: var(--font-display);
+  font-size: 0.68rem;
+  line-height: 1;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+/* ---- Viñetas de horario y contacto ---- */
+
+.panelHead {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
 }
 
 .cardIcon {
@@ -287,59 +259,58 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: clamp(1.4rem, 1.1rem + 0.8vw, 1.7rem);
-  height: clamp(1.4rem, 1.1rem + 0.8vw, 1.7rem);
-  margin-top: 0.1rem;
-  color: var(--color-primary);
-}
-
-.cardText {
-  display: flex;
-  flex-direction: column;
-  gap: 0.375rem;
-  min-width: 0;
-  flex: 1;
+  width: 1.75rem;
+  height: 1.75rem;
+  padding: 0.28rem;
+  box-sizing: border-box;
+  border: var(--brutal-border);
+  border-radius: 6px;
+  background: var(--color-primary);
+  color: var(--color-secondary);
 }
 
 .cardTitle {
-  font-size: 0.62rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  opacity: 0.85;
   margin: 0;
+  font-family: var(--font-display);
+  font-size: 0.7rem;
+  letter-spacing: 0.03em;
+  line-height: 1.2;
+  text-transform: uppercase;
 }
 
 .cardValue {
-  font-size: 0.7rem;
-  font-weight: 600;
   margin: 0;
+  font-size: 0.92rem;
+  font-weight: 700;
 }
 
 .cardBody {
   display: flex;
   flex-direction: column;
-  gap: 0.375rem;
+  gap: 0.3rem;
   min-width: 0;
 }
 
 .contactoLine {
   margin: 0;
-  font-size: 0.68rem;
   display: flex;
   align-items: center;
-  gap: 0.375rem;
-  overflow-wrap: break-word;
-  word-break: break-word;
+  gap: 0.3rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  overflow-wrap: anywhere;
   min-width: 0;
 }
 
-.contactoEmail {
-  font-size: 0.6rem;
+.lineaSuave {
+  opacity: 0.7;
 }
 
-/* El ícono de email solo se muestra en mobile (layout centrado,
-   <=60rem). En desktop/tablet (cards en fila) ocupa espacio que
-   no sobra, así que se oculta. */
+.contactoEmail {
+  font-size: 0.72rem;
+}
+
+/* El ícono de email solo se muestra en mobile */
 @media (min-width: 60.0625rem) {
   .iconoOculto {
     display: none;
@@ -349,195 +320,86 @@
 .redes {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
-  margin-top: 0.25rem;
-  width: 100%;
+  gap: 0.4rem;
+  margin-top: 0.1rem;
   min-width: 0;
 }
 
 .redInfo {
   display: inline-flex;
   align-items: center;
-  gap: 0.375rem;
-  padding: 0.15rem 0.35rem;
-  border: 1px solid rgba(255, 255, 255, 0.4);
+  gap: 0.3rem;
+  padding: 0.2rem 0.45rem;
+  border: var(--brutal-border-thin);
   border-radius: 6px;
-  color: #fff;
+  color: var(--color-secondary);
   text-decoration: none;
-  font-size: 0.68rem;
+  font-size: 0.7rem;
+  font-weight: 700;
   max-width: 100%;
   min-width: 0;
   overflow-wrap: anywhere;
-  transition:
-    background 0.15s,
-    border-color 0.15s;
-}
-
-.redInfo:hover {
-  background: rgba(255, 255, 255, 0.1);
-  border-color: rgba(255, 255, 255, 0.6);
 }
 
 .redLabel {
-  font-size: 0.62rem;
+  font-size: 0.7rem;
   overflow-wrap: anywhere;
 }
 
-/* Layout centrado en vez de fila con todo a la izquierda, desde
-   el mismo punto en que las cards pasan a 1 columna (79.5625rem
-   / 1273px) — incluye textos un poco más chicos en este rango
-   intermedio, antes del ajuste fino de phone chico (30rem).
-   Mismo criterio visual que mobile: fondo decorativo oculto,
-   padding/gap comprimidos, ícono chico, bordes redondeados y
-   sombra liviana (ícono ya sale en amarillo por la regla base
-   de .cardIcon, sin necesidad de repetirlo acá). */
-@media (max-width: 79.5625rem) {
-  .cardBgDecorativo {
-    display: none;
+/* ---- Tablet: local arriba, mapa al medio, horario y contacto abajo ---- */
+
+@media (max-width: 64rem) {
+  .grilla {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-areas:
+      "local   local"
+      "mapa    mapa"
+      "horario contacto";
   }
 
-  .cardContenido {
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    padding: 0.6rem 0.8rem 0.7rem;
-    gap: 0.25rem;
-    border-radius: 8px;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  .grillaSinContacto {
+    grid-template-areas:
+      "local   local"
+      "mapa    mapa"
+      "horario horario";
   }
 
-  .cardIcon {
-    width: 1.3rem;
-    height: 1.3rem;
-    margin: 0 0 0.15rem;
-  }
-
-  .cardText {
-    align-items: center;
-  }
-
-  .cardBody {
-    align-items: center;
-  }
-
-  .cardTitle {
-    font-size: 0.58rem;
-  }
-
-  .cardValue,
-  .contactoLine {
-    font-size: 0.64rem;
-  }
-
-  .contactoEmail {
-    font-size: 0.58rem;
-  }
-
-  .redLabel {
-    font-size: 0.6rem;
-  }
-
-  .contactoLine {
-    justify-content: center;
-  }
-
-  .redes {
-    justify-content: center;
-  }
-}
-/* Phone chico — ajuste fino adicional sobre el layout centrado.
-   Los valores acá deben ser <= los del bloque de 79.5625rem para
-   mantener la progresión de achicado hacia mobile. */
-@media (max-width: 30rem) {
-  .cardContenido {
-    padding: 0.8rem 0.8rem 1.1rem;
-    gap: 0.4rem;
-  }
-
-  .cardIcon {
-    width: 1.6rem;
-    height: 1.6rem;
-  }
-
-  .cardTitle {
-    font-size: 0.55rem;
-  }
-
-  .cardValue,
-  .contactoLine {
-    font-size: 0.6rem;
-  }
-
-  .contactoEmail {
-    font-size: 0.56rem;
-  }
-
-  .redLabel {
-    font-size: 0.58rem;
+  .panelMapa {
+    min-height: 18rem;
   }
 }
 
-/* Mobile real (<=60rem): Opción B — layout centrado heredado del
-   bloque de 79.5625rem, comprimido (menos padding/gap, ícono chico,
-   sin fondo decorativo extra) + acento visual: ícono en amarillo
-   (var(--color-primary)) contra fondo negro, mismo criterio
-   cromático que .topBar, para dar jerarquía label/valor. Bordes
-   redondeados y sombra liviana para no verse plano contra el amarillo
-   de fondo. Va al final del archivo a propósito, para ganar por
-   cascada sobre los bloques de 79.5625rem y 30rem sin tocarlos. */
-@media (max-width: 60rem) {
-  .cards {
-    gap: 0.4rem;
+/* ---- Mobile: una sola columna ---- */
+
+@media (max-width: 37.5rem) {
+  .banner {
+    padding: 1.4rem 0.75rem 1.5rem;
   }
 
-  .cardBgDecorativo {
-    display: none;
+  .titulo {
+    margin-left: 0.2rem;
   }
 
-  .cardContenido {
-    padding: 0.55rem 0.7rem 0.65rem;
-    gap: 0.2rem;
-    border-radius: 8px;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  .grilla,
+  .grillaSinContacto {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "local"
+      "mapa"
+      "horario"
+      "contacto";
+    gap: 0.75rem;
   }
 
-  .cardIcon {
-    width: 1.15rem;
-    height: 1.15rem;
-    margin: 0 0 0.1rem;
+  .panelMapa {
+    min-height: 15rem;
   }
 
-  .cardText,
-  .cardBody {
-    gap: 0.2rem;
-  }
-}
-/* Mobile real (<=60rem): botones de sucursal y "Abrir en Maps" más
-   chicos, para que las sucursales quepan en una sola fila y no se
-   apilen tapando el mapa. El overlay "Abrir en Maps" (mapOverlay)
-   seguía siendo demasiado grande y le restaba espacio vertical al
-   selector de sucursales, forzando su apilamiento — se lo achica
-   mucho más y se separan mejor ambas posiciones (bottom) para que
-   no se compriman entre sí. */
-@media (max-width: 60rem) {
-  .sucursalSelector {
-    bottom: 2.5rem;
-    gap: 0.3rem;
+  .nombre {
+    font-size: 1.4rem;
   }
 
-  .sucursalBtn {
-    padding: 0.3rem 0.5rem;
-    font-size: 0.62rem;
-    flex-shrink: 1;
-    min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .mapOverlay {
-    padding: 0.25rem 0.55rem;
-    font-size: 0.6rem;
-    bottom: 0.4rem;
-    border-radius: 5px;
+  .mapLogo {
+    height: 1.9rem;
   }
 }

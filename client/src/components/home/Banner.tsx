@@ -54,97 +54,70 @@ export default function Banner({ configuracionTienda: c }: Props) {
 
   return (
     <section className={styles.banner}>
-      <div className={styles.mapCol}>
-        {mapsEmbedSrc && (
-          <a
-            href={mapsUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.mapLink}
-          >
-            <iframe
-              title="Ubicación del local"
-              src={mapsEmbedSrc}
-              className={styles.map}
-              loading="lazy"
-              referrerPolicy="no-referrer-when-downgrade"
-            />
-            <div className={styles.mapOverlay}>
-              <span>Abrir en Maps ↗</span>
-            </div>
-          </a>
-        )}
+      <div className={styles.inner}>
+        <h2 className={styles.titulo}>Retiro en nuestros locales</h2>
 
-        <img src={logo} alt={c.nombre_tienda} className={styles.mapLogo} />
-
-        {opciones.length > 1 && (
-          <div className={styles.sucursalSelector}>
-            {opciones.map((op) => (
-              <button
-                key={op.direccion}
-                type="button"
-                className={`${styles.sucursalBtn}${direccionSeleccionada === op.direccion ? ` ${styles.sucursalBtnActivo}` : ""}`}
-                onClick={() => setDireccionSeleccionada(op.direccion)}
-              >
-                {op.label}
-              </button>
-            ))}
+        <div
+          className={`${styles.grilla}${tieneContacto ? "" : ` ${styles.grillaSinContacto}`}`}
+        >
+          <div className={`${styles.panel} ${styles.panelMapa}`}>
+            {mapsEmbedSrc && (
+              <iframe
+                title="Ubicación del local"
+                src={mapsEmbedSrc}
+                className={styles.map}
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+              />
+            )}
+            <img src={logo} alt={c.nombre_tienda} className={styles.mapLogo} />
           </div>
-        )}
-      </div>
 
-      <div className={styles.info}>
-        <div className={styles.topBar}>
-          <span>Retiro en nuestros locales</span>
-        </div>
-
-        <div className={styles.infoInner}>
-          <p className={styles.eyebrow}>Encontranos en nuestro local</p>
-          <h2 className={styles.nombre}>{nombreActual}</h2>
-          <p className={styles.direccion}>
-            <span
-              className={`${styles.pin}${pinAnimando ? ` ${styles.pinAnimando}` : ""}`}
-              onAnimationEnd={() => setPinAnimando(false)}
-            >
-              📍
-            </span>{" "}
-            {direccionActual.toUpperCase()}
-          </p>
-        </div>
-
-        <div className={styles.cards}>
-          <div className={styles.card}>
-            <div className={styles.cardBgDecorativo} aria-hidden="true" />
-            <div className={styles.cardContenido}>
-              <span className={styles.cardIcon} aria-hidden="true">
-                <svg
-                  width="100%"
-                  height="100%"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="M20 7h-3V5a4 4 0 0 0-8 0v2H6a1 1 0 0 0-1 1v11a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8a1 1 0 0 0-1-1zM11 5a1 1 0 0 1 2 0v2h-2z" />
-                </svg>
-              </span>
-              <div className={styles.cardText}>
-                <p className={styles.cardTitle}>Modalidad</p>
-                <p className={styles.cardValue}>
-                  Solo retiro en nuestros locales
-                </p>
-                <p className={styles.contactoLine} style={{ opacity: 0.85 }}>
-                  No realizamos envíos
-                </p>
+          <div className={`${styles.panel} ${styles.panelLocal}`}>
+            {opciones.length > 1 && (
+              <div className={styles.sucursales}>
+                {opciones.map((op) => (
+                  <button
+                    key={op.direccion}
+                    type="button"
+                    className={`${styles.sucursalBtn}${direccionSeleccionada === op.direccion ? ` ${styles.sucursalBtnActivo}` : ""}`}
+                    onClick={() => setDireccionSeleccionada(op.direccion)}
+                  >
+                    {op.label}
+                  </button>
+                ))}
               </div>
+            )}
+
+            <p className={styles.eyebrow}>Encontranos en nuestro local</p>
+            <h3 className={styles.nombre}>{nombreActual}</h3>
+            <p className={styles.direccion}>
+              <span
+                className={`${styles.pin}${pinAnimando ? ` ${styles.pinAnimando}` : ""}`}
+                onAnimationEnd={() => setPinAnimando(false)}
+              >
+                📍
+              </span>{" "}
+              {direccionActual.toUpperCase()}
+            </p>
+
+            <div className={styles.acciones}>
+              {mapsEmbedSrc && (
+                <a
+                  href={mapsUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={styles.btnMaps}
+                >
+                  Abrir en Maps ↗
+                </a>
+              )}
+              <span className={styles.sticker}>No realizamos envíos</span>
             </div>
           </div>
 
-          <div className={styles.card}>
-            <div className={styles.cardBgDecorativo} aria-hidden="true" />
-            <div className={styles.cardContenido}>
+          <div className={`${styles.panel} ${styles.panelHorario}`}>
+            <div className={styles.panelHead}>
               <span className={styles.cardIcon} aria-hidden="true">
                 <svg
                   width="100%"
@@ -160,23 +133,20 @@ export default function Banner({ configuracionTienda: c }: Props) {
                   <polyline points="12 6 12 12 16 14" />
                 </svg>
               </span>
-              <div className={styles.cardText}>
-                <p className={styles.cardTitle}>Horario de atención</p>
-                <p className={styles.cardValue}>
-                  {c.horario_apertura} – {c.horario_cierre}
-                </p>
-                <p className={styles.contactoLine}>Lunes a viernes</p>
-                <p className={styles.contactoLine} style={{ opacity: 0.85 }}>
-                  Sábados, domingos y feriados: cerrado
-                </p>
-              </div>
+              <p className={styles.cardTitle}>Horario de atención</p>
             </div>
+            <p className={styles.cardValue}>
+              {c.horario_apertura} – {c.horario_cierre}
+            </p>
+            <p className={styles.contactoLine}>Lunes a viernes</p>
+            <p className={`${styles.contactoLine} ${styles.lineaSuave}`}>
+              Sábados, domingos y feriados: cerrado
+            </p>
           </div>
 
           {tieneContacto && (
-            <div className={styles.card}>
-              <div className={styles.cardBgDecorativo} aria-hidden="true" />
-              <div className={styles.cardContenido}>
+            <div className={`${styles.panel} ${styles.panelContacto}`}>
+              <div className={styles.panelHead}>
                 <span className={styles.cardIcon} aria-hidden="true">
                   <svg
                     width="100%"
@@ -192,50 +162,42 @@ export default function Banner({ configuracionTienda: c }: Props) {
                     <path d="M16 8v5a3 3 0 0 0 6 0v-1a10 10 0 1 0-3.92 7.94" />
                   </svg>
                 </span>
-                <div className={styles.cardText}>
-                  <p className={styles.cardTitle}>
-                    {tieneRedes ? "Redes sociales" : "Contacto"}
+                <p className={styles.cardTitle}>Contacto</p>
+              </div>
+              <div className={styles.cardBody}>
+                {c.telefono && (
+                  <p className={styles.contactoLine}>📞 {c.telefono}</p>
+                )}
+                {c.email_contacto && (
+                  <p className={`${styles.contactoLine} ${styles.contactoEmail}`}>
+                    <span className={styles.iconoOculto} aria-hidden="true">
+                      ✉️
+                    </span>
+                    {c.email_contacto}
                   </p>
-                  <div className={styles.cardBody}>
-                    {c.telefono && (
-                      <p className={styles.contactoLine}>📞 {c.telefono}</p>
-                    )}
-                    {c.email_contacto && (
-                      <p
-                        className={`${styles.contactoLine} ${styles.contactoEmail}`}
-                      >
-                        <span className={styles.iconoOculto} aria-hidden="true">
-                          ✉️
-                        </span>
-                        {c.email_contacto}
-                      </p>
-                    )}
-                    {tieneRedes &&
-                      redDestacadaValida &&
-                      (() => {
-                        const parsed = parseRedSocial(
-                          redDestacadaValida,
-                          c.redes_sociales[redDestacadaValida],
-                        );
-                        if (!parsed) return null;
-                        return (
-                          <div className={styles.redes}>
-                            <a
-                              href={parsed.href}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className={styles.redInfo}
-                            >
-                              <RedSocialIcon red={redDestacadaValida} />
-                              <span className={styles.redLabel}>
-                                {parsed.label}
-                              </span>
-                            </a>
-                          </div>
-                        );
-                      })()}
-                  </div>
-                </div>
+                )}
+                {tieneRedes &&
+                  redDestacadaValida &&
+                  (() => {
+                    const parsed = parseRedSocial(
+                      redDestacadaValida,
+                      c.redes_sociales[redDestacadaValida],
+                    );
+                    if (!parsed) return null;
+                    return (
+                      <div className={styles.redes}>
+                        <a
+                          href={parsed.href}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className={styles.redInfo}
+                        >
+                          <RedSocialIcon red={redDestacadaValida} />
+                          <span className={styles.redLabel}>{parsed.label}</span>
+                        </a>
+                      </div>
+                    );
+                  })()}
               </div>
             </div>
           )}
