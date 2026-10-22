@@ -105,6 +105,7 @@ En cada iteración el pedido fue achicar. Referencias que funcionaron:
 | Botones flotantes (WhatsApp, volver arriba): borde y sombra dura, sin hover; en mobile se ocultan cuando el footer entra en pantalla (`hooks/useFooterVisible`) | ✅ | `layout/WhatsappFloatButton`, `layout/ScrollToTopButton` |
 | Menú hamburguesa mobile (drawer) | ✅ (mismo esquema que el carrito lateral) | `layout/HeaderTop` (sección drawer) |
 | Estados de carga y error (incluye la pantalla de `ErrorBoundary`, con CSS Module en lugar de estilos inline) | ✅ | `common/LoadingState`, `common/ErrorState`, `common/ErrorBoundary` |
+| Página 404 (ruta comodín `*`): viñeta centrada sobre franja punteada | ✅ | `pages/NotFoundPage` |
 | Admin | ⏳ (sin empezar) | `admin/` |
 
 Al terminar una sección, actualizar esta tabla.

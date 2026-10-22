@@ -16,6 +16,7 @@ import RegisterPage from "./pages/RegisterPage";
 import MiCuentaPage from "./pages/MiCuentaPage";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import TerminosCondicionesPage from "./pages/TerminosCondicionesPage";
+import NotFoundPage from "./pages/NotFoundPage";
 
 function App() {
   const location = useLocation();
@@ -50,6 +51,7 @@ function App() {
             path="/terminos-y-condiciones"
             element={<TerminosCondicionesPage />}
           />
+          <Route path="*" element={<NotFoundPage />} />
         </Routes>
         {(location.pathname === "/" ||
           location.pathname.startsWith("/producto")) && <CarritoFlotante />}
