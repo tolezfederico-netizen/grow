@@ -76,13 +76,13 @@ Viven en `admin/src/index.css`, **duplicadas** de las del client (apps aisladas:
 |---|---|---|
 | Base: variables, fuentes, alias | ✅ | `admin/src/index.css`, `admin/index.html` |
 | Login | 🔶 primera pasada (viñeta sobre fondo punteado + logo en recuadro negro; sin verificar en el navegador porque requiere cerrar sesión) | `pages/LoginPage` |
-| Layout (barra lateral) | 🔶 primera pasada | `components/AdminLayout` |
+| Layout (barra lateral) | ✅ (orden: Dashboard, Pedidos, Productos, Categorías, Paneles, Clientes, Configuración; íconos de trazo grueso 2.5) | `components/AdminLayout` |
 | Dashboard | ✅ (rediseño con cambios funcionales pedidos por el usuario: sin métricas duplicadas ni "Ventas de hoy"; fila de 5 estados con Pendiente resaltado, últimos pedidos clickeables que abren el pedido, gráfico de pedidos de 7 días y aviso de productos sin stock) | `pages/DashboardPage` |
 | Pedidos + modal de notificar | ✅ (barra superior negra fija; sin título ni total; carga los últimos 30 días + abiertos, con botón para ver antiguos; grupos por fecha en viñetas separadas; marca "Sin atender" para pendientes de más de 24 h; abre el pedido de `?id=`) | `pages/OrdersPage`, `components/NotificarPedidoModal` |
 | Productos + formulario + selector de imagen | ✅ Productos y formulario (barra superior negra con buscador, categoría, completitud, chips de estado y acciones; grilla de tarjetas con imagen real y aviso de información incompleta; modal en dos columnas con pie fijo y categorías como chips). 🔶 selector de imagen | `pages/ProductsPage`, `components/ProductForm`, `components/ProductoImagenSelector` |
 | Paneles + formularios | 🔶 primera pasada | `pages/PanelsPage`, `components/PanelForm`, `PanelItemForm`, `PanelItemsEditor` |
 | Categorías | 🔶 primera pasada (sigue calculando columnas con JS: pendiente conocido) | `pages/CategoriesPage` |
-| Clientes | 🔶 primera pasada | `pages/CustomersPage` |
+| Clientes | ✅ (barra negra con buscador por nombre/email/teléfono, orden y Excel; tarjetas con cantidad de pedidos y último pedido; modal de detalle con contacto, total retirado y sus pedidos) | `pages/CustomersPage` |
 | Configuración | 🔶 primera pasada | `pages/SettingsPage` |
 | Diálogos (confirm / notify / toast) | 🔶 primera pasada | `components/ConfirmDialog`, `context/ConfirmContext` |
 | Estados de carga y error | 🔶 primera pasada (`ErrorBoundary` pasó a CSS Module) | `components/LoadingState`, `ErrorState`, `ErrorBoundary` |

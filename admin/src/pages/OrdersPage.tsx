@@ -143,7 +143,10 @@ export default function OrdersPage() {
   const [busqueda, setBusqueda] = useState("");
   type OrdenPedidos = "recientes" | "antiguos" | "mayor_monto" | "menor_monto";
   const [orden, setOrden] = useState<OrdenPedidos>("recientes");
-  const [verAntiguos, setVerAntiguos] = useState(false);
+  // Si se llega a un pedido puntual (?id=), puede ser viejo: se cargan todos
+  const [verAntiguos, setVerAntiguos] = useState(
+    searchParams.get("id") !== null,
+  );
 
   const cargar = useCallback(async () => {
     setLoading(true);

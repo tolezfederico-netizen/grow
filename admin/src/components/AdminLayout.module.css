@@ -36,6 +36,9 @@
 
 .link,
 .activo {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
   text-decoration: none;
   padding: 0.45rem 0.7rem;
   border: var(--brutal-border-thin);
@@ -47,6 +50,11 @@
 .link {
   border-color: transparent;
   color: color-mix(in srgb, var(--color-background) 82%, transparent);
+}
+
+.icono {
+  display: inline-flex;
+  flex-shrink: 0;
 }
 
 .activo {
