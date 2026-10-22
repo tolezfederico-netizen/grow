@@ -158,6 +158,7 @@ export default function MiCuentaPage() {
           .from("pedidos")
           .select("*")
           .eq("usuario_id", userId)
+          .eq("eliminado", false)
           .order("creado_en", { ascending: false }),
       ]);
 

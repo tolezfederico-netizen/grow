@@ -273,6 +273,7 @@ export default function OrdersPage() {
     const { pedido, estadoDestino } = notificacionPendiente;
 
     const whatsappWindow = canales.whatsapp ? window.open("", "_blank") : null;
+    if (whatsappWindow) whatsappWindow.opener = null;
 
     const { error: err } = await supabase
       .from("pedidos")
@@ -320,12 +321,8 @@ export default function OrdersPage() {
         "enviar-notificacion-pedido",
         {
           body: {
-            cliente_email: pedido.cliente_email,
-            cliente_nombre: pedido.cliente_nombre,
             pedido_id: pedido.id,
             estado: estadoDestino,
-            items: pedido.items,
-            total: pedido.total,
           },
         },
       );

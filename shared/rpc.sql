@@ -10,15 +10,17 @@
 
 -- ── crear_pedido_completo ──────────────────────────────────────────────────
 -- Crea un pedido y sus items en una sola transacción atómica.
--- Valida disponibilidad de productos/variantes, calcula el total
--- del lado del servidor, y devuelve el pedido creado con su id.
+-- Valida datos de contacto y disponibilidad de productos/variantes, toma el
+-- precio del catálogo (nunca el que manda el navegador), asigna el pedido al
+-- usuario de la sesión (auth.uid()) y devuelve el pedido creado con su id.
+-- p_usuario_id se conserva en la firma por compatibilidad pero se ignora.
 --
 -- Uso desde el cliente:
 --   supabase.rpc('crear_pedido_completo', {
 --     p_cliente_nombre: string,
 --     p_cliente_telefono: string,
 --     p_cliente_email: string,
---     p_items: [{ producto_id, variante_id?, cantidad, precio_unitario }]
+--     p_items: [{ producto_id, variante_id?, cantidad }]
 --   })
 -- ──────────────────────────────────────────────────────────────────────────
 
@@ -39,73 +41,111 @@ DECLARE
   v_item jsonb;
   v_producto record;
   v_variante record;
+  v_cantidad integer;
+  v_precio numeric;
+  v_variante_id uuid;
+  v_items_validados jsonb := '[]'::jsonb;
+  v_nombre text := btrim(coalesce(p_cliente_nombre, ''));
+  v_telefono text := btrim(coalesce(p_cliente_telefono, ''));
+  v_email text := lower(btrim(coalesce(p_cliente_email, '')));
 BEGIN
-  -- 1. Validar que el array de items no esté vacío
-  IF p_items IS NULL OR jsonb_array_length(p_items) = 0 THEN
-    RAISE EXCEPTION 'El pedido debe contener al menos un producto.';
+  -- 1. Datos de contacto
+  IF char_length(v_nombre) NOT BETWEEN 3 AND 120 THEN
+    RAISE EXCEPTION 'Nombre inválido.';
+  END IF;
+  IF v_telefono !~ '^[0-9]{8,15}$' THEN
+    RAISE EXCEPTION 'Teléfono inválido.';
+  END IF;
+  IF char_length(v_email) > 254
+     OR v_email !~ '^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$' THEN
+    RAISE EXCEPTION 'Email inválido.';
   END IF;
 
-  -- 2. Validar cada item y calcular el total
+  -- 2. Items
+  IF p_items IS NULL OR jsonb_typeof(p_items) <> 'array'
+     OR jsonb_array_length(p_items) = 0 THEN
+    RAISE EXCEPTION 'El pedido debe contener al menos un producto.';
+  END IF;
+  IF jsonb_array_length(p_items) > 50 THEN
+    RAISE EXCEPTION 'El pedido tiene demasiados productos.';
+  END IF;
+
+  -- 3. Anti-spam
+  IF (SELECT count(*) FROM pedidos
+      WHERE cliente_telefono = v_telefono
+        AND creado_en > now() - interval '10 minutes') >= 3 THEN
+    RAISE EXCEPTION 'Demasiados pedidos seguidos. Esperá unos minutos.';
+  END IF;
+
+  -- 4. Validar cada item con el precio real de catálogo
   FOR v_item IN SELECT * FROM jsonb_array_elements(p_items)
   LOOP
-    -- 2a. Verificar que el producto exista y esté disponible
-    SELECT id, nombre, estado INTO v_producto
+    v_cantidad := (v_item->>'cantidad')::integer;
+    IF v_cantidad IS NULL OR v_cantidad NOT BETWEEN 1 AND 999 THEN
+      RAISE EXCEPTION 'Cantidad inválida.';
+    END IF;
+
+    SELECT id, nombre, estado, tiene_variantes, precio_base INTO v_producto
     FROM productos
     WHERE id = (v_item->>'producto_id')::uuid;
 
     IF NOT FOUND THEN
-      RAISE EXCEPTION 'Producto no encontrado: %', (v_item->>'producto_id');
+      RAISE EXCEPTION 'Producto no encontrado.';
     END IF;
-
-    IF v_producto.estado != 'disponible' THEN
+    IF v_producto.estado <> 'disponible' THEN
       RAISE EXCEPTION 'El producto "%" no está disponible en este momento.', v_producto.nombre;
     END IF;
 
-    -- 2b. Si el item tiene variante, verificar que exista,
-    --     pertenezca al producto y esté disponible
-    IF (v_item->>'variante_id') IS NOT NULL THEN
-      SELECT pv.id, pv.nombre_variante, pv.precio, pv.estado, pv.producto_id INTO v_variante
-      FROM producto_variantes pv
-      WHERE pv.id = (v_item->>'variante_id')::uuid;
+    v_variante_id := NULLIF(v_item->>'variante_id', '')::uuid;
 
-      IF NOT FOUND THEN
-        RAISE EXCEPTION 'Variante no encontrada: %', (v_item->>'variante_id');
+    IF v_producto.tiene_variantes THEN
+      IF v_variante_id IS NULL THEN
+        RAISE EXCEPTION 'Elegí una variante para "%".', v_producto.nombre;
       END IF;
 
-      IF v_variante.producto_id != (v_item->>'producto_id')::uuid THEN
-        RAISE EXCEPTION 'La variante "%" no pertenece al producto especificado.', v_variante.nombre_variante;
-      END IF;
+      SELECT id, nombre_variante, precio, estado, producto_id INTO v_variante
+      FROM producto_variantes
+      WHERE id = v_variante_id;
 
-      IF v_variante.estado != 'disponible' THEN
+      IF NOT FOUND OR v_variante.producto_id <> v_producto.id THEN
+        RAISE EXCEPTION 'Variante inválida para "%".', v_producto.nombre;
+      END IF;
+      IF v_variante.estado <> 'disponible' THEN
         RAISE EXCEPTION 'La variante "%" no está disponible en este momento.', v_variante.nombre_variante;
       END IF;
+
+      v_precio := v_variante.precio;
+    ELSE
+      IF v_variante_id IS NOT NULL THEN
+        RAISE EXCEPTION 'El producto "%" no tiene variantes.', v_producto.nombre;
+      END IF;
+      v_precio := v_producto.precio_base;
     END IF;
 
-    -- 2c. Acumular el total (cantidad × precio_unitario)
-    v_total := v_total + (
-      ((v_item->>'cantidad')::numeric) * ((v_item->>'precio_unitario')::numeric)
+    v_total := v_total + v_cantidad * v_precio;
+    v_items_validados := v_items_validados || jsonb_build_object(
+      'producto_id', v_producto.id,
+      'variante_id', v_variante_id,
+      'cantidad', v_cantidad,
+      'precio_unitario', v_precio,
+      'nombre_producto', v_producto.nombre
     );
   END LOOP;
 
-  -- 3. Insertar el pedido (estado fijo 'pendiente', total calculado)
+  -- 5. Insertar el pedido (usuario = sesión real, nunca el parámetro)
   INSERT INTO pedidos (cliente_nombre, cliente_telefono, cliente_email, usuario_id, total)
-  VALUES (p_cliente_nombre, p_cliente_telefono, p_cliente_email, p_usuario_id, v_total)
+  VALUES (v_nombre, v_telefono, v_email, auth.uid(), v_total)
   RETURNING id INTO v_pedido_id;
 
-  -- 4. Insertar todos los items en una sola operación
-  --    nombre_producto se resuelve desde productos.nombre al momento de la inserción
   INSERT INTO pedido_items (pedido_id, producto_id, variante_id, cantidad, precio_unitario, nombre_producto)
-  SELECT
-    v_pedido_id,
-    (item->>'producto_id')::uuid,
-    NULLIF(item->>'variante_id', '')::uuid,
-    (item->>'cantidad')::integer,
-    (item->>'precio_unitario')::numeric,
-    p.nombre
-  FROM jsonb_array_elements(p_items) AS item
-  JOIN productos p ON p.id = (item->>'producto_id')::uuid;
+  SELECT v_pedido_id,
+         (i->>'producto_id')::uuid,
+         (i->>'variante_id')::uuid,
+         (i->>'cantidad')::integer,
+         (i->>'precio_unitario')::numeric,
+         i->>'nombre_producto'
+  FROM jsonb_array_elements(v_items_validados) AS i;
 
-  -- 5. Devolver el pedido creado como jsonb
   RETURN (
     SELECT jsonb_build_object(
       'id', id,
@@ -123,6 +163,5 @@ BEGIN
 END;
 $$;
 
--- Otorgar permisos de ejecución
-GRANT EXECUTE ON FUNCTION public.crear_pedido_completo TO anon;
-GRANT EXECUTE ON FUNCTION public.crear_pedido_completo TO authenticated;
+REVOKE ALL ON FUNCTION public.crear_pedido_completo(text, text, text, jsonb, uuid) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.crear_pedido_completo(text, text, text, jsonb, uuid) TO anon, authenticated;

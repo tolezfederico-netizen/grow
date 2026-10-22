@@ -85,7 +85,7 @@ Convenciones: utilidades que devuelven JSX van como `.tsx` dentro de `utils/`. N
 
 ## Pendientes conocidos (ver sección 11 de v12)
 
-- Auditar `pg_policies` vs `rls.sql` en `productos`, `admins` y `clientes` (en especial el SELECT de admins sobre `clientes`, del que depende CustomersPage).
+- Auditoría de seguridad 2026-10 en [docs/auditoria/](docs/auditoria/auditoria-seguridad-2026-10.md): RLS de producción verificado y corregido; quedan los pendientes listados ahí (Auth en el dashboard, código país `54` fijo, deploy de la Edge Function).
 - Regenerar `database.types.ts` con el CLI (se editó a mano en v9).
 - `usePaneles.ts` todavía hace su propio fetch de `configuracion_tienda`.
 - `schema.sql` declara `pedidos.usuario_id` dos veces.

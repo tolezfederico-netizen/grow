@@ -467,26 +467,16 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      crear_pedido_completo:
-        | {
-            Args: {
-              p_cliente_email: string
-              p_cliente_nombre: string
-              p_cliente_telefono: string
-              p_items: Json
-            }
-            Returns: Json
-          }
-        | {
-            Args: {
-              p_cliente_email: string
-              p_cliente_nombre: string
-              p_cliente_telefono: string
-              p_items: Json
-              p_usuario_id?: string
-            }
-            Returns: Json
-          }
+      crear_pedido_completo: {
+        Args: {
+          p_cliente_email: string
+          p_cliente_nombre: string
+          p_cliente_telefono: string
+          p_items: Json
+          p_usuario_id?: string
+        }
+        Returns: Json
+      }
       is_admin: { Args: never; Returns: boolean }
     }
     Enums: {

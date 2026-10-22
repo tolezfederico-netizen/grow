@@ -431,6 +431,14 @@ export default function SettingsPage() {
     setSucursales((prev) => prev.filter((s) => s.id !== id));
   }
 
+  function esUrlHttps(valor: string): boolean {
+    try {
+      return new URL(valor.trim()).protocol === "https:";
+    } catch {
+      return false;
+    }
+  }
+
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     if (!config) return;
@@ -443,6 +451,17 @@ export default function SettingsPage() {
     ) {
       setError(
         "El email debe tener el formato correcto (ej: nombre@gmail.com).",
+      );
+      setGuardando(false);
+      return;
+    }
+
+    const redInvalida = Object.entries(config.redes_sociales).find(
+      ([red, url]) => red !== "whatsapp" && url.trim() !== "" && !esUrlHttps(url),
+    );
+    if (redInvalida) {
+      setError(
+        `El link de ${redInvalida[0]} debe empezar con https:// (ej: https://instagram.com/tu_usuario).`,
       );
       setGuardando(false);
       return;

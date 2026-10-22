@@ -4,6 +4,15 @@ export function parseRedSocial(red: string, url: string): { label: string; href:
   const trimmed = url.trim()
   if (!trimmed) return null
 
+  // Solo https: un "javascript:..." también es una URL válida para new URL().
+  if (red !== 'whatsapp') {
+    try {
+      if (new URL(trimmed).protocol !== 'https:') return null
+    } catch {
+      return null
+    }
+  }
+
   switch (red) {
     case 'instagram': {
       try {

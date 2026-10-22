@@ -127,19 +127,22 @@ export default function ResumePage() {
         p_cliente_nombre: nombre.trim(),
         p_cliente_telefono: telefono.trim(),
         p_cliente_email: email.trim(),
-        p_usuario_id: session?.user.id ?? null,
+        // El usuario y los precios los resuelve la RPC del lado del servidor.
         p_items: items.map((i) => ({
           producto_id: i.productoId,
           variante_id: i.varianteId,
           cantidad: i.cantidad,
-          precio_unitario: i.precioUnitario,
         })),
       },
     );
 
     if (error || !pedido) {
+      // P0001 = RAISE EXCEPTION de la RPC (mensajes pensados para el usuario);
+      // cualquier otro error no se muestra crudo.
       setErrorGeneral(
-        error?.message ?? "Error al crear el pedido. Intentá de nuevo.",
+        error?.code === "P0001"
+          ? error.message
+          : "Error al crear el pedido. Intentá de nuevo.",
       );
       setEnviando(false);
       return;

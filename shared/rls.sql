@@ -42,7 +42,11 @@ AS $$
   SELECT EXISTS (SELECT 1 FROM admins WHERE admins.id = auth.uid());
 $$;
 
+REVOKE ALL ON FUNCTION public.is_admin() FROM PUBLIC, anon;
 GRANT EXECUTE ON FUNCTION public.is_admin() TO authenticated;
+
+-- Nadie (salvo service_role) toca admins vía API.
+REVOKE ALL ON admins FROM anon, authenticated;
 
 -- Sembrar el admin actual. Reemplazar 'EMAIL_DEL_ADMIN_ACTUAL' por el email
 -- real que usa hoy el admin para loguearse en LoginPage.tsx antes de correr
@@ -66,10 +70,11 @@ ALTER TABLE productos ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "Gestión completa para administradores" ON productos;
 DROP POLICY IF EXISTS "Lectura pública de productos disponibles" ON productos;
 
+-- sin_stock se muestra en la tienda (no se puede comprar: lo frena la RPC).
 CREATE POLICY "Lectura pública de productos disponibles"
   ON productos FOR SELECT
   TO anon, authenticated
-  USING (estado = 'disponible');
+  USING (estado IN ('disponible', 'sin_stock'));
 
 CREATE POLICY "Gestión completa para administradores"
   ON productos FOR ALL
@@ -90,7 +95,7 @@ CREATE POLICY "Lectura pública de variantes disponibles"
     AND EXISTS (
       SELECT 1 FROM productos
       WHERE productos.id = producto_id
-      AND productos.estado = 'disponible'
+      AND productos.estado IN ('disponible', 'sin_stock')
     )
   );
 
@@ -148,10 +153,11 @@ CREATE POLICY "Actualización de pedidos para administradores"
   USING (public.is_admin())
   WITH CHECK (public.is_admin());
 
+-- Los pedidos que el admin elimina (borrado lógico) dejan de verse en Mi Cuenta.
 CREATE POLICY "Lectura de pedidos propios para clientes"
   ON pedidos FOR SELECT
   TO authenticated
-  USING (auth.uid() = usuario_id);
+  USING (auth.uid() = usuario_id AND NOT eliminado);
 
 -- Nota intencional: anon no tiene SELECT ni DELETE sobre pedidos.
 -- Ver sección de aclaraciones al final del archivo.
@@ -174,6 +180,7 @@ CREATE POLICY "Lectura de items de pedidos propios para clientes"
       SELECT 1 FROM pedidos
       WHERE pedidos.id = pedido_items.pedido_id
       AND pedidos.usuario_id = auth.uid()
+      AND NOT pedidos.eliminado
     )
   );
 
@@ -270,6 +277,22 @@ CREATE POLICY "Gestión completa para administradores"
   WITH CHECK (public.is_admin());
 
 
+-- ── 11. sucursales ───────────────────────────────────────────────────────
+
+ALTER TABLE sucursales ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Lectura pública de sucursales"
+  ON sucursales FOR SELECT
+  TO anon, authenticated
+  USING (true);
+
+CREATE POLICY "Gestión completa para administradores"
+  ON sucursales FOR ALL
+  TO authenticated
+  USING (public.is_admin())
+  WITH CHECK (public.is_admin());
+
+
 -- =============================================================================
 -- Storage: bucket imagenes-productos
 -- =============================================================================
@@ -343,6 +366,10 @@ CREATE POLICY "Actualización del propio perfil"
   USING (auth.uid() = id)
   WITH CHECK (auth.uid() = id);
 
+-- Solo nombre, apellido y teléfono son editables (el email es el de la cuenta).
+REVOKE UPDATE ON clientes FROM anon, authenticated;
+GRANT UPDATE (nombre, apellido, telefono) ON clientes TO authenticated;
+
 -- El admin puede leer todos los perfiles, para poder contactar a los clientes.
 -- Usa public.is_admin() (no un EXISTS directo) por el mismo motivo ya resuelto
 -- en las políticas de admins: is_admin() es SECURITY DEFINER y evita el
@@ -399,3 +426,21 @@ CREATE TRIGGER on_auth_user_created_cliente
   AFTER INSERT ON auth.users
   FOR EACH ROW
   EXECUTE FUNCTION public.handle_new_cliente();
+
+-- Trigger function: no debe poder llamarse por /rpc.
+REVOKE ALL ON FUNCTION public.handle_new_cliente() FROM PUBLIC, anon, authenticated;
+
+
+-- =============================================================================
+-- Privilegios de tabla
+-- =============================================================================
+--
+-- Supabase da a anon/authenticated todos los privilegios sobre las tablas de
+-- public; RLS es lo que filtra. TRUNCATE no pasa por RLS y la API nunca lo
+-- usa. pedidos y pedido_items solo se escriben vía RPC (SECURITY DEFINER) o
+-- con el UPDATE del admin.
+
+REVOKE TRUNCATE, TRIGGER, REFERENCES ON ALL TABLES IN SCHEMA public FROM anon, authenticated;
+REVOKE INSERT, UPDATE, DELETE ON pedidos, pedido_items FROM anon;
+REVOKE INSERT, DELETE ON pedidos FROM authenticated;
+REVOKE INSERT, UPDATE, DELETE ON pedido_items FROM authenticated;

@@ -29,3 +29,7 @@ export function updateMiCuentaCacheImagenes(
   const actual = cache.get(userId)
   if (actual) cache.set(userId, { ...actual, imagenesPorProducto })
 }
+
+export function clearMiCuentaCache(): void {
+  cache.clear()
+}

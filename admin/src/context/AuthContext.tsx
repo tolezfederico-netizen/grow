@@ -25,8 +25,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     let cargaInicialHecha = false;
+    // Usuario cuyo is_admin() ya se resolvió. Un refresh de token o volver a
+    // la pestaña emiten eventos con el mismo usuario: no hace falta re-verificar.
+    let usuarioVerificado: string | null = null;
 
     async function verificarAdmin(session: Session | null) {
+      usuarioVerificado = session?.user.id ?? null;
       if (!session) {
         setEsAdmin(false);
         return;
@@ -63,13 +67,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
       if (!cargaInicialHecha) return;
+      if ((session?.user.id ?? null) === usuarioVerificado) return;
 
       // Mientras se resuelve is_admin() para esta sesión nueva (ej. tras un
       // login), loading vuelve a true. Esto evita que ProtectedRoute lea un
       // esAdmin todavía no actualizado (valor inicial: false) y cierre la
       // sesión recién creada creyendo que el usuario no es admin.
       setLoading(true);
-      verificarAdmin(session).finally(() => setLoading(false));
+      // setTimeout: supabase-js desaconseja llamar a la API dentro de este
+      // callback (puede trabarse esperando su propio lock de sesión).
+      setTimeout(() => {
+        verificarAdmin(session).finally(() => setLoading(false));
+      }, 0);
     });
     return () => subscription.unsubscribe();
   }, []);

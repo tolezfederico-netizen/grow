@@ -44,15 +44,7 @@ COMMENT ON COLUMN productos.tiene_variantes IS 'Si true, el precio vive en produ
 COMMENT ON COLUMN productos.precio_base IS 'NOT NULL cuando tiene_variantes = false; NULL cuando tiene_variantes = true';
 COMMENT ON COLUMN productos.estado IS 'disponible | pausado | sin_stock (la eliminación es un DELETE físico, no un cuarto estado)';
 
--- RLS: esta tabla SÍ tiene Row Level Security habilitado (a diferencia del resto
--- del proyecto). El frontend del client usa la clave pública (anon) y solo debe
--- poder leer productos 'disponible' o 'sin_stock' — nunca 'pausado'. El admin usa
--- una policy de gestión completa (probablemente vía service_role o rol autenticado).
-ALTER TABLE productos ENABLE ROW LEVEL SECURITY;
-
-CREATE POLICY "Gestión completa para administradores" ON productos FOR ALL USING (true);
-
-CREATE POLICY "Lectura pública de productos disponibles" ON productos FOR SELECT USING (estado IN ('disponible', 'sin_stock'));
+-- RLS y policies de todas las tablas: ver shared/rls.sql.
 
 
 -- ── 2. categorias ───────────────────────────────────────────────────────────
@@ -496,10 +488,7 @@ CREATE TABLE IF NOT EXISTS sucursales (
 COMMENT ON TABLE sucursales IS 'Locales adicionales del negocio, más allá de la dirección principal en configuracion_tienda.direccion. Comparten horario/teléfono/redes con configuracion_tienda — solo nombre y dirección son propios de cada sucursal.';
 COMMENT ON COLUMN sucursales.orden IS 'Orden de aparición en el selector del client (menor = primero)';
 
--- Supabase habilita RLS automáticamente en tablas creadas desde el SQL Editor.
--- Se desactiva explícitamente para esta tabla (a diferencia de `productos`,
--- que sí tiene RLS habilitado — ver sección de policies más abajo).
-ALTER TABLE sucursales DISABLE ROW LEVEL SECURITY;
+-- RLS y policies: ver shared/rls.sql (sección sucursales).
 
 
 CREATE OR REPLACE FUNCTION fn_validar_max_destacados() RETURNS TRIGGER AS $$
@@ -637,8 +626,7 @@ ALTER TABLE clientes ENABLE ROW LEVEL SECURITY;
 --     y perdía la integridad referencial y tipado fuerte de una tabla real.
 --     Una tabla separada sigue el mismo patrón que producto_variantes respecto
 --     a productos: relación 1:N con la entidad principal, cada fila con su
---     propia identidad y orden. No se usa RLS por coherencia con el resto del
---     schema (ninguna tabla del proyecto tiene RLS habilitado).
+--     propia identidad y orden. Tiene RLS como el resto (ver rls.sql).
 -- =============================================================================
 
 

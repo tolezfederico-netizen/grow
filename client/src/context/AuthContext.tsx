@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
 import { supabase } from '@shared'
 import type { Session } from '@supabase/supabase-js'
+import { clearMiCuentaCache } from '../pages/miCuentaCache'
 
 interface DatosRegistro {
   nombre: string
@@ -66,6 +67,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   async function logout() {
     await supabase.auth.signOut()
+    clearMiCuentaCache()
   }
 
   return (
