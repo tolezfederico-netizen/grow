@@ -6,9 +6,9 @@ Estado actual: proyecto terminado y desplegado, en etapa de venta (sin usuarios 
 
 Documentación de arquitectura completa (incremental por versión): [docs/arquitectura/](docs/arquitectura/README.md). La vigente es [arquitectura-v12.md](docs/arquitectura/arquitectura-v12.md); las bases de cada área están en v6, v7 y v8. Leerlas cuando haga falta el detalle o el porqué de una decisión.
 
-## Rediseño visual en curso
+## Rediseño visual
 
-Client terminado; sigue el admin. Estilo neo-brutalista / cómic. Antes de tocar estilos, leer [docs/guia-de-estilo.md](docs/guia-de-estilo.md) (variables, componentes, estado por sección y forma de trabajo). Para el admin, además, [docs/guia-de-estilo-admin.md](docs/guia-de-estilo-admin.md): neo-brutalismo **sobrio** (mismas variables duplicadas en `admin/src/index.css`, sin punteado ni sombras en tablas, resaltador solo en títulos de página, un color por estado de pedido). Lo esencial:
+Client y admin terminados (el admin, salvo una etapa mobile dedicada). Estilo neo-brutalista / cómic. Antes de tocar estilos, leer [docs/guia-de-estilo.md](docs/guia-de-estilo.md) (variables, componentes, estado por sección y forma de trabajo). Para el admin, además, [docs/guia-de-estilo-admin.md](docs/guia-de-estilo-admin.md): neo-brutalismo **sobrio** (mismas variables duplicadas en `admin/src/index.css`, sin punteado ni sombras en tablas, sin títulos de página porque la barra lateral ya indica la sección, barra superior negra con los filtros, un color por estado de pedido). Lo esencial:
 - Solo estética: CSS primero; JSX solo si el layout lo exige; nunca cambiar lógica.
 - Usar las variables `--brutal-*`, `--font-*` y `--punteado-*` de `client/src/index.css`; nada hardcodeado.
 - Compacto. Botones sin hover (ni movimiento ni color). Resaltador amarillo solo en títulos de sección. Tarjetas en fila con borde parejo y sin sombra. Nada inclinado salvo el logo del header. Imágenes reales del admin, no íconos.
@@ -90,5 +90,5 @@ Convenciones: utilidades que devuelven JSX van como `.tsx` dentro de `utils/`. N
 - `usePaneles.ts` todavía hace su propio fetch de `configuracion_tienda`.
 - `schema.sql` declara `pedidos.usuario_id` dos veces.
 - Migrar los `alert()` restantes a `notify()` de ConfirmContext; hook compartido para `precioMinimo` (ProductsPage/FeaturedCarousel); conectar `CategoryCard`/`es_card`.
-- Admin responsive: falta la etapa mobile; CategoriesPage calcula columnas con JS en vez de grid CSS.
+- Admin responsive: falta una etapa mobile dedicada (las páginas ya se ven en 375px, pero sin revisión pensada para el celular).
 - Dominio propio en Resend (hoy en sandbox). Sin suite de tests.
