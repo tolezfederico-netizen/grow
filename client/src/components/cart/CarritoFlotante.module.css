@@ -1,0 +1,70 @@
+/* Solo en mobile: en escritorio el carrito ya está siempre visible en el header */
+.barra,
+.espaciador {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  /* Botón principal fijo abajo; queda debajo de los botones flotantes (bottom: 10vh) */
+  .barra {
+    position: fixed;
+    left: 0.75rem;
+    right: 0.75rem;
+    bottom: 0.75rem;
+    z-index: 85;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.7rem 0.9rem;
+    border: var(--brutal-border);
+    border-radius: var(--brutal-radius);
+    background: var(--color-primary);
+    color: var(--color-secondary);
+    box-shadow: var(--brutal-shadow);
+    font-family: var(--font-ui);
+    font-size: 0.88rem;
+    font-weight: 700;
+    line-height: 1;
+    cursor: pointer;
+  }
+
+  /* Mismo color que la franja inferior del footer, para que el espacio no se note */
+  .espaciador {
+    display: block;
+    height: 4.5rem;
+    background: var(--color-secondary);
+  }
+}
+
+.izquierda {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.icono {
+  width: 1rem;
+  height: 1rem;
+  flex-shrink: 0;
+}
+
+.contador {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.25rem;
+  height: 1.25rem;
+  padding: 0 0.3rem;
+  border-radius: 999px;
+  background: var(--color-secondary);
+  color: var(--color-primary);
+  font-family: var(--font-display);
+  font-size: 0.66rem;
+}
+
+.total {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  white-space: nowrap;
+}

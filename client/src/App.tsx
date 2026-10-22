@@ -4,6 +4,7 @@ import { CartProvider } from "./context/CartContext";
 import Header from "./components/layout/Header";
 import ScrollToTop from "./components/layout/ScrollToTop";
 import CartDrawer from "./components/cart/CartDrawer";
+import CarritoFlotante from "./components/cart/CarritoFlotante";
 import WhatsappFloatButton from "./components/layout/WhatsappFloatButton";
 import ScrollToTopButton from "./components/layout/ScrollToTopButton";
 import HomePage from "./pages/HomePage";
@@ -50,6 +51,8 @@ function App() {
             element={<TerminosCondicionesPage />}
           />
         </Routes>
+        {(location.pathname === "/" ||
+          location.pathname.startsWith("/producto")) && <CarritoFlotante />}
         <CartDrawer />
       </CartProvider>
     </AuthProvider>
