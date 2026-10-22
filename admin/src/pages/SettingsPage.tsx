@@ -289,6 +289,25 @@ interface ConfigData {
   mensaje_alerta_expira_en: string;
 }
 
+function IconoValido() {
+  return (
+    <span className={styles.iconoValido} aria-hidden="true">
+      <svg
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <polyline points="20 6 9 17 4 12" />
+      </svg>
+    </span>
+  );
+}
+
 export default function SettingsPage() {
   const [config, setConfig] = useState<ConfigData | null>(null);
   const [existe, setExiste] = useState(false);
@@ -535,177 +554,116 @@ export default function SettingsPage() {
 
   return (
     <div className={styles.page}>
-      <h2>Configuración de la tienda</h2>
       <form onSubmit={handleSubmit} className={styles.form}>
-        <div className={styles.fila}>
-          <fieldset className={styles.campoCard}>
-            <legend>
-              <span className={styles.legendInner}>
-                {ICONO_TIENDA}Nombre de la tienda
-              </span>
-            </legend>
-            <div className={styles.inputConEstado}>
-              <input
-                className={styles.input}
-                value={config.nombre_tienda}
-                onChange={(e) => actualizar("nombre_tienda", e.target.value)}
-                required
-              />
-              {config.nombre_tienda.trim() !== "" && (
-                <span className={styles.iconoValido} aria-hidden="true">
-                  <svg
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <polyline points="20 6 9 17 4 12" />
-                  </svg>
-                </span>
-              )}
+        {/* ---- Información del local ---- */}
+        <section className={styles.seccion}>
+          <header className={styles.seccionHeader}>
+            <span className={styles.seccionIcono}>{ICONO_TIENDA}</span>
+            <div>
+              <h3 className={styles.seccionTitulo}>Información del local</h3>
+              <p className={styles.seccionSub}>
+                Datos del negocio que el cliente ve en la tienda.
+              </p>
             </div>
-          </fieldset>
-          <fieldset className={styles.campoCard}>
-            <legend>
-              <span className={styles.legendInner}>
-                {ICONO_UBICACION}Dirección (local principal)
-              </span>
-            </legend>
-            <div className={styles.inputConEstado}>
-              <input
-                className={styles.input}
-                value={config.direccion}
-                onChange={(e) => actualizar("direccion", e.target.value)}
-                required
-              />
-              {config.direccion.trim() !== "" && (
-                <span className={styles.iconoValido} aria-hidden="true">
-                  <svg
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <polyline points="20 6 9 17 4 12" />
-                  </svg>
+          </header>
+          <div className={styles.seccionCuerpo}>
+            <div className={styles.grilla}>
+              <label className={styles.label}>
+                <span className={styles.labelTexto}>
+                  {ICONO_TIENDA}Nombre de la tienda
                 </span>
-              )}
-            </div>
-            <span className={styles.ayuda}>
-              Este es el primer local que ve el cliente. Si tenés más de un
-              local, agregalos en "Sucursales" más abajo.
-            </span>
-          </fieldset>
-        </div>
+                <span className={styles.inputConEstado}>
+                  <input
+                    className={styles.input}
+                    value={config.nombre_tienda}
+                    onChange={(e) => actualizar("nombre_tienda", e.target.value)}
+                    required
+                  />
+                  {config.nombre_tienda.trim() !== "" && <IconoValido />}
+                </span>
+              </label>
 
-        <div className={styles.fila}>
-          <fieldset className={styles.campoCard}>
-            <legend>
-              <span className={styles.legendInner}>
-                {ICONO_TELEFONO}Teléfono
-              </span>
-            </legend>
-            <div className={styles.inputConEstado}>
-              <input
-                className={styles.input}
-                value={config.telefono}
-                onChange={(e) => actualizar("telefono", e.target.value)}
-                required
-              />
-              {config.telefono.trim() !== "" && (
-                <span className={styles.iconoValido} aria-hidden="true">
-                  <svg
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <polyline points="20 6 9 17 4 12" />
-                  </svg>
+              <label className={styles.label}>
+                <span className={styles.labelTexto}>
+                  {ICONO_TELEFONO}Teléfono
                 </span>
-              )}
-            </div>
-          </fieldset>
-          <fieldset className={styles.campoCard}>
-            <legend>
-              <span className={styles.legendInner}>
-                {ICONO_EMAIL}Email de contacto
-              </span>
-            </legend>
-            <div className={styles.inputConEstado}>
-              <input
-                className={styles.input}
-                type="email"
-                placeholder="nombre@gmail.com"
-                value={config.email_contacto}
-                onChange={(e) => actualizar("email_contacto", e.target.value)}
-              />
-              {config.email_contacto.trim() !== "" &&
-                (esEmailContactoValido(config.email_contacto) ? (
-                  <span className={styles.iconoValido} aria-hidden="true">
-                    <svg
-                      width="16"
-                      height="16"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <polyline points="20 6 9 17 4 12" />
-                    </svg>
-                  </span>
-                ) : (
-                  <span className={styles.iconoInvalido} aria-hidden="true">
-                    <svg
-                      width="16"
-                      height="16"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <line x1="18" y1="6" x2="6" y2="18" />
-                      <line x1="6" y1="6" x2="18" y2="18" />
-                    </svg>
-                  </span>
-                ))}
-            </div>
-            <span className={styles.ayuda}>
-              Debe tener el formato de un email v&aacute;lido (ej:
-              ventas@tunegocio.com.ar).
-            </span>
-          </fieldset>
-        </div>
-
-        {/* Columna izquierda: Horario + Sucursales. Columna derecha: Redes sociales */}
-        <div className={styles.filaFieldsets}>
-          <div className={styles.columnaIzquierda}>
-            <fieldset className={styles.campoCard}>
-              <legend>
-                <span className={styles.legendInner}>
-                  {ICONO_RELOJ}Horario de atención
+                <span className={styles.inputConEstado}>
+                  <input
+                    className={styles.input}
+                    value={config.telefono}
+                    onChange={(e) => actualizar("telefono", e.target.value)}
+                    required
+                  />
+                  {config.telefono.trim() !== "" && <IconoValido />}
                 </span>
-              </legend>
+              </label>
 
+              <label className={styles.label}>
+                <span className={styles.labelTexto}>
+                  {ICONO_UBICACION}Dirección (local principal)
+                </span>
+                <span className={styles.inputConEstado}>
+                  <input
+                    className={styles.input}
+                    value={config.direccion}
+                    onChange={(e) => actualizar("direccion", e.target.value)}
+                    required
+                  />
+                  {config.direccion.trim() !== "" && <IconoValido />}
+                </span>
+                <span className={styles.ayuda}>
+                  Este es el primer local que ve el cliente. Si tenés más de un
+                  local, agregalos en "Sucursales" más abajo.
+                </span>
+              </label>
+
+              <label className={styles.label}>
+                <span className={styles.labelTexto}>
+                  {ICONO_EMAIL}Email de contacto
+                </span>
+                <span className={styles.inputConEstado}>
+                  <input
+                    className={styles.input}
+                    type="email"
+                    placeholder="nombre@gmail.com"
+                    value={config.email_contacto}
+                    onChange={(e) => actualizar("email_contacto", e.target.value)}
+                  />
+                  {config.email_contacto.trim() !== "" &&
+                    (esEmailContactoValido(config.email_contacto) ? (
+                      <IconoValido />
+                    ) : (
+                      <span className={styles.iconoInvalido} aria-hidden="true">
+                        <svg
+                          width="16"
+                          height="16"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2.5"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <line x1="18" y1="6" x2="6" y2="18" />
+                          <line x1="6" y1="6" x2="18" y2="18" />
+                        </svg>
+                      </span>
+                    ))}
+                </span>
+                <span className={styles.ayuda}>
+                  Debe tener el formato de un email v&aacute;lido (ej:
+                  ventas@tunegocio.com.ar).
+                </span>
+              </label>
+            </div>
+
+            <div className={styles.subBloque}>
+              <span className={styles.subBloqueTitulo}>
+                {ICONO_RELOJ}Horario de atención
+              </span>
               <div className={styles.filaAngosta}>
                 <label className={styles.label}>
-                  Horario apertura
+                  <span className={styles.labelTexto}>Apertura</span>
                   <input
                     className={styles.input}
                     type="time"
@@ -717,7 +675,7 @@ export default function SettingsPage() {
                   />
                 </label>
                 <label className={styles.label}>
-                  Horario cierre
+                  <span className={styles.labelTexto}>Cierre</span>
                   <input
                     className={styles.input}
                     type="time"
@@ -729,20 +687,25 @@ export default function SettingsPage() {
                   />
                 </label>
               </div>
-            </fieldset>
+            </div>
+          </div>
+        </section>
 
-            <fieldset className={styles.sucursales}>
-              <legend>
-                <span className={styles.legendInner}>
-                  {ICONO_SUCURSAL}Sucursales
-                </span>
-              </legend>
-              <p className={styles.sugeridas}>
-                Direcciones adicionales del negocio. Si no hay sucursales
-                cargadas, el mapa del client muestra solo la dirección
-                principal.
-              </p>
-
+        <div className={styles.filaSecciones}>
+          {/* ---- Sucursales ---- */}
+          <section className={styles.seccion}>
+            <header className={styles.seccionHeader}>
+              <span className={styles.seccionIcono}>{ICONO_SUCURSAL}</span>
+              <div>
+                <h3 className={styles.seccionTitulo}>Sucursales</h3>
+                <p className={styles.seccionSub}>
+                  Direcciones adicionales del negocio. Si no hay sucursales
+                  cargadas, el mapa del client muestra solo la dirección
+                  principal.
+                </p>
+              </div>
+            </header>
+            <div className={styles.seccionCuerpo}>
               {sucursales.length > 0 && (
                 <div className={styles.sucursalesLista}>
                   {sucursales.map((s) => (
@@ -767,6 +730,7 @@ export default function SettingsPage() {
                         type="button"
                         className={styles.btnEliminar}
                         onClick={() => eliminarSucursal(s.id)}
+                        aria-label="Quitar sucursal"
                       >
                         ✕
                       </button>
@@ -782,134 +746,141 @@ export default function SettingsPage() {
               >
                 + Agregar sucursal
               </button>
-            </fieldset>
-          </div>
+            </div>
+          </section>
 
-          <fieldset className={styles.redes}>
-            <legend>
-              <span className={styles.legendInner}>
-                {ICONO_COMPARTIR}Redes sociales
-              </span>
-            </legend>
-            <p className={styles.sugeridas}>
-              <span className={styles.sugeridasLabel}>Agregar:</span>
-              {REDES_SOCIALES_SUGERIDAS.map((r) => {
-                const existe = config.redes_sociales[r] !== undefined;
-                return (
-                  <button
-                    key={r}
-                    type="button"
-                    className={`${styles.sugerencia}${existe ? ` ${styles.sugerenciaActiva}` : ""}`}
-                    onClick={() => {
-                      if (existe) eliminarRed(r);
-                      else actualizarRed(r, "");
-                    }}
-                    title={existe ? `Quitar ${r}` : `Agregar ${r}`}
-                    aria-label={existe ? `Quitar ${r}` : `Agregar ${r}`}
-                  >
-                    {iconoRed(r)}
-                    {existe && (
-                      <span className={styles.checkSugerencia}>✓</span>
-                    )}
-                  </button>
-                );
-              })}
-            </p>
-
-            <p className={styles.ayuda}>
-              Marcá con el círculo cuál red social se muestra en el Banner de la
-              tienda.
-            </p>
-
-            {Object.entries(config.redes_sociales).length > 0 && (
-              <div className={styles.redesLista}>
-                {Object.entries(config.redes_sociales).map(([red, url]) => (
-                  <div key={red} className={styles.redRow}>
-                    <input
-                      type="radio"
-                      name="redDestacada"
-                      className={styles.radioDestacada}
-                      checked={config.red_social_destacada === red}
-                      onChange={() => seleccionarRedDestacada(red)}
-                      title={`Mostrar ${red} en el Banner`}
-                      aria-label={`Mostrar ${red} en el Banner`}
-                    />
-                    <span className={styles.redClave}>{red}</span>
-                    <input
-                      className={styles.input}
-                      placeholder={PLACEHOLDER_REDES[red] ?? "URL"}
-                      value={url}
-                      onChange={(e) => actualizarRed(red, e.target.value)}
-                    />
-                    <button
-                      type="button"
-                      className={styles.btnEliminar}
-                      onClick={() => eliminarRed(red)}
-                    >
-                      ✕
-                    </button>
-                  </div>
-                ))}
+          {/* ---- Redes sociales ---- */}
+          <section className={styles.seccion}>
+            <header className={styles.seccionHeader}>
+              <span className={styles.seccionIcono}>{ICONO_COMPARTIR}</span>
+              <div>
+                <h3 className={styles.seccionTitulo}>Redes sociales</h3>
+                <p className={styles.seccionSub}>
+                  Marcá con el círculo cuál red social se muestra en el Banner
+                  de la tienda.
+                </p>
               </div>
-            )}
-          </fieldset>
+            </header>
+            <div className={styles.seccionCuerpo}>
+              <p className={styles.sugeridas}>
+                <span className={styles.sugeridasLabel}>Agregar:</span>
+                {REDES_SOCIALES_SUGERIDAS.map((r) => {
+                  const existe = config.redes_sociales[r] !== undefined;
+                  return (
+                    <button
+                      key={r}
+                      type="button"
+                      className={`${styles.sugerencia}${existe ? ` ${styles.sugerenciaActiva}` : ""}`}
+                      onClick={() => {
+                        if (existe) eliminarRed(r);
+                        else actualizarRed(r, "");
+                      }}
+                      title={existe ? `Quitar ${r}` : `Agregar ${r}`}
+                      aria-label={existe ? `Quitar ${r}` : `Agregar ${r}`}
+                    >
+                      {iconoRed(r)}
+                      {existe && (
+                        <span className={styles.checkSugerencia}>✓</span>
+                      )}
+                    </button>
+                  );
+                })}
+              </p>
+
+              {Object.entries(config.redes_sociales).length > 0 && (
+                <div className={styles.redesLista}>
+                  {Object.entries(config.redes_sociales).map(([red, url]) => (
+                    <div key={red} className={styles.redRow}>
+                      <input
+                        type="radio"
+                        name="redDestacada"
+                        className={styles.radioDestacada}
+                        checked={config.red_social_destacada === red}
+                        onChange={() => seleccionarRedDestacada(red)}
+                        title={`Mostrar ${red} en el Banner`}
+                        aria-label={`Mostrar ${red} en el Banner`}
+                      />
+                      <span className={styles.redClave}>{red}</span>
+                      <input
+                        className={styles.input}
+                        placeholder={PLACEHOLDER_REDES[red] ?? "URL"}
+                        value={url}
+                        onChange={(e) => actualizarRed(red, e.target.value)}
+                      />
+                      <button
+                        type="button"
+                        className={styles.btnEliminar}
+                        onClick={() => eliminarRed(red)}
+                        aria-label={`Quitar ${red}`}
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </section>
         </div>
 
-        <fieldset className={styles.campoCard}>
-          <legend>
-            <span className={styles.legendInner}>
-              {ICONO_ALERTA}Mensaje de alerta
-            </span>
-          </legend>
-          <div className={styles.inputConEstado}>
-            <textarea
-              className={styles.input}
-              rows={2}
-              value={config.mensaje_alerta}
-              onChange={(e) => actualizar("mensaje_alerta", e.target.value)}
-              placeholder="Ej: Envíos especiales por el Día del Padre — consultá stock antes de venir"
-            />
-            {config.mensaje_alerta.trim() !== "" && (
-              <span className={styles.iconoValido} aria-hidden="true">
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <polyline points="20 6 9 17 4 12" />
-                </svg>
+        {/* ---- Mensaje de alerta ---- */}
+        <section className={styles.seccion}>
+          <header className={styles.seccionHeader}>
+            <span className={styles.seccionIcono}>{ICONO_ALERTA}</span>
+            <div>
+              <h3 className={styles.seccionTitulo}>Mensaje de alerta</h3>
+              <p className={styles.seccionSub}>
+                Se muestra como un cartel animado en la parte superior de la
+                tienda. Dejalo vacío para ocultarlo.
+              </p>
+            </div>
+          </header>
+          <div className={`${styles.seccionCuerpo} ${styles.alertaCuerpo}`}>
+            <div className={styles.alertaCampos}>
+              <label className={styles.label}>
+                <span className={styles.labelTexto}>Mensaje</span>
+                <textarea
+                  className={styles.input}
+                  rows={2}
+                  value={config.mensaje_alerta}
+                  onChange={(e) => actualizar("mensaje_alerta", e.target.value)}
+                  placeholder="Ej: Envíos especiales por el Día del Padre — consultá stock antes de venir"
+                />
+              </label>
+              <label className={styles.labelVencimiento}>
+                <span className={styles.labelTexto}>Vencimiento (opcional)</span>
+                <input
+                  className={styles.input}
+                  type="datetime-local"
+                  value={config.mensaje_alerta_expira_en}
+                  onChange={(e) =>
+                    actualizar("mensaje_alerta_expira_en", e.target.value)
+                  }
+                  disabled={config.mensaje_alerta.trim() === ""}
+                />
+              </label>
+              <span className={styles.ayuda}>
+                Si lo configurás, el mensaje se borra solo apenas se cumple la
+                fecha y hora (podés tardar hasta un minuto en verlo
+                desaparecer). Dejalo vacío para que el mensaje no venza nunca.
               </span>
-            )}
+            </div>
+
+            <div className={styles.previa}>
+              <span className={styles.labelTexto}>Así se ve en la tienda</span>
+              <div
+                className={`${styles.previaCartel} ${config.mensaje_alerta.trim() === "" ? styles.previaApagada : ""}`}
+              >
+                {config.mensaje_alerta.trim() || "Sin mensaje"}
+              </div>
+              <span className={styles.ayuda}>
+                {config.mensaje_alerta.trim() === ""
+                  ? "Sin mensaje: los clientes no ven el cartel."
+                  : "En la tienda el texto se desplaza de derecha a izquierda."}
+              </span>
+            </div>
           </div>
-          <span className={styles.ayuda}>
-            Se muestra como un cartel animado en la parte superior de la tienda.
-            Dejalo vacío para ocultarlo.
-          </span>
-          <label className={styles.labelVencimiento}>
-            <span className={styles.labelVencimientoTexto}>
-              Vencimiento (opcional)
-            </span>
-            <input
-              className={styles.input}
-              type="datetime-local"
-              value={config.mensaje_alerta_expira_en}
-              onChange={(e) =>
-                actualizar("mensaje_alerta_expira_en", e.target.value)
-              }
-              disabled={config.mensaje_alerta.trim() === ""}
-            />
-          </label>
-          <span className={styles.ayuda}>
-            Si lo configurás, el mensaje se borra solo apenas se cumple la fecha
-            y hora (podés tardar hasta un minuto en verlo desaparecer). Dejalo
-            vacío para que el mensaje no venza nunca.
-          </span>
-        </fieldset>
+        </section>
 
         <div className={styles.btnGuardarWrap}>
           {error && <p className={styles.error}>{error}</p>}

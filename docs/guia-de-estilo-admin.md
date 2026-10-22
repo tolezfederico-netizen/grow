@@ -83,7 +83,7 @@ Viven en `admin/src/index.css`, **duplicadas** de las del client (apps aisladas:
 | Paneles + formularios | ✅ Paneles y editor (barra negra; orden en cuadro amarillo; el editor de categorías se despliega debajo de su fila). 🔶 formularios | `pages/PanelsPage`, `components/PanelForm`, `PanelItemForm`, `PanelItemsEditor` |
 | Categorías | ✅ (barra negra con buscador, chips de estado y acciones; grilla CSS en lugar del cálculo de columnas con JS; cuadro de color con la cantidad de productos: amarillo, rojo si está vacía, gris si está pausada; edición del nombre en modal) | `pages/CategoriesPage` |
 | Clientes | ✅ (barra negra con buscador por nombre/email/teléfono, orden y Excel; tarjetas con cantidad de pedidos y último pedido; modal de detalle con contacto, total retirado y sus pedidos) | `pages/CustomersPage` |
-| Configuración | 🔶 primera pasada | `pages/SettingsPage` |
+| Configuración | ✅ (sin título; secciones con cabecera gris, ícono amarillo, título y explicación: Información del local con horario centrado, Sucursales, Redes sociales y Mensaje de alerta con vista previa; Guardar al final, sin posición fija. El gris queda reservado para las cabeceras) | `pages/SettingsPage` |
 | Diálogos (confirm / notify / toast) | 🔶 primera pasada | `components/ConfirmDialog`, `context/ConfirmContext` |
 | Estados de carga y error | 🔶 primera pasada (`ErrorBoundary` pasó a CSS Module) | `components/LoadingState`, `ErrorState`, `ErrorBoundary` |
 | Mobile del admin | ⏳ (etapa pendiente desde antes del rediseño) | todos |
