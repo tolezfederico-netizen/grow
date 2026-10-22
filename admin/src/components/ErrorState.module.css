@@ -1,21 +1,27 @@
+/* Error de carga: viñeta con borde en el color de error */
 .error {
+  max-width: 28rem;
+  margin: 2rem auto;
+  padding: 1.1rem 1rem;
+  border: var(--brutal-border);
+  border-color: var(--color-error);
+  border-radius: var(--brutal-radius);
+  background: var(--color-background);
   text-align: center;
-  padding: 3rem 1rem;
-  color: #dc2626;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--color-error);
 }
 
 .boton {
-  margin-top: 1rem;
-  padding: 0.5rem 1.5rem;
-  border: none;
+  margin-top: 0.85rem;
+  padding: 0.4rem 1.1rem;
+  border: var(--brutal-border);
   border-radius: 6px;
-  background: var(--color-brand-black);
-  color: #fff;
+  background: var(--color-primary);
+  color: var(--color-secondary);
+  box-shadow: var(--brutal-shadow-sm);
+  font-size: 0.8rem;
+  font-weight: 700;
   cursor: pointer;
-  transition: background 0.15s;
-}
-
-.boton:hover {
-  background: var(--color-brand-yellow);
-  color: var(--color-brand-black);
 }

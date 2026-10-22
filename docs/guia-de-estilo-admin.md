@@ -19,7 +19,7 @@ Decisión: **neo-brutalismo sobrio**. Misma base que el client (colores, fuentes
 | Deshabilitado: borde punteado, fondo `--color-background-muted`, sin sombra, `opacity: 0.6` | ✅ Igual |
 | Modales: `--brutal-border` + `--brutal-shadow-lg`, cabecera amarilla, botón cerrar cuadrado | ✅ Igual (ver `PedidoDetalleModal` / `ConfirmarPedidoModal` del client) |
 | Inputs: `--brutal-border`, alto ~2.3rem, foco con `--brutal-shadow-sm`, errores en `--color-error` | ✅ Igual (ver `LoginPage.module.css` del client) |
-| Resaltador amarillo | ⚠️ Solo en el **título de cada página** (Pedidos, Productos…), no en secciones internas |
+| Resaltador amarillo | ⚠️ Solo en el título de página, y los títulos de página se están quitando: la barra lateral ya indica la sección (sin título en Dashboard y Pedidos) |
 | Sombras duras | ⚠️ Solo botones, modales y desplegables. **Tablas, filas y tarjetas de métricas sin sombra** |
 | Fondo punteado | ⚠️ Solo en el **login del admin**. Nunca detrás de tablas o formularios |
 | Viñetas con borde | ⚠️ Para agrupar bloques (tarjetas de métricas, secciones de Configuración). Las tablas van en una sola viñeta con filas separadas por `--brutal-border-thin`, nunca tarjeta dentro de tarjeta |
@@ -31,16 +31,19 @@ Decisión: **neo-brutalismo sobrio**. Misma base que el client (colores, fuentes
 Viven en `admin/src/index.css`, **duplicadas** de las del client (apps aisladas: nunca importar desde `client/`). Ya están cargadas:
 
 - Las mismas del client: `--color-primary` (amarillo), `--color-secondary` (negro), `--color-background`, `--color-background-muted`, `--color-error`, `--font-*`, `--brutal-*`, `--punteado-*`.
-- `--color-brand-yellow` / `--color-brand-black`: **alias históricos** que usan hoy los CSS del admin (72 usos cada uno). Apuntan a `--color-primary` / `--color-secondary`. Al rediseñar cada archivo, reemplazarlos por las variables del tema; cuando no quede ninguno, se borran.
+- `--color-texto-suave` (texto secundario) y `--color-overlay` (fondo de modales), derivados del tema con `color-mix()`.
+- Los alias históricos `--color-brand-yellow` / `--color-brand-black` y las variables `--color-text` / `--color-border` ya se reemplazaron y se borraron.
 - `--estado-<estado>-fondo` / `--estado-<estado>-texto` para `pendiente`, `confirmado`, `listo` (listo para retirar), `completado`, `cancelado`. Son los mismos valores que hoy están escritos sueltos en Dashboard y Pedidos.
-- Las fuentes se cargan desde Google Fonts en `admin/index.html`. El `body` todavía usa la fuente del sistema: cada sección rediseñada declara `font-family: var(--font-ui)`; cuando estén todas, se pasa a `body`.
+- Las fuentes se cargan desde Google Fonts en `admin/index.html`. El `body` usa `--font-ui` y los controles de formulario la heredan.
+- Checkboxes y radios tienen un estilo global en `index.css` (borde negro, marcado en amarillo con tilde o punto negro).
 - Hoy hay muchos colores hardcodeados en los CSS (`#fff`, `#9ca3af`, `#6b7280`, `#dc2626`, `#059669`, `rgba(0,0,0,.4)`…). Al tocar cada archivo, pasarlos a variables o a `color-mix()`.
 
 ## 3. Componentes
 
 ### 3.1 Layout (`AdminLayout`)
 - Barra lateral negra (`--color-secondary`) con ítems en `--font-ui`; el activo en amarillo con texto negro. Sin hover de color en los ítems (solo cursor), igual que los botones del client.
-- Contenido sobre blanco, padding compacto (~1.5rem). Título de página con el resaltador.
+- Contenido sobre blanco, padding compacto (~1.5rem). Sin título de página (decisión del usuario: repite la barra lateral).
+- Páginas con filtros: barra superior negra, despegada de la barra lateral (bloque redondeado, fija al hacer scroll). Sobre el negro, el filtro seleccionado lleva borde y sombra del color fuerte de su estado (`--estado-*-texto`); "Todos" queda blanco con amarillo. Ver `OrdersPage.module.css`.
 
 ### 3.2 Tablas y listados (Pedidos, Productos, Paneles, Categorías, Clientes)
 - Una sola viñeta (`--brutal-border`, radio estándar, fondo blanco) con filas separadas por `--brutal-border-thin`. Encabezado de columnas en `--font-display` chico (≈0.68rem, mayúsculas).
@@ -72,18 +75,20 @@ Viven en `admin/src/index.css`, **duplicadas** de las del client (apps aisladas:
 | Sección | Estado | Archivos principales |
 |---|---|---|
 | Base: variables, fuentes, alias | ✅ | `admin/src/index.css`, `admin/index.html` |
-| Login | ⏳ | `pages/LoginPage` |
-| Layout (barra lateral) | ⏳ | `components/AdminLayout` |
-| Dashboard | ⏳ | `pages/DashboardPage` |
-| Pedidos + modal de notificar | ⏳ | `pages/OrdersPage`, `components/NotificarPedidoModal` |
-| Productos + formulario + selector de imagen | ⏳ | `pages/ProductsPage`, `components/ProductForm`, `components/ProductoImagenSelector` |
-| Paneles + formularios | ⏳ | `pages/PanelsPage`, `components/PanelForm`, `PanelItemForm`, `PanelItemsEditor` |
-| Categorías | ⏳ (calcula columnas con JS en vez de grid CSS: pendiente conocido) | `pages/CategoriesPage` |
-| Clientes | ⏳ | `pages/CustomersPage` |
-| Configuración | ⏳ (la página más grande, ~930 líneas) | `pages/SettingsPage` |
-| Diálogos (confirm / notify / toast) | ⏳ | `components/ConfirmDialog`, `context/ConfirmContext` |
-| Estados de carga y error | ⏳ | `components/LoadingState`, `ErrorState`, `ErrorBoundary` |
+| Login | 🔶 primera pasada (viñeta sobre fondo punteado + logo en recuadro negro; sin verificar en el navegador porque requiere cerrar sesión) | `pages/LoginPage` |
+| Layout (barra lateral) | 🔶 primera pasada | `components/AdminLayout` |
+| Dashboard | ✅ (rediseño con cambios funcionales pedidos por el usuario: sin métricas duplicadas ni "Ventas de hoy"; fila de 5 estados con Pendiente resaltado, últimos pedidos clickeables que abren el pedido, gráfico de pedidos de 7 días y aviso de productos sin stock) | `pages/DashboardPage` |
+| Pedidos + modal de notificar | ✅ (barra superior negra fija; sin título ni total; carga los últimos 30 días + abiertos, con botón para ver antiguos; grupos por fecha en viñetas separadas; marca "Sin atender" para pendientes de más de 24 h; abre el pedido de `?id=`) | `pages/OrdersPage`, `components/NotificarPedidoModal` |
+| Productos + formulario + selector de imagen | 🔶 primera pasada | `pages/ProductsPage`, `components/ProductForm`, `components/ProductoImagenSelector` |
+| Paneles + formularios | 🔶 primera pasada | `pages/PanelsPage`, `components/PanelForm`, `PanelItemForm`, `PanelItemsEditor` |
+| Categorías | 🔶 primera pasada (sigue calculando columnas con JS: pendiente conocido) | `pages/CategoriesPage` |
+| Clientes | 🔶 primera pasada | `pages/CustomersPage` |
+| Configuración | 🔶 primera pasada | `pages/SettingsPage` |
+| Diálogos (confirm / notify / toast) | 🔶 primera pasada | `components/ConfirmDialog`, `context/ConfirmContext` |
+| Estados de carga y error | 🔶 primera pasada (`ErrorBoundary` pasó a CSS Module) | `components/LoadingState`, `ErrorState`, `ErrorBoundary` |
 | Mobile del admin | ⏳ (etapa pendiente desde antes del rediseño) | todos |
+
+🔶 = rediseñada de una vez en una primera pasada; falta la revisión página por página con el usuario.
 
 Al terminar una sección, actualizar esta tabla.
 

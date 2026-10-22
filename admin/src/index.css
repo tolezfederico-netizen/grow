@@ -11,14 +11,8 @@
   --color-primary: rgb(253, 206, 5);
   --color-secondary: rgb(34, 30, 31);
   --color-background: #ffffff;
-  --color-text: #111827;
-  --color-border: #e5e7eb;
   --color-background-muted: #f3f4f6;
   --color-error: #dc2626;
-
-  /* Alias históricos del admin: los CSS existentes los usan; apuntan al tema */
-  --color-brand-yellow: var(--color-primary);
-  --color-brand-black: var(--color-secondary);
 
   /* Estilo neo-brutalista sobrio (ver docs/guia-de-estilo-admin.md) */
   --font-display: "Archivo Black", system-ui, sans-serif;
@@ -50,11 +44,86 @@
   --estado-completado-texto: #065f46;
   --estado-cancelado-fondo: #fee2e2;
   --estado-cancelado-texto: #991b1b;
+
+  /* Texto secundario y overlay de modales, derivados del tema */
+  --color-texto-suave: color-mix(in srgb, var(--color-secondary) 62%, var(--color-background));
+  --color-overlay: color-mix(in srgb, var(--color-secondary) 45%, transparent);
 }
 
 body {
-  font-family: system-ui, -apple-system, sans-serif;
-  color: var(--color-text);
+  font-family: var(--font-ui);
+  color: var(--color-secondary);
   background-color: var(--color-background);
   line-height: 1.5;
+}
+
+/* Los controles de formulario no heredan la fuente por defecto */
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
+}
+
+/* Checkboxes y radios: borde negro; marcado en amarillo con tilde o punto negro */
+input[type="checkbox"],
+input[type="radio"] {
+  appearance: none;
+  -webkit-appearance: none;
+  display: inline-grid;
+  place-content: center;
+  flex-shrink: 0;
+  width: 1rem;
+  height: 1rem;
+  margin: 0;
+  border: var(--brutal-border-thin);
+  border-radius: 4px;
+  background: var(--color-background);
+  cursor: pointer;
+}
+
+input[type="radio"] {
+  border-radius: 50%;
+}
+
+input[type="checkbox"]::before {
+  content: "";
+  width: 0.6rem;
+  height: 0.6rem;
+  clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+  box-shadow: inset 1rem 1rem var(--color-secondary);
+  transform: scale(0);
+}
+
+input[type="radio"]::before {
+  content: "";
+  width: 0.4rem;
+  height: 0.4rem;
+  border-radius: 50%;
+  background: var(--color-secondary);
+  transform: scale(0);
+}
+
+input[type="checkbox"]:checked,
+input[type="radio"]:checked {
+  background: var(--color-primary);
+}
+
+input[type="checkbox"]:checked::before,
+input[type="radio"]:checked::before {
+  transform: scale(1);
+}
+
+input[type="checkbox"]:focus-visible,
+input[type="radio"]:focus-visible {
+  outline: none;
+  box-shadow: var(--brutal-shadow-sm);
+}
+
+input[type="checkbox"]:disabled,
+input[type="radio"]:disabled {
+  border-style: dashed;
+  background: var(--color-background-muted);
+  opacity: 0.6;
+  cursor: default;
 }

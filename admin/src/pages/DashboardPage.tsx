@@ -6,23 +6,45 @@ import ErrorState from '../components/ErrorState'
 import { iconoEstado } from '../utils/iconoEstado'
 import styles from './DashboardPage.module.css'
 
-function claseBadgeEstado(estado: string): string {
+const DIAS_SEMANA = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb']
+
+function claseEstado(estado: string): string {
   const map: Record<string, string> = {
-    pendiente: styles.badgePendiente,
-    confirmado: styles.badgeConfirmado,
-    listo_para_retirar: styles.badgeListo,
-    completado: styles.badgeCompletado,
-    cancelado: styles.badgeCancelado,
+    pendiente: styles.estadoPendiente,
+    confirmado: styles.estadoConfirmado,
+    listo_para_retirar: styles.estadoListo,
+    completado: styles.estadoCompletado,
+    cancelado: styles.estadoCancelado,
   }
   return map[estado] ?? ''
 }
 
+function inicioDelDia(fecha: Date): Date {
+  const d = new Date(fecha)
+  d.setHours(0, 0, 0, 0)
+  return d
+}
+
+/** Hoy → "12:24"; ayer → "Ayer 20:50"; antes → "16/8 20:50". */
+function formatFechaCorta(iso: string): string {
+  const fecha = new Date(iso)
+  const hora = fecha.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', hour12: false })
+  const dias = Math.round((inicioDelDia(new Date()).getTime() - inicioDelDia(fecha).getTime()) / 86_400_000)
+  if (dias === 0) return hora
+  if (dias === 1) return `Ayer ${hora}`
+  return `${fecha.getDate()}/${fecha.getMonth() + 1} ${hora}`
+}
+
+interface DiaSemana {
+  etiqueta: string
+  cantidad: number
+}
+
 export default function DashboardPage() {
-  const [pendientes, setPendientes] = useState(0)
-  const [productosActivos, setProductosActivos] = useState(0)
-  const [ultimos, setUltimos] = useState<Pedido[]>([])
-  const [ventasHoy, setVentasHoy] = useState(0)
   const [conteoEstados, setConteoEstados] = useState<Record<string, number>>({})
+  const [sinStock, setSinStock] = useState(0)
+  const [ultimos, setUltimos] = useState<Pedido[]>([])
+  const [semana, setSemana] = useState<DiaSemana[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -30,36 +52,37 @@ export default function DashboardPage() {
     setLoading(true)
     setError(null)
 
-    const hoyInicio = new Date()
-    hoyInicio.setHours(0, 0, 0, 0)
-    const hoyFin = new Date()
-    hoyFin.setHours(23, 59, 59, 999)
+    const desde = inicioDelDia(new Date())
+    desde.setDate(desde.getDate() - 6)
 
-    const [resPendientes, resProductos, resUltimos, resVentasHoy, ...resConteos] = await Promise.all([
-      supabase.from('pedidos').select('id', { count: 'exact', head: true }).eq('estado', 'pendiente').eq('eliminado', false),
-      supabase.from('productos').select('id', { count: 'exact', head: true }).eq('estado', 'disponible'),
+    const [resSinStock, resUltimos, resSemana, ...resConteos] = await Promise.all([
+      supabase.from('productos').select('id', { count: 'exact', head: true }).eq('estado', 'sin_stock'),
       supabase.from('pedidos').select('*').eq('eliminado', false).order('creado_en', { ascending: false }).limit(6),
-      supabase.from('pedidos').select('total').eq('estado', 'completado').eq('eliminado', false).gte('actualizado_en', hoyInicio.toISOString()).lte('actualizado_en', hoyFin.toISOString()),
+      supabase.from('pedidos').select('creado_en').eq('eliminado', false).gte('creado_en', desde.toISOString()),
       ...ESTADOS_PEDIDO.map(e => supabase.from('pedidos').select('id', { count: 'exact', head: true }).eq('estado', e).eq('eliminado', false)),
     ])
 
-    if (resPendientes.error) { setError(resPendientes.error.message); setLoading(false); return }
-    if (resProductos.error) { setError(resProductos.error.message); setLoading(false); return }
-    if (resUltimos.error) { setError(resUltimos.error.message); setLoading(false); return }
-    if (resVentasHoy.error) { setError(resVentasHoy.error.message); setLoading(false); return }
-    const errConteo = resConteos.find(r => r.error)
-    if (errConteo) { setError(errConteo.error!.message); setLoading(false); return }
-
-    const totalVentasHoy = (resVentasHoy.data ?? []).reduce((sum, r) => sum + r.total, 0)
+    const errorRes = [resSinStock, resUltimos, resSemana, ...resConteos].find(r => r.error)
+    if (errorRes) { setError(errorRes.error!.message); setLoading(false); return }
 
     const conteo: Record<string, number> = {}
     ESTADOS_PEDIDO.forEach((e, i) => { conteo[e] = resConteos[i].count ?? 0 })
 
-    setPendientes(resPendientes.count ?? 0)
-    setProductosActivos(resProductos.count ?? 0)
-    setUltimos((resUltimos.data ?? []).map(mapearPedido))
-    setVentasHoy(totalVentasHoy)
+    // Un casillero por día, del más viejo a hoy
+    const dias: DiaSemana[] = Array.from({ length: 7 }, (_, i) => {
+      const d = new Date(desde)
+      d.setDate(desde.getDate() + i)
+      return { etiqueta: i === 6 ? 'Hoy' : DIAS_SEMANA[d.getDay()], cantidad: 0 }
+    })
+    ;(resSemana.data ?? []).forEach(p => {
+      const indice = Math.round((inicioDelDia(new Date(p.creado_en)).getTime() - desde.getTime()) / 86_400_000)
+      if (indice >= 0 && indice < 7) dias[indice].cantidad++
+    })
+
     setConteoEstados(conteo)
+    setSinStock(resSinStock.count ?? 0)
+    setUltimos((resUltimos.data ?? []).map(mapearPedido))
+    setSemana(dias)
     setLoading(false)
   }
 
@@ -68,66 +91,101 @@ export default function DashboardPage() {
   if (loading) {
     return (
       <div className={styles.page}>
-        <div className={styles.tarjetas}>
-          <div className={`${styles.tarjeta} ${styles.skeleton}`} />
-          <div className={`${styles.tarjeta} ${styles.skeleton}`} />
-          <div className={`${styles.tarjeta} ${styles.skeleton}`} />
+        <div className={styles.estados}>
+          {ESTADOS_PEDIDO.map(e => <div key={e} className={`${styles.estado} ${styles.skeleton}`} />)}
         </div>
-        {[1, 2, 3, 4, 5].map(i => <div key={i} className={styles.skeletonRow} />)}
+        <div className={styles.columnas}>
+          <div className={`${styles.bloque} ${styles.skeleton} ${styles.skeletonBloque}`} />
+          <div className={`${styles.bloque} ${styles.skeleton} ${styles.skeletonBloque}`} />
+        </div>
       </div>
     )
   }
 
   if (error) return <ErrorState mensaje={error} onReintentar={cargar} />
 
+  const maximoSemana = Math.max(1, ...semana.map(d => d.cantidad))
+  const totalSemana = semana.reduce((sum, d) => sum + d.cantidad, 0)
+
   return (
     <div className={styles.page}>
-      <div className={styles.tarjetas}>
-        <Link to="/pedidos?estado=pendiente" className={styles.tarjeta}>
-          <p className={styles.numero}>{pendientes}</p>
-          <p className={styles.etiqueta}>Pedidos pendientes</p>
-        </Link>
-        <Link to="/productos" className={styles.tarjeta}>
-          <p className={styles.numero}>{productosActivos}</p>
-          <p className={styles.etiqueta}>Productos activos</p>
-        </Link>
-        <div className={styles.tarjeta}>
-          <p className={styles.numero}>{formatPrecio(ventasHoy)}</p>
-          <p className={styles.etiqueta}>Ventas de hoy</p>
+      <div className={styles.estados}>
+        {ESTADOS_PEDIDO.map(e => {
+          const cantidad = conteoEstados[e] ?? 0
+          const destacado = e === 'pendiente' && cantidad > 0
+          return (
+            <Link
+              key={e}
+              to={`/pedidos?estado=${e}`}
+              className={`${styles.estado} ${destacado ? styles.estadoDestacado : ''}`}
+            >
+              <span className={`${styles.estadoIcono} ${claseEstado(e)}`}>{iconoEstado(e)}</span>
+              <span className={styles.estadoNumero}>{cantidad}</span>
+              <span className={styles.estadoEtiqueta}>{formatEstadoPedido(e)}</span>
+            </Link>
+          )
+        })}
+      </div>
+
+      <div className={styles.columnas}>
+        <section className={styles.bloque}>
+          <div className={styles.bloqueHeader}>
+            <h2 className={styles.bloqueTitulo}>Últimos pedidos</h2>
+            <div className={styles.bloqueAcciones}>
+              <button className={styles.boton} onClick={cargar}>↻ Actualizar</button>
+              <Link to="/pedidos" className={styles.boton}>Ver todos</Link>
+            </div>
+          </div>
+          {ultimos.length === 0 ? (
+            <p className={styles.vacio}>No hay pedidos todavía.</p>
+          ) : (
+            <div className={styles.lista}>
+              {ultimos.map(p => (
+                <Link key={p.id} to={`/pedidos?id=${p.id}`} className={styles.pedido}>
+                  <span className={styles.pedidoDatos}>
+                    <span className={styles.pedidoCliente}>{p.cliente_nombre}</span>
+                    <span className={styles.pedidoFecha}>{formatFechaCorta(p.creado_en)}</span>
+                  </span>
+                  <span className={`${styles.badge} ${claseEstado(p.estado)}`}>
+                    {iconoEstado(p.estado)}{formatEstadoPedido(p.estado)}
+                  </span>
+                  <span className={styles.pedidoTotal}>{formatPrecio(p.total)}</span>
+                </Link>
+              ))}
+            </div>
+          )}
+        </section>
+
+        <div className={styles.columnaDerecha}>
+          <section className={styles.bloque}>
+            <div className={styles.bloqueHeader}>
+              <h2 className={styles.bloqueTitulo}>Pedidos de los últimos 7 días</h2>
+              <span className={styles.totalSemana}>{totalSemana} en total</span>
+            </div>
+            <div className={styles.grafico} role="img" aria-label={semana.map(d => `${d.etiqueta}: ${d.cantidad}`).join(', ')}>
+              {semana.map((d, i) => (
+                <div key={i} className={styles.dia} title={`${d.etiqueta}: ${d.cantidad} pedido${d.cantidad !== 1 ? 's' : ''}`}>
+                  <span className={styles.diaValor}>{d.cantidad}</span>
+                  <div className={styles.diaPista}>
+                    {d.cantidad > 0 && (
+                      <div className={styles.diaBarra} style={{ height: `${(d.cantidad / maximoSemana) * 100}%` }} />
+                    )}
+                  </div>
+                  <span className={`${styles.diaEtiqueta} ${i === 6 ? styles.diaHoy : ''}`}>{d.etiqueta}</span>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          <Link to="/productos" className={`${styles.aviso} ${sinStock > 0 ? styles.avisoActivo : ''}`}>
+            <span className={styles.avisoNumero}>{sinStock}</span>
+            <span className={styles.avisoTexto}>
+              {sinStock === 1 ? 'producto sin stock' : 'productos sin stock'}
+            </span>
+            <span className={styles.avisoFlecha}>Ver →</span>
+          </Link>
         </div>
       </div>
-
-      <div className={styles.miniTarjetas}>
-        {ESTADOS_PEDIDO.map(e => (
-          <Link key={e} to={`/pedidos?estado=${e}`} className={styles.miniTarjeta}>
-            <span className={styles.miniIcono}>{iconoEstado(e)}</span>
-            <p className={styles.miniNumero}>{conteoEstados[e] ?? 0}</p>
-            <p className={styles.miniEtiqueta}>{formatEstadoPedido(e)}</p>
-          </Link>
-        ))}
-      </div>
-
-      <div className={styles.sectionHeader}>
-        <h2 className={styles.subtitulo}>Últimos pedidos</h2>
-        <button className={styles.btnRefrescar} onClick={cargar}>↻ Actualizar</button>
-      </div>
-      {ultimos.length === 0 ? (
-        <p className={styles.vacio}>No hay pedidos todavía.</p>
-      ) : (
-        <>
-          <div className={styles.pedidosGrid}>
-            {ultimos.map(p => (
-              <div key={p.id} className={styles.pedidoRow}>
-                <span className={styles.pedidoCliente}>{p.cliente_nombre}</span>
-                <span className={`${styles.badge} ${claseBadgeEstado(p.estado)}`}>{iconoEstado(p.estado)}{formatEstadoPedido(p.estado)}</span>
-                <span className={styles.pedidoTotal}>{formatPrecio(p.total)}</span>
-                <Link to={`/pedidos?id=${p.id}`} className={styles.link}>Ver</Link>
-              </div>
-            ))}
-          </div>
-          <Link to="/pedidos" className={styles.verTodos}>Ver todos los pedidos →</Link>
-        </>
-      )}
     </div>
   )
 }

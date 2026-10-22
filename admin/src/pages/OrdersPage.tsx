@@ -28,6 +28,57 @@ interface PedidoConItems extends Pedido {
   items: PedidoItem[];
 }
 
+/** Ventana inicial del listado: los pedidos más viejos se cargan a pedido. */
+const DIAS_VISIBLES = 30;
+const ESTADOS_ABIERTOS: EstadoPedido[] = ["pendiente", "confirmado", "listo_para_retirar"];
+/** Un pendiente con más horas que esto se marca como "Sin atender". */
+const HORAS_SIN_ATENDER = 24;
+
+function diasDesde(iso: string): number {
+  const hoy = new Date();
+  hoy.setHours(0, 0, 0, 0);
+  const fecha = new Date(iso);
+  fecha.setHours(0, 0, 0, 0);
+  return Math.round((hoy.getTime() - fecha.getTime()) / 86_400_000);
+}
+
+function grupoFecha(iso: string): string {
+  const dias = diasDesde(iso);
+  if (dias === 0) return "Hoy";
+  if (dias === 1) return "Ayer";
+  if (dias < 7) return "Esta semana";
+  if (dias < DIAS_VISIBLES) return "Este mes";
+  return "Más antiguos";
+}
+
+/** "21/10 22:13"; agrega el año si no es el actual. */
+function formatFecha(iso: string): string {
+  const fecha = new Date(iso);
+  const hora = fecha.toLocaleTimeString("es-AR", { hour: "2-digit", minute: "2-digit", hour12: false });
+  const anio = fecha.getFullYear() !== new Date().getFullYear() ? `/${fecha.getFullYear()}` : "";
+  return `${fecha.getDate()}/${fecha.getMonth() + 1}${anio} ${hora}`;
+}
+
+/** Bloques consecutivos por fecha; sin título cuando el orden no es cronológico. */
+function agruparPorFecha<T extends Pedido>(
+  pedidos: T[],
+  porFecha: boolean,
+): { titulo: string | null; pedidos: T[] }[] {
+  if (!porFecha) return [{ titulo: null, pedidos }];
+  const grupos: { titulo: string; pedidos: T[] }[] = [];
+  pedidos.forEach((p) => {
+    const titulo = grupoFecha(p.creado_en);
+    const ultimo = grupos[grupos.length - 1];
+    if (ultimo && ultimo.titulo === titulo) ultimo.pedidos.push(p);
+    else grupos.push({ titulo, pedidos: [p] });
+  });
+  return grupos;
+}
+
+function sinAtender(p: Pedido): boolean {
+  return p.estado === "pendiente" && Date.now() - new Date(p.creado_en).getTime() > HORAS_SIN_ATENDER * 3_600_000;
+}
+
 function claseEstado(estado: string): string {
   const map: Record<string, string> = {
     pendiente: styles.estadoPendiente,
@@ -80,7 +131,10 @@ export default function OrdersPage() {
   const [mostrarEliminados, setMostrarEliminados] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [expandido, setExpandido] = useState<string | null>(null);
+  // Desde el Dashboard se llega con ?id= para abrir ese pedido
+  const [expandido, setExpandido] = useState<string | null>(
+    searchParams.get("id"),
+  );
   const [notificacionPendiente, setNotificacionPendiente] = useState<{
     pedido: PedidoConItems;
     estadoDestino: EstadoPedido;
@@ -89,26 +143,45 @@ export default function OrdersPage() {
   const [busqueda, setBusqueda] = useState("");
   type OrdenPedidos = "recientes" | "antiguos" | "mayor_monto" | "menor_monto";
   const [orden, setOrden] = useState<OrdenPedidos>("recientes");
+  const [verAntiguos, setVerAntiguos] = useState(false);
 
   const cargar = useCallback(async () => {
     setLoading(true);
     setError(null);
 
-    const [resP, resI] = await Promise.all([
-      supabase
-        .from("pedidos")
-        .select("*")
-        .order("creado_en", { ascending: false }),
-      supabase
-        .from("pedido_items")
-        .select("*, producto_variantes(nombre_variante)"),
-    ]);
+    // Por defecto: últimos 30 días + los que siguen abiertos (sin importar la fecha)
+    let consultaPedidos = supabase
+      .from("pedidos")
+      .select("*")
+      .order("creado_en", { ascending: false });
+    if (!verAntiguos) {
+      const desde = new Date();
+      desde.setHours(0, 0, 0, 0);
+      desde.setDate(desde.getDate() - DIAS_VISIBLES);
+      consultaPedidos = consultaPedidos.or(
+        `creado_en.gte.${desde.toISOString()},estado.in.(${ESTADOS_ABIERTOS.join(",")})`,
+      );
+    }
+    const resP = await consultaPedidos;
 
     if (resP.error) {
       setError(resP.error.message);
       setLoading(false);
       return;
     }
+
+    // Solo los ítems de los pedidos cargados (con todo el historial, sin filtro)
+    let consultaItems = supabase
+      .from("pedido_items")
+      .select("*, producto_variantes(nombre_variante)");
+    if (!verAntiguos) {
+      consultaItems = consultaItems.in(
+        "pedido_id",
+        (resP.data ?? []).map((p) => p.id),
+      );
+    }
+    const resI = await consultaItems;
+
     if (resI.error) {
       setError(resI.error.message);
       setLoading(false);
@@ -123,7 +196,7 @@ export default function OrdersPage() {
 
     setPedidos(combinados);
     setLoading(false);
-  }, []);
+  }, [verAntiguos]);
 
   useEffect(() => {
     cargar();
@@ -140,8 +213,6 @@ export default function OrdersPage() {
         !busqueda ||
         p.cliente_nombre.toLowerCase().includes(busqueda.toLowerCase()),
     );
-
-  const totalFiltrado = filtrados.reduce((sum, p) => sum + p.total, 0);
 
   const filtradosOrdenados = [...filtrados].sort((a, b) => {
     switch (orden) {
@@ -299,86 +370,74 @@ export default function OrdersPage() {
 
   return (
     <div className={styles.page}>
-      <div className={styles.header}>
-        <h2>Pedidos</h2>
-        <div className={styles.filtros}>
-          <div className={styles.filtroBotones}>
+      <div className={styles.barra}>
+        <div className={styles.filaSecundaria}>
+          <label className={styles.busquedaLabel}>
+            <input
+              className={styles.inputBusqueda}
+              type="text"
+              placeholder="Buscar cliente..."
+              value={busqueda}
+              onChange={(e) => setBusqueda(e.target.value)}
+            />
+            {busqueda && (
+              <button
+                className={styles.btnLimpiarBusqueda}
+                onClick={() => setBusqueda("")}
+                type="button"
+                aria-label="Limpiar búsqueda"
+              >
+                ✕
+              </button>
+            )}
+          </label>
+          <select
+            className={styles.selectOrden}
+            value={orden}
+            onChange={(e) => setOrden(e.target.value as OrdenPedidos)}
+            aria-label="Ordenar pedidos"
+          >
+            <option value="recientes">Más recientes</option>
+            <option value="antiguos">Más antiguos</option>
+            <option value="mayor_monto">Mayor monto</option>
+            <option value="menor_monto">Menor monto</option>
+          </select>
+          <label className={styles.checkEliminados}>
+            <input
+              type="checkbox"
+              className={styles.checkboxHidden}
+              checked={mostrarEliminados}
+              onChange={(e) => setMostrarEliminados(e.target.checked)}
+            />
+            <span className={styles.toggleSlider}></span>
+            Mostrar eliminados
+          </label>
+        </div>
+        <div className={styles.filtroBotones}>
+          <button
+            className={`${styles.btnFiltroEstado} ${filtro === "" ? styles.btnFiltroEstadoActivo : ""}`}
+            onClick={() => setFiltro("")}
+          >
+            Todos{" "}
+            <span className={styles.contadorEstado}>
+              {pedidosVisiblesBase.length}
+            </span>
+          </button>
+          {ESTADOS_PEDIDO.map((e) => (
             <button
-              className={`${styles.btnFiltroEstado} ${filtro === "" ? styles.btnFiltroEstadoActivo : ""}`}
-              onClick={() => setFiltro("")}
+              key={e}
+              className={`${styles.btnFiltroEstado} ${claseBotonFiltro(e)} ${filtro === e ? claseBotonFiltroActivo(e) : ""}`}
+              onClick={() => setFiltro(e)}
             >
-              Todos{" "}
+              {iconoEstado(e)}
+              {formatEstadoPedido(e)}{" "}
               <span className={styles.contadorEstado}>
-                {pedidosVisiblesBase.length}
+                {pedidosVisiblesBase.filter((p) => p.estado === e).length}
               </span>
             </button>
-            {ESTADOS_PEDIDO.map((e) => (
-              <button
-                key={e}
-                className={`${styles.btnFiltroEstado} ${claseBotonFiltro(e)} ${filtro === e ? claseBotonFiltroActivo(e) : ""}`}
-                onClick={() => setFiltro(e)}
-              >
-                {iconoEstado(e)}
-                {formatEstadoPedido(e)}{" "}
-                <span className={styles.contadorEstado}>
-                  {pedidosVisiblesBase.filter((p) => p.estado === e).length}
-                </span>
-              </button>
-            ))}
-          </div>
-          <div className={styles.filaSecundaria}>
-            <div className={styles.busquedaOrden}>
-              <label className={styles.busquedaLabel}>
-                <input
-                  className={styles.inputBusqueda}
-                  type="text"
-                  placeholder="Buscar cliente..."
-                  value={busqueda}
-                  onChange={(e) => setBusqueda(e.target.value)}
-                />
-                {busqueda && (
-                  <button
-                    className={styles.btnLimpiarBusqueda}
-                    onClick={() => setBusqueda("")}
-                    type="button"
-                    aria-label="Limpiar búsqueda"
-                  >
-                    ✕
-                  </button>
-                )}
-              </label>
-              <select
-                className={styles.selectOrden}
-                value={orden}
-                onChange={(e) => setOrden(e.target.value as OrdenPedidos)}
-                aria-label="Ordenar pedidos"
-              >
-                <option value="recientes">Más recientes</option>
-                <option value="antiguos">Más antiguos</option>
-                <option value="mayor_monto">Mayor monto</option>
-                <option value="menor_monto">Menor monto</option>
-              </select>
-            </div>
-            <label className={styles.checkEliminados}>
-              <input
-                type="checkbox"
-                className={styles.checkboxHidden}
-                checked={mostrarEliminados}
-                onChange={(e) => setMostrarEliminados(e.target.checked)}
-              />
-              <span className={styles.toggleSlider}></span>
-              Mostrar eliminados
-            </label>
-          </div>
+          ))}
         </div>
       </div>
-
-      {filtrados.length > 0 && (
-        <p className={styles.totalFiltro}>
-          Total: {formatPrecio(totalFiltrado)} ({filtrados.length} pedido
-          {filtrados.length !== 1 ? "s" : ""})
-        </p>
-      )}
 
       {filtrados.length === 0 ? (
         <div className={styles.estadoVacio}>
@@ -387,7 +446,7 @@ export default function OrdersPage() {
             height="48"
             viewBox="0 0 24 24"
             fill="none"
-            stroke="#9ca3af"
+            stroke="currentColor"
             strokeWidth="1.5"
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -410,8 +469,15 @@ export default function OrdersPage() {
           )}
         </div>
       ) : (
-        <div>
-          {filtradosOrdenados.map((p) => {
+        <div className={styles.grupos}>
+          {agruparPorFecha(
+            filtradosOrdenados,
+            orden === "recientes" || orden === "antiguos",
+          ).map((g) => (
+            <section key={g.titulo ?? "todos"}>
+              {g.titulo && <h3 className={styles.grupo}>{g.titulo}</h3>}
+              <div className={styles.lista}>
+          {g.pedidos.map((p) => {
             const disponibles = TRANSICIONES[p.estado] ?? [];
             return (
               <div
@@ -425,7 +491,15 @@ export default function OrdersPage() {
                   <span className={styles.avatarCliente}>
                     {p.cliente_nombre.charAt(0).toUpperCase()}
                   </span>
-                  <span className={styles.cliente}>{p.cliente_nombre}</span>
+                  <span className={styles.cliente}>
+                    {p.cliente_nombre}
+                    {sinAtender(p) && (
+                      <span className={styles.badgeSinAtender}>Sin atender</span>
+                    )}
+                    {p.eliminado && (
+                      <span className={styles.badgeEliminado}>Eliminado</span>
+                    )}
+                  </span>
                   <span className={`${styles.estado} ${claseEstado(p.estado)}`}>
                     {iconoEstado(p.estado)}
                     {formatEstadoPedido(p.estado)}
@@ -434,12 +508,7 @@ export default function OrdersPage() {
                   <span className={styles.cantidadItems}>
                     {p.items.length} producto{p.items.length !== 1 ? "s" : ""}
                   </span>
-                  <span className={styles.fecha}>
-                    {new Date(p.creado_en).toLocaleDateString()}
-                  </span>
-                  {p.eliminado && (
-                    <span className={styles.badgeEliminado}>Eliminado</span>
-                  )}
+                  <span className={styles.fecha}>{formatFecha(p.creado_en)}</span>
                   <span className={styles.arrow}>
                     {expandido === p.id ? "▾" : "▸"}
                   </span>
@@ -632,8 +701,25 @@ export default function OrdersPage() {
               </div>
             );
           })}
+              </div>
+            </section>
+          ))}
         </div>
       )}
+
+      <div className={styles.pieListado}>
+        <p>
+          {verAntiguos
+            ? "Se muestran todos los pedidos."
+            : `Se muestran los pedidos de los últimos ${DIAS_VISIBLES} días y los que siguen abiertos.`}
+        </p>
+        <button
+          className={styles.btnVerTodos}
+          onClick={() => setVerAntiguos((v) => !v)}
+        >
+          {verAntiguos ? "Ocultar pedidos antiguos" : "Ver pedidos más antiguos"}
+        </button>
+      </div>
 
       {notificacionPendiente && (
         <NotificarPedidoModal

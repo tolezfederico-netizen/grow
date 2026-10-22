@@ -365,7 +365,7 @@ export default function PanelsPage() {
           )}
         </div>
       ) : (
-        <>
+        <div className={styles.tabla}>
           <div className={styles.filaHeader} style={colsVar}>
             <span>Título</span>
             <span>Orden</span>
@@ -484,7 +484,7 @@ export default function PanelsPage() {
               )}
             </div>
           ))}
-        </>
+        </div>
       )}
 
       {selPanelId && panelSel && (

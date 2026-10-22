@@ -2,247 +2,333 @@
   width: 100%;
 }
 
-.tarjetas {
+/* ---- Pedidos por estado: tarjetas en fila, borde parejo y sin sombra ---- */
+
+.estados {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1rem;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 0.75rem;
   margin-bottom: 1rem;
 }
 
-.tarjeta {
-  padding: 1.5rem;
-  border: 1px solid var(--color-border);
-  border-top: 3px solid var(--color-brand-yellow);
-  border-radius: 8px;
-  text-align: center;
+.estado {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  column-gap: 0.6rem;
+  min-width: 0;
+  min-height: 3.6rem;
+  padding: 0.65rem 0.85rem;
+  border: var(--brutal-border);
+  border-radius: var(--brutal-radius);
+  background: var(--color-background);
+  color: var(--color-secondary);
   text-decoration: none;
-  color: inherit;
-  display: block;
 }
 
-.tarjeta:hover {
-  border-color: var(--color-brand-yellow);
+/* Pendientes requieren acción: la tarjeta toma el color de su estado */
+.estadoDestacado {
+  background: var(--estado-pendiente-fondo);
 }
 
-.numero {
-  font-size: 2rem;
-  font-weight: 700;
-  color: var(--color-brand-black);
-}
-
-.etiqueta {
-  font-size: 0.85rem;
-  color: #6b7280;
-  margin-top: 0.25rem;
-}
-
-.miniTarjetas {
-  display: flex;
-  gap: 0.75rem;
-  margin-bottom: 2rem;
-  flex-wrap: wrap;
-}
-
-.miniTarjeta {
-  flex: 1;
-  min-width: 5rem;
-  padding: 0.75rem 1rem;
-  border: 1px solid var(--color-border);
-  border-top: 2px solid var(--color-brand-yellow);
-  border-radius: 8px;
-  text-align: center;
-  text-decoration: none;
-  color: inherit;
-  display: block;
-}
-
-.miniTarjeta:hover {
-  border-color: var(--color-brand-yellow);
-}
-
-.miniNumero {
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: var(--color-brand-black);
-}
-
-.miniIcono {
+.estadoIcono {
+  grid-row: span 2;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  color: var(--color-brand-black);
-  margin-bottom: 0.25rem;
+  width: 2rem;
+  height: 2rem;
+  border: var(--brutal-border-thin);
+  border-radius: 6px;
 }
 
-.miniEtiqueta {
-  font-size: 0.75rem;
-  color: #6b7280;
-  margin-top: 0.125rem;
+.estadoNumero {
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  line-height: 1.1;
 }
 
-.sectionHeader {
+.estadoEtiqueta {
+  min-width: 0;
+  font-size: 0.64rem;
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--color-texto-suave);
+}
+
+.estadoDestacado .estadoEtiqueta {
+  color: var(--estado-pendiente-texto);
+}
+
+/* ---- Colores por estado (íconos y etiquetas) ---- */
+
+.estadoPendiente {
+  background: var(--estado-pendiente-fondo);
+  color: var(--estado-pendiente-texto);
+}
+
+.estadoConfirmado {
+  background: var(--estado-confirmado-fondo);
+  color: var(--estado-confirmado-texto);
+}
+
+.estadoListo {
+  background: var(--estado-listo-fondo);
+  color: var(--estado-listo-texto);
+}
+
+.estadoCompletado {
+  background: var(--estado-completado-fondo);
+  color: var(--estado-completado-texto);
+}
+
+.estadoCancelado {
+  background: var(--estado-cancelado-fondo);
+  color: var(--estado-cancelado-texto);
+}
+
+.estadoDestacado .estadoIcono {
+  background: var(--color-background);
+}
+
+/* ---- Bloques ---- */
+
+.columnas {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+  align-items: start;
+  gap: 1rem;
+}
+
+.columnaDerecha {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  min-width: 0;
+}
+
+.bloque {
+  min-width: 0;
+  border: var(--brutal-border);
+  border-radius: var(--brutal-radius);
+  background: var(--color-background);
+}
+
+.bloqueHeader {
   display: flex;
   flex-wrap: wrap;
-  justify-content: space-between;
   align-items: center;
-  gap: 0.75rem;
-  margin-bottom: 0.75rem;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.65rem 0.85rem;
+  border-bottom: var(--brutal-border);
 }
 
-.subtitulo {
-  font-size: 1.1rem;
+.bloqueTitulo {
   margin: 0;
+  font-family: var(--font-display);
+  font-size: 0.78rem;
+  font-weight: 400;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
 }
 
-.btnRefrescar {
-  background: none;
-  border: 1px solid var(--color-border);
+.bloqueAcciones {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.boton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.28rem 0.65rem;
+  border: var(--brutal-border);
   border-radius: 6px;
-  padding: 0.375rem 0.75rem;
+  background: var(--color-background);
+  color: var(--color-secondary);
+  box-shadow: var(--brutal-shadow-sm);
+  font-size: 0.74rem;
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
   cursor: pointer;
-  font-size: 0.9rem;
-  color: var(--color-text);
-}
-
-.btnRefrescar:hover {
-  background: #f3f4f6;
-  border-color: var(--color-brand-yellow);
 }
 
 .vacio {
-  color: #6b7280;
+  padding: 1rem 0.85rem;
+  font-size: 0.8rem;
+  color: var(--color-texto-suave);
 }
 
-.link {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0.2rem 0.6rem;
-  border: 1px solid var(--color-brand-black);
-  border-radius: 6px;
-  color: var(--color-brand-black);
-  text-decoration: none;
-  font-weight: 600;
-  font-size: 0.75rem;
-  white-space: nowrap;
-  flex-shrink: 0;
-  margin-left: auto;
-  transition:
-    background 0.15s,
-    color 0.15s;
-}
+/* ---- Últimos pedidos: filas que llevan al pedido ---- */
 
-.link:hover {
-  background: var(--color-brand-black);
-  color: #fff;
-}
-
-.pedidosGrid {
+.pedido {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(28rem, 1fr));
-  gap: 0.5rem 1rem;
-}
-
-@media (max-width: 640px) {
-  .pedidosGrid {
-    grid-template-columns: 1fr;
-  }
-}
-
-.pedidoRow {
-  display: flex;
+  grid-template-columns: minmax(0, 1fr) 9.5rem 5.5rem;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.4rem 0;
-  border-bottom: 1px solid var(--color-border);
-  font-size: 0.85rem;
+  gap: 0.75rem;
+  padding: 0.55rem 0.85rem;
+  color: var(--color-secondary);
+  text-decoration: none;
+}
+
+.pedido + .pedido {
+  border-top: var(--brutal-border-thin);
+}
+
+.pedidoDatos {
+  display: flex;
+  flex-direction: column;
   min-width: 0;
-  width: 100%;
-  box-sizing: border-box;
 }
 
 .pedidoCliente {
-  flex: 0 0 10rem;
-  width: 10rem;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.pedidoFecha {
+  font-size: 0.7rem;
   font-weight: 500;
+  color: var(--color-texto-suave);
 }
 
 .pedidoTotal {
-  flex: 0 0 4.5rem;
-  width: 4.5rem;
-  font-weight: 600;
-  font-size: 0.85rem;
+  text-align: right;
+  font-family: var(--font-display);
+  font-size: 0.78rem;
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
-.verTodos {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.375rem;
-  margin-top: 1rem;
-  padding: 0.5rem 1rem;
-  border: 1px solid var(--color-brand-black);
-  border-radius: 6px;
-  color: var(--color-brand-black);
-  font-weight: 600;
-  font-size: 0.9rem;
-  text-decoration: none;
-  transition:
-    background 0.15s,
-    color 0.15s;
-}
-
-.verTodos:hover {
-  background: var(--color-brand-black);
-  color: #fff;
-  text-decoration: none;
-}
-
+/* Etiqueta de estado: informativa, sin sombra, un color por estado */
 .badge {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.3rem;
-  width: 7rem;
-  height: 1.25rem;
-  padding: 0.1rem 0.35rem;
-  border-radius: 999px;
-  font-size: 0.68rem;
-  font-weight: 600;
-  text-align: center;
+  padding: 0.22rem 0.45rem;
+  border: var(--brutal-border-thin);
+  border-radius: 6px;
+  font-family: var(--font-display);
+  font-size: 0.6rem;
+  line-height: 1;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
   white-space: nowrap;
+}
+
+.badge svg {
+  width: 0.8rem;
+  height: 0.8rem;
   flex-shrink: 0;
 }
 
-.badgePendiente {
-  background: #fef3c7;
-  color: #92400e;
+/* ---- Gráfico de los últimos 7 días ---- */
+
+.totalSemana {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--color-texto-suave);
 }
 
-.badgeConfirmado {
-  background: #dbeafe;
-  color: #1e40af;
+.grafico {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.4rem;
+  padding: 0.75rem 0.85rem 0.7rem;
 }
 
-.badgeListo {
-  background: #ede9fe;
-  color: #5b21b6;
+.dia {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  min-width: 0;
 }
 
-.badgeCompletado {
-  background: #d1fae5;
-  color: #065f46;
+.diaValor {
+  font-family: var(--font-display);
+  font-size: 0.7rem;
 }
 
-.badgeCancelado {
-  background: #fee2e2;
-  color: #991b1b;
+/* Barra anclada abajo, extremo superior redondeado */
+.diaPista {
+  display: flex;
+  align-items: flex-end;
+  width: 100%;
+  height: 7rem;
+  border-bottom: var(--brutal-border);
 }
+
+.diaBarra {
+  width: 100%;
+  min-height: 0.4rem;
+  border: var(--brutal-border-thin);
+  border-bottom: none;
+  border-radius: 4px 4px 0 0;
+  background: var(--color-primary);
+}
+
+.diaEtiqueta {
+  font-size: 0.66rem;
+  font-weight: 600;
+  color: var(--color-texto-suave);
+}
+
+.diaHoy {
+  font-weight: 700;
+  color: var(--color-secondary);
+}
+
+/* ---- Aviso de productos sin stock ---- */
+
+.aviso {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.65rem 0.85rem;
+  border: var(--brutal-border);
+  border-radius: var(--brutal-radius);
+  background: var(--color-background);
+  color: var(--color-secondary);
+  text-decoration: none;
+}
+
+.avisoActivo {
+  background: var(--estado-cancelado-fondo);
+}
+
+.avisoNumero {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+.avisoActivo .avisoNumero {
+  color: var(--estado-cancelado-texto);
+}
+
+.avisoTexto {
+  flex: 1;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--color-texto-suave);
+}
+
+.avisoFlecha {
+  font-size: 0.74rem;
+  font-weight: 700;
+}
+
+/* ---- Carga ---- */
 
 @keyframes pulse {
   0%,
@@ -255,51 +341,54 @@
 }
 
 .skeleton {
-  background: #e5e7eb;
-  border: none;
-  animation: pulse 1.5s ease-in-out infinite;
-  height: 6rem;
-}
-
-.skeletonRow {
-  height: 2.5rem;
-  margin-bottom: 0.5rem;
-  background: #e5e7eb;
-  border-radius: 4px;
+  border-color: var(--color-background-muted);
+  background: var(--color-background-muted);
   animation: pulse 1.5s ease-in-out infinite;
 }
 
-@media (max-width: 768px) {
-  .tarjeta {
-    padding: clamp(1rem, 0.75rem + 1vw, 1.5rem);
-  }
-
-  .numero {
-    font-size: clamp(1.5rem, 1.1rem + 1.5vw, 2rem);
-  }
+.skeletonBloque {
+  height: 16rem;
 }
 
-@media (max-width: 480px) {
-  .tarjetas {
+@media (max-width: 1000px) {
+  .columnas {
     grid-template-columns: 1fr;
   }
+}
 
-  .pedidoRow {
-    flex-wrap: wrap;
+@media (max-width: 860px) {
+  .estados {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .estados {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+  }
+
+  .pedido {
+    grid-template-columns: minmax(0, 1fr) auto;
     row-gap: 0.35rem;
   }
 
-  .pedidoCliente {
-    flex: 1 1 100%;
-    width: auto;
+  .badge {
+    grid-column: 1;
+    justify-self: start;
   }
 
   .pedidoTotal {
-    flex: 0 0 auto;
-    width: auto;
+    grid-row: 1;
+    grid-column: 2;
   }
 
-  .badge {
-    width: auto;
+  .bloqueAcciones {
+    width: 100%;
+  }
+
+  .bloqueAcciones .boton {
+    flex: 1;
+    justify-content: center;
   }
 }

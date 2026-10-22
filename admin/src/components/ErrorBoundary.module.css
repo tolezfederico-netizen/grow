@@ -1,0 +1,59 @@
+/* Pantalla de error fatal: viñeta centrada, como en el client */
+.container {
+  display: grid;
+  place-items: center;
+  min-height: 100vh;
+  padding: 1.5rem 1rem;
+  background-color: var(--punteado-color);
+  background-image: var(--punteado-imagen);
+  background-size: var(--punteado-tamano);
+  color: var(--color-secondary);
+}
+
+.panel {
+  width: min(100%, 35rem);
+  padding: 1.1rem 1.2rem 1.2rem;
+  border: var(--brutal-border);
+  border-radius: var(--brutal-radius);
+  background: var(--color-background);
+  box-shadow: var(--brutal-shadow-lg);
+}
+
+.kicker {
+  margin-bottom: 0.4rem;
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-texto-suave);
+}
+
+.title {
+  display: inline;
+  padding: 0 0.2rem;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 400;
+  line-height: 1.4;
+  text-transform: uppercase;
+  background: linear-gradient(transparent 58%, var(--color-primary) 58%);
+}
+
+.message {
+  margin: 0.6rem 0 0.9rem;
+  font-size: 0.82rem;
+  font-weight: 500;
+  line-height: 1.45;
+}
+
+.error {
+  overflow-x: auto;
+  padding: 0.7rem 0.8rem;
+  border-radius: 6px;
+  background: var(--color-secondary);
+  color: var(--color-primary);
+  font-size: 0.75rem;
+  white-space: pre-wrap;
+}
