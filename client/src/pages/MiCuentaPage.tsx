@@ -297,26 +297,29 @@ export default function MiCuentaPage() {
     <div className={styles.wrapper}>
       <main className={styles.page}>
         <div className={styles.content}>
-          <div className={styles.card}>
-            <p className={styles.kicker}>Grow client</p>
-            <h1 className={styles.title}>Mi cuenta</h1>
-            <p className={styles.text}>
-              Mantené tu perfil al día y revisá tu historial de pedidos.
-            </p>
+          <h1 className={styles.title}>Mi cuenta</h1>
+          <p className={styles.text}>
+            Mantené tu perfil al día y revisá tu historial de pedidos.
+          </p>
 
-            <div className={styles.columnas}>
-              <section className={styles.seccion}>
-                <h2 className={styles.seccionTitulo}>Perfil</h2>
-                {cargandoPerfil ? (
-                  <div className={styles.loadingBox}>Cargando…</div>
-                ) : (
-                  <>
-                    <div className={styles.datosBloque}>
-                      <p className={styles.datoFijo}>Email: {email || "—"}</p>
-                    </div>
+          <div className={styles.columnas}>
+            <section className={`${styles.seccion} ${styles.seccionPerfil}`}>
+              <h2 className={styles.seccionTitulo}>Perfil</h2>
+              {cargandoPerfil ? (
+                <div className={styles.loadingBox}>Cargando…</div>
+              ) : (
+                <>
+                  <div className={styles.datosBloque}>
+                    <p className={styles.etiqueta}>Email</p>
+                    <p className={styles.datoFijo}>{email || "—"}</p>
+                  </div>
 
-                    <form className={styles.form} onSubmit={handleGuardar}>
-                      <div className={styles.inputWrapper}>
+                  <form className={styles.form} onSubmit={handleGuardar}>
+                    <div className={styles.inputWrapper}>
+                      <label className={styles.etiqueta} htmlFor="mi-cuenta-nombre">
+                        Nombre
+                      </label>
+                      <div className={styles.inputCaja}>
                         <span className={styles.inputIcon} aria-hidden="true">
                           <svg
                             viewBox="0 0 24 24"
@@ -331,6 +334,7 @@ export default function MiCuentaPage() {
                           </svg>
                         </span>
                         <input
+                          id="mi-cuenta-nombre"
                           className={`${styles.input} ${errorNombre ? styles.inputError : ""}`}
                           placeholder="Nombre"
                           value={nombre}
@@ -339,12 +343,17 @@ export default function MiCuentaPage() {
                             setErrorNombre(null);
                           }}
                         />
-                        {errorNombre && (
-                          <p className={styles.errorCampo}>{errorNombre}</p>
-                        )}
                       </div>
+                      {errorNombre && (
+                        <p className={styles.errorCampo}>{errorNombre}</p>
+                      )}
+                    </div>
 
-                      <div className={styles.inputWrapper}>
+                    <div className={styles.inputWrapper}>
+                      <label className={styles.etiqueta} htmlFor="mi-cuenta-apellido">
+                        Apellido
+                      </label>
+                      <div className={styles.inputCaja}>
                         <span className={styles.inputIcon} aria-hidden="true">
                           <svg
                             viewBox="0 0 24 24"
@@ -359,6 +368,7 @@ export default function MiCuentaPage() {
                           </svg>
                         </span>
                         <input
+                          id="mi-cuenta-apellido"
                           className={`${styles.input} ${errorApellido ? styles.inputError : ""}`}
                           placeholder="Apellido"
                           value={apellido}
@@ -367,12 +377,17 @@ export default function MiCuentaPage() {
                             setErrorApellido(null);
                           }}
                         />
-                        {errorApellido && (
-                          <p className={styles.errorCampo}>{errorApellido}</p>
-                        )}
                       </div>
+                      {errorApellido && (
+                        <p className={styles.errorCampo}>{errorApellido}</p>
+                      )}
+                    </div>
 
-                      <div className={styles.inputWrapper}>
+                    <div className={styles.inputWrapper}>
+                      <label className={styles.etiqueta} htmlFor="mi-cuenta-telefono">
+                        Teléfono
+                      </label>
+                      <div className={styles.inputCaja}>
                         <span className={styles.inputIcon} aria-hidden="true">
                           <svg
                             viewBox="0 0 24 24"
@@ -386,6 +401,7 @@ export default function MiCuentaPage() {
                           </svg>
                         </span>
                         <input
+                          id="mi-cuenta-telefono"
                           className={`${styles.input} ${errorTelefono ? styles.inputError : ""}`}
                           placeholder="Teléfono"
                           type="tel"
@@ -397,93 +413,87 @@ export default function MiCuentaPage() {
                             setErrorTelefono(null);
                           }}
                         />
-                        {errorTelefono && (
-                          <p className={styles.errorCampo}>{errorTelefono}</p>
-                        )}
                       </div>
-
-                      {errorGeneral && (
-                        <p className={styles.error}>{errorGeneral}</p>
+                      {errorTelefono && (
+                        <p className={styles.errorCampo}>{errorTelefono}</p>
                       )}
-                      {exito && (
-                        <p className={styles.exito}>Datos actualizados.</p>
-                      )}
-
-                      <button className={styles.boton} disabled={guardando}>
-                        {guardando ? "Guardando…" : "Guardar cambios"}
-                      </button>
-                    </form>
-                  </>
-                )}
-                {errorPerfil && <p className={styles.error}>{errorPerfil}</p>}
-              </section>
-
-              <section className={styles.seccion}>
-                <h2 className={styles.seccionTitulo}>Historial de pedidos</h2>
-                {cargandoPedidos ? (
-                  <div className={styles.loadingBox}>Cargando…</div>
-                ) : errorPedidos ? (
-                  <p className={styles.error}>{errorPedidos}</p>
-                ) : pedidos.length === 0 ? (
-                  <div className={styles.emptyBox}>
-                    <p className={styles.text}>
-                      Todavía no hiciste ningún pedido.
-                    </p>
-                    <Link to="/productos" className={styles.emptyLink}>
-                      Ver productos
-                    </Link>
-                  </div>
-                ) : (
-                  <div className={styles.pedidosScroll}>
-                    <div className={styles.pedidosLista}>
-                      {pedidos.map((pedido) => {
-                        const items = itemsPorPedido[pedido.id] ?? [];
-                        return (
-                          <article
-                            key={pedido.id}
-                            className={styles.pedidoCard}
-                          >
-                            <div className={styles.pedidoHeader}>
-                              <div className={styles.pedidoMeta}>
-                                <p className={styles.pedidoFecha}>
-                                  {new Date(
-                                    pedido.creado_en,
-                                  ).toLocaleDateString()}
-                                </p>
-                                <p className={styles.pedidoFecha}>
-                                  {formatEstadoPedido(pedido.estado)}
-                                </p>
-                              </div>
-                              <div className={styles.pedidoAcciones}>
-                                <button
-                                  type="button"
-                                  className={styles.verBoton}
-                                  onClick={() => abrirModalPedido(pedido.id)}
-                                >
-                                  Ver
-                                </button>
-                                <span className={styles.estadoBadge}>
-                                  {formatEstadoPedido(pedido.estado)}
-                                </span>
-                              </div>
-                            </div>
-
-                            <ul className={styles.pedidoItems}>
-                              {items.map((item) => (
-                                <li key={item.id} className={styles.pedidoItem}>
-                                  {item.nombre_producto} x{item.cantidad} -{" "}
-                                  {formatPrecio(item.precio_unitario)}
-                                </li>
-                              ))}
-                            </ul>
-                          </article>
-                        );
-                      })}
                     </div>
-                  </div>
-                )}
-              </section>
-            </div>
+
+                    {errorGeneral && (
+                      <p className={styles.error}>{errorGeneral}</p>
+                    )}
+                    {exito && (
+                      <p className={styles.exito}>Datos actualizados.</p>
+                    )}
+
+                    <button className={styles.boton} disabled={guardando}>
+                      {guardando ? "Guardando…" : "Guardar cambios"}
+                    </button>
+                  </form>
+                </>
+              )}
+              {errorPerfil && <p className={styles.error}>{errorPerfil}</p>}
+            </section>
+
+            <section className={styles.seccion}>
+              <h2 className={styles.seccionTitulo}>Historial de pedidos</h2>
+              {cargandoPedidos ? (
+                <div className={styles.loadingBox}>Cargando…</div>
+              ) : errorPedidos ? (
+                <p className={styles.error}>{errorPedidos}</p>
+              ) : pedidos.length === 0 ? (
+                <div className={styles.emptyBox}>
+                  <p className={styles.emptyTexto}>
+                    Todavía no hiciste ningún pedido.
+                  </p>
+                  <Link to="/productos" className={styles.emptyLink}>
+                    Ver productos
+                  </Link>
+                </div>
+              ) : (
+                <ul className={styles.pedidosLista}>
+                  {pedidos.map((pedido) => {
+                    const items = itemsPorPedido[pedido.id] ?? [];
+                    const total = items.reduce(
+                      (acc, item) => acc + item.precio_unitario * item.cantidad,
+                      0,
+                    );
+                    return (
+                      <li key={pedido.id} className={styles.pedidoFila}>
+                        <div className={styles.pedidoInfo}>
+                          <div className={styles.pedidoCabecera}>
+                            <p className={styles.pedidoFecha}>
+                              {new Date(pedido.creado_en).toLocaleDateString()}
+                            </p>
+                            <span
+                              className={`${styles.estadoBadge} ${styles[`estado_${pedido.estado}`] ?? ""}`}
+                            >
+                              {formatEstadoPedido(pedido.estado)}
+                            </span>
+                          </div>
+                          <p className={styles.pedidoItems}>
+                            {items
+                              .map((item) => `${item.nombre_producto} ×${item.cantidad}`)
+                              .join(" · ")}
+                          </p>
+                        </div>
+
+                        <div className={styles.pedidoLado}>
+                          <p className={styles.pedidoTotal}>{formatPrecio(total)}</p>
+                          <button
+                            type="button"
+                            className={styles.verBoton}
+                            onClick={() => abrirModalPedido(pedido.id)}
+                          >
+                            Ver detalle
+                          </button>
+                        </div>
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
+            </section>
           </div>
         </div>
         <PedidoDetalleModal

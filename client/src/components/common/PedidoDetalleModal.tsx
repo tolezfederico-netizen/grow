@@ -79,7 +79,9 @@ export default function PedidoDetalleModal({
           </div>
 
           <div className={styles.headerActions}>
-            <span className={styles.estadoBadge}>{formatEstadoPedido(pedido.estado)}</span>
+            <span className={`${styles.estadoBadge} ${styles[`estado_${pedido.estado}`] ?? ''}`}>
+              {formatEstadoPedido(pedido.estado)}
+            </span>
             <button type="button" className={styles.cerrarBoton} onClick={onCerrar} aria-label="Cerrar modal">
               ×
             </button>
