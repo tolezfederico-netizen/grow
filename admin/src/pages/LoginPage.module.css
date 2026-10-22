@@ -1,11 +1,10 @@
-/* Fondo punteado (único lugar del admin donde se usa) con logo y formulario
-   como viñetas encima, igual que el login del client */
+/* Fondo punteado (único lugar del admin donde se usa) con una sola viñeta
+   encima: el logo como cabecera negra y el formulario debajo, como los modales */
 .page {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 1rem;
   min-height: 100vh;
   padding: 1.5rem 1rem;
   background-color: var(--punteado-color);
@@ -14,17 +13,23 @@
   color: var(--color-secondary);
 }
 
-/* Logo siempre en recuadro negro: tiene texto blanco que se pierde sobre claro */
+.tarjeta {
+  width: min(100%, 23rem);
+  overflow: hidden;
+  border: var(--brutal-border);
+  border-radius: var(--brutal-radius);
+  background: var(--color-background);
+  box-shadow: var(--brutal-shadow-lg);
+}
+
+/* Logo siempre sobre negro: tiene texto blanco que se pierde sobre claro */
 .panelMarca {
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: min(100%, 23rem);
-  padding: 0.9rem 1rem 0.75rem;
-  border: var(--brutal-border);
-  border-radius: var(--brutal-radius);
+  padding: 1rem 1rem 0.8rem;
+  border-bottom: var(--brutal-border);
   background: var(--color-secondary);
-  box-shadow: var(--brutal-shadow);
 }
 
 .logo {
@@ -44,12 +49,7 @@
 }
 
 .panelForm {
-  width: min(100%, 23rem);
   padding: 1.1rem 1.1rem 1.2rem;
-  border: var(--brutal-border);
-  border-radius: var(--brutal-radius);
-  background: var(--color-background);
-  box-shadow: var(--brutal-shadow);
 }
 
 .form {

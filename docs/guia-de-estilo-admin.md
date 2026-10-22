@@ -64,7 +64,7 @@ Viven en `admin/src/index.css`, **duplicadas** de las del client (apps aisladas:
 - Toggles, checkboxes y radios: borde negro; marcado en amarillo con tilde negra.
 
 ### 3.6 Login del admin
-- Puede mantener el split amarillo / negro actual o pasar a viñeta sobre fondo punteado como el login del client; decidir con el usuario.
+- Una sola viñeta sobre fondo punteado: logo en cabecera negra y formulario debajo (decidido con el usuario).
 
 ## 4. Lo que el usuario rechazó en el client (aplica también acá)
 
@@ -75,7 +75,7 @@ Viven en `admin/src/index.css`, **duplicadas** de las del client (apps aisladas:
 | Sección | Estado | Archivos principales |
 |---|---|---|
 | Base: variables, fuentes, alias | ✅ | `admin/src/index.css`, `admin/index.html` |
-| Login | 🔶 primera pasada (viñeta sobre fondo punteado + logo en recuadro negro; sin verificar en el navegador porque requiere cerrar sesión) | `pages/LoginPage` |
+| Login | ✅ (una sola viñeta sobre fondo punteado: logo en cabecera negra y formulario debajo. `/login` se ve aunque haya sesión, así que se verifica sin cerrarla) | `pages/LoginPage` |
 | Layout (barra lateral) | ✅ (orden: Dashboard, Pedidos, Productos, Categorías, Paneles, Clientes, Configuración; íconos de trazo grueso 2.5) | `components/AdminLayout` |
 | Dashboard | ✅ (rediseño con cambios funcionales pedidos por el usuario: sin métricas duplicadas ni "Ventas de hoy"; fila de 5 estados con Pendiente resaltado, últimos pedidos clickeables que abren el pedido, gráfico de pedidos de 7 días y aviso de productos sin stock) | `pages/DashboardPage` |
 | Pedidos + modal de notificar | ✅ (barra superior negra fija; sin título ni total; carga los últimos 30 días + abiertos, con botón para ver antiguos; grupos por fecha en viñetas separadas; marca "Sin atender" para pendientes de más de 24 h; abre el pedido de `?id=`) | `pages/OrdersPage`, `components/NotificarPedidoModal` |

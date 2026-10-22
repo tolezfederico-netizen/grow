@@ -27,6 +27,7 @@ export default function LoginPage() {
 
   return (
     <div className={styles.page}>
+      <div className={styles.tarjeta}>
       <div className={styles.panelMarca}>
         <img src={logo} alt="Grow Admin" className={styles.logo} />
         <p className={styles.marcaTagline}>Panel de administraci&oacute;n</p>
@@ -39,6 +40,7 @@ export default function LoginPage() {
           {error && <p className={styles.error}>{error}</p>}
           <button className={styles.boton} disabled={loading}>{loading ? 'Ingresando…' : 'Ingresar'}</button>
         </form>
+      </div>
       </div>
     </div>
   )
