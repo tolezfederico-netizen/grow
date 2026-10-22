@@ -98,7 +98,7 @@ En cada iteración el pedido fue achicar. Referencias que funcionaron:
 | Carrito lateral | ✅ | `cart/CartDrawer`, `cart/CartItemRow` |
 | Catálogo `/productos` (barra lateral, badge "Compra Protegida", grilla) | ✅ | `pages/ProductsPage`, `product/ArticulosSidebar` |
 | Detalle de producto (franja punteada con viñetas de imagen, compra y especificaciones) | ✅ | `pages/ProductDetailPage` |
-| Checkout `/resumen` y modal de confirmación | ⏳ | `pages/ResumePage`, `common/ConfirmarPedidoModal` |
+| Checkout `/resumen` y modal de confirmación (franja punteada, panel de datos con etiquetas, modal con el esquema del de Mi Cuenta) | ✅ | `pages/ResumePage`, `common/ConfirmarPedidoModal` |
 | Cuenta (login, registro, Mi Cuenta, detalle de pedido) | ✅ (login y registro comparten CSS; etiqueta de estado con un estilo por estado: pendiente blanca, confirmado/listo amarilla, completado negra, cancelado punteada) | `pages/LoginPage`, `RegisterPage`, `MiCuentaPage`, `common/PedidoDetalleModal` |
 | Términos y condiciones (franja punteada, secciones en viñetas; texto genérico "GROWSHOP") | ✅ | `pages/TerminosCondicionesPage` |
 | Botones flotantes (WhatsApp, volver arriba): en mobile tapan parte del footer | ⏳ | `layout/WhatsappFloatButton`, `layout/ScrollToTopButton` |
