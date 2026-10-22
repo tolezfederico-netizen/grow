@@ -74,9 +74,19 @@ export default function PanelForm({ panel, onClose, onSave }: Props) {
           <button type="button" className={styles.btnCerrar} onClick={onClose} aria-label="Cerrar">✕</button>
         </div>
         <form onSubmit={handleSubmit} className={styles.form}>
-          <input className={styles.input} placeholder="Título" value={titulo} onChange={e => setTitulo(e.target.value)} required />
-          <textarea className={styles.input} placeholder="Descripción (opcional)" value={descripcion} onChange={e => setDescripcion(e.target.value)} rows={2} />
-          <input className={styles.input} type="number" min="1" placeholder="Orden (opcional, dejar vacío = sin asignar)" value={orden} onChange={e => setOrden(e.target.value)} />
+          <label className={styles.campo}>
+            <span className={styles.campoLabel}>Título</span>
+            <input className={styles.input} placeholder="Título" value={titulo} onChange={e => setTitulo(e.target.value)} required />
+          </label>
+          <label className={styles.campo}>
+            <span className={styles.campoLabel}>Descripción</span>
+            <textarea className={styles.input} placeholder="Descripción (opcional)" value={descripcion} onChange={e => setDescripcion(e.target.value)} rows={2} />
+          </label>
+          <label className={styles.campo}>
+            <span className={styles.campoLabel}>Orden</span>
+            <input className={`${styles.input} ${styles.inputOrden}`} type="number" min="1" placeholder="Sin asignar" value={orden} onChange={e => setOrden(e.target.value)} />
+            <span className={styles.ayuda}>Opcional. Vacío = el panel queda sin orden asignado.</span>
+          </label>
 
           {error && <p className={styles.error}>{error}</p>}
 

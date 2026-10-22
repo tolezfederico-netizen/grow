@@ -9,8 +9,11 @@
 
 .label {
   margin: 0 0 0.5rem;
-  font-size: 0.75rem;
-  font-weight: 700;
+  font-family: var(--font-display);
+  font-size: 0.66rem;
+  letter-spacing: 0.04em;
+  line-height: 1.4;
+  text-transform: uppercase;
 }
 
 .grilla {
@@ -53,8 +56,8 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  width: 2.5rem;
-  height: 2.5rem;
+  width: 3rem;
+  height: 3rem;
   overflow: hidden;
   border: var(--brutal-border-thin);
   border-radius: 6px;

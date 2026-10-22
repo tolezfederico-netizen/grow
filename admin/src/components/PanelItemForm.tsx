@@ -116,14 +116,21 @@ export default function PanelItemForm({ item, panelId, categorias, relaciones, p
           <button type="button" className={styles.btnCerrar} onClick={onClose} aria-label="Cerrar">✕</button>
         </div>
         <form onSubmit={handleSubmit} className={styles.form}>
-          <select className={styles.input} value={catId} onChange={e => setCatId(e.target.value)} required>
-            <option value="">Seleccionar categoría…</option>
-            {categoriasDisponibles.map(c => (
-              <option key={c.id} value={c.id}>{c.nombre}</option>
-            ))}
-          </select>
-
-          <input className={styles.input} type="number" min="0" placeholder="Orden" value={orden} onChange={e => setOrden(e.target.value)} required />
+          <div className={styles.filaCampos}>
+            <label className={styles.campo}>
+              <span className={styles.campoLabel}>Categoría</span>
+              <select className={styles.input} value={catId} onChange={e => setCatId(e.target.value)} required>
+                <option value="">Seleccionar categoría…</option>
+                {categoriasDisponibles.map(c => (
+                  <option key={c.id} value={c.id}>{c.nombre}</option>
+                ))}
+              </select>
+            </label>
+            <label className={styles.campo}>
+              <span className={styles.campoLabel}>Orden</span>
+              <input className={`${styles.input} ${styles.inputOrden}`} type="number" min="0" placeholder="Orden" value={orden} onChange={e => setOrden(e.target.value)} required />
+            </label>
+          </div>
 
           <label className={styles.checkRow}>
             <input type="checkbox" checked={esCard} disabled={limiteAlcanzado} onChange={e => {

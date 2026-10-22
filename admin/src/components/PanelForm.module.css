@@ -92,6 +92,39 @@ textarea.input {
 .input:focus {
   box-shadow: var(--brutal-shadow-sm);
 }
+/* Campo con etiqueta arriba, como en el modal de producto */
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+.campoLabel {
+  font-family: var(--font-display);
+  font-size: 0.68rem;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.inputOrden {
+  max-width: 7rem;
+  font-family: var(--font-display);
+}
+
+.ayuda {
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: var(--color-texto-suave);
+}
+
+.filaCampos {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.75rem;
+}
+
 .error {
   font-size: 0.78rem;
   font-weight: 600;
