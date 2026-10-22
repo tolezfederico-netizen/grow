@@ -38,7 +38,10 @@ export default function RegisterPage() {
     const errApellido = apellido.trim() ? null : 'Ingresá tu apellido.'
     const errTelefono = telefono.length >= 8 && telefono.length <= 10 ? null : 'El teléfono debe tener entre 8 y 10 dígitos.'
     const errEmail = !esEmailValido(email) ? 'Ingresá un email válido.' : null
-    const errPassword = password.length >= 6 ? null : 'La contraseña debe tener al menos 6 caracteres.'
+    // Mismo criterio que Authentication → Policies en Supabase (8+, letras y números)
+    const errPassword = password.length >= 8 && /[A-Za-z]/.test(password) && /\d/.test(password)
+      ? null
+      : 'La contraseña debe tener al menos 8 caracteres, con letras y números.'
 
     setErrorNombre(errNombre)
     setErrorApellido(errApellido)

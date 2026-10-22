@@ -165,3 +165,38 @@ $$;
 
 REVOKE ALL ON FUNCTION public.crear_pedido_completo(text, text, text, jsonb, uuid) FROM PUBLIC;
 GRANT EXECUTE ON FUNCTION public.crear_pedido_completo(text, text, text, jsonb, uuid) TO anon, authenticated;
+
+
+-- ── limpiar_mensaje_alerta_vencido (pg_cron) ──────────────────────────────
+-- Borra mensaje_alerta cuando vence mensaje_alerta_expira_en. La ejecuta un
+-- job de pg_cron cada minuto (corre como postgres); nadie más la necesita.
+-- AlertaBanner también oculta el mensaje vencido del lado del cliente, para
+-- cubrir los segundos entre el vencimiento y la próxima corrida del job.
+--
+-- Requiere la extensión pg_cron (Database → Extensions en el dashboard).
+-- ──────────────────────────────────────────────────────────────────────────
+
+CREATE OR REPLACE FUNCTION public.limpiar_mensaje_alerta_vencido()
+RETURNS void
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+BEGIN
+  UPDATE configuracion_tienda
+  SET mensaje_alerta = NULL,
+      mensaje_alerta_expira_en = NULL
+  WHERE singleton = true
+    AND mensaje_alerta_expira_en IS NOT NULL
+    AND mensaje_alerta_expira_en <= now();
+END;
+$$;
+
+REVOKE ALL ON FUNCTION public.limpiar_mensaje_alerta_vencido() FROM PUBLIC, anon, authenticated;
+
+-- Solo en una instancia nueva (en producción el job ya existe: jobid 1).
+SELECT cron.schedule(
+  'limpiar-mensaje-alerta-vencido',
+  '* * * * *',
+  'SELECT public.limpiar_mensaje_alerta_vencido();'
+);

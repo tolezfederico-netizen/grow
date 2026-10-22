@@ -33,7 +33,12 @@ Modelo de amenaza: la `anon key` y la URL de Supabase son públicas (están en e
 | 16, 19 | `opener = null` en la ventana de WhatsApp; la caché de Mi Cuenta se vacía en el logout. |
 | 20 | `npm audit fix` aplicado (resuelta la alta). Quedan `react-router` 6.x (no hay redirects con input del usuario; el fix es migrar a v7) y `uuid` en `exceljs` (no explotable). |
 | 21 | supabase-js fijado a `2.109.0` vía `npm:` en `deno.json`; `Deno.serve` en vez de `std@0.168`. |
-| Pendientes | #7 (Auth en el dashboard), #15, #17 (código país 54, "Grow" fijo), #18 parcial, #23, y versionar `limpiar_mensaje_alerta_vencido` en `rpc.sql`. |
+| 7 Auth | Confirmación de email activada; contraseña mínima 8 con letras y números (también en `RegisterPage`). Leaked password protection: no disponible en el plan free. Falta revisar Site URL / Redirect URLs. |
+| 10 (cron) | `limpiar_mensaje_alerta_vencido` y su `cron.schedule` versionados en `rpc.sql`. |
+| 17 | Código de país `54`: **excepción aceptada** (clientes nacionales); se revisa si aparece uno de otro país. |
+| URLs de Auth | Site URL = tienda publicada; Redirect URLs con `/**` para la tienda y `localhost:5173`. El registro manda `emailRedirectTo` con el origen actual. Probado desde localhost. |
+| Login/registro | Con sesión abierta redirigen al inicio (`SoloInvitadoRoute`). |
+| Pendientes | **Antes de vender**: dominio propio verificado en Resend → SMTP propio en Supabase (remitente con el nombre de la tienda, límite de envíos mayor que el del servidor por defecto), template de confirmación en español y secret `RESEND_FROM` de la Edge Function. Además: #15, #18 parcial, #23. |
 
 ---
 

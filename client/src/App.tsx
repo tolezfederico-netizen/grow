@@ -15,6 +15,7 @@ import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import MiCuentaPage from "./pages/MiCuentaPage";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
+import SoloInvitadoRoute from "./components/auth/SoloInvitadoRoute";
 import TerminosCondicionesPage from "./pages/TerminosCondicionesPage";
 import NotFoundPage from "./pages/NotFoundPage";
 
@@ -37,8 +38,22 @@ function App() {
           <Route path="/productos/panel/:panelId" element={<ProductsPage />} />
           <Route path="/producto/:productoId" element={<ProductDetailPage />} />
           <Route path="/resumen" element={<ResumePage />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/registro" element={<RegisterPage />} />
+          <Route
+            path="/login"
+            element={
+              <SoloInvitadoRoute>
+                <LoginPage />
+              </SoloInvitadoRoute>
+            }
+          />
+          <Route
+            path="/registro"
+            element={
+              <SoloInvitadoRoute>
+                <RegisterPage />
+              </SoloInvitadoRoute>
+            }
+          />
           <Route
             path="/mi-cuenta"
             element={

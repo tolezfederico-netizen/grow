@@ -55,6 +55,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       email,
       password,
       options: {
+        // El link del email de confirmación vuelve al mismo sitio donde se
+        // registró (tienda publicada o localhost); debe estar en Redirect URLs.
+        emailRedirectTo: `${window.location.origin}/`,
         data: {
           nombre: datos.nombre,
           apellido: datos.apellido,
