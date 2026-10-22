@@ -6,6 +6,7 @@ import { useCart } from '../context/CartContext'
 import ArticulosSidebar from '../components/product/ArticulosSidebar'
 import LoadingState from '../components/common/LoadingState'
 import ErrorState from '../components/common/ErrorState'
+import NotFoundPage from './NotFoundPage'
 import Footer from '../components/layout/Footer'
 import styles from './ProductDetailPage.module.css'
 
@@ -30,16 +31,18 @@ export default function ProductDetailPage() {
       .from('productos')
       .select('*')
       .eq('id', productoId)
-      .single()
+      .maybeSingle()
 
-    if (err) {
+    // 22P02: el id de la URL no es un UUID válido; para el cliente es lo mismo que no existir
+    if (err && err.code !== '22P02') {
       setError(err.message)
       setLoading(false)
       return
     }
 
+    // Sin fila: el producto no existe; se muestra la página 404
     if (!row) {
-      setError('Producto no encontrado.')
+      setProducto(null)
       setLoading(false)
       return
     }
@@ -106,8 +109,17 @@ export default function ProductDetailPage() {
   }
 
   if (loading) return <LoadingState />
-  if (error) return <ErrorState mensaje={error} onReintentar={cargar} />
-  if (!producto) return <ErrorState mensaje="Producto no encontrado." onReintentar={cargar} />
+  if (error) {
+    return (
+      <div className={styles.wrapper}>
+        <div className={styles.content}>
+          <ErrorState mensaje={error} onReintentar={cargar} />
+        </div>
+        <Footer />
+      </div>
+    )
+  }
+  if (!producto) return <NotFoundPage />
 
   const precioMostrado = producto.tiene_variantes
     ? variante
