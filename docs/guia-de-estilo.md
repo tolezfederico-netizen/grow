@@ -106,7 +106,7 @@ En cada iteración el pedido fue achicar. Referencias que funcionaron:
 | Menú hamburguesa mobile (drawer) | ✅ (mismo esquema que el carrito lateral) | `layout/HeaderTop` (sección drawer) |
 | Estados de carga y error (incluye la pantalla de `ErrorBoundary`, con CSS Module en lugar de estilos inline) | ✅ | `common/LoadingState`, `common/ErrorState`, `common/ErrorBoundary` |
 | Página 404 (ruta comodín `*`): viñeta centrada sobre franja punteada | ✅ | `pages/NotFoundPage` |
-| Admin | ⏳ (sin empezar) | `admin/` |
+| Admin | ⏳ (base lista; ver [guia-de-estilo-admin.md](guia-de-estilo-admin.md)) | `admin/` |
 
 Al terminar una sección, actualizar esta tabla.
 

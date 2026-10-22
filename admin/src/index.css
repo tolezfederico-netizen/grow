@@ -7,14 +7,49 @@
 }
 
 :root {
-  --color-primary: #4f46e5;
-  --color-secondary: #10b981;
+  /* Mismos colores que el client (variables duplicadas a propósito: apps aisladas) */
+  --color-primary: rgb(253, 206, 5);
+  --color-secondary: rgb(34, 30, 31);
   --color-background: #ffffff;
   --color-text: #111827;
   --color-border: #e5e7eb;
+  --color-background-muted: #f3f4f6;
+  --color-error: #dc2626;
 
-  --color-brand-yellow: rgb(253, 206, 5);
-  --color-brand-black: rgb(34, 30, 31);
+  /* Alias históricos del admin: los CSS existentes los usan; apuntan al tema */
+  --color-brand-yellow: var(--color-primary);
+  --color-brand-black: var(--color-secondary);
+
+  /* Estilo neo-brutalista sobrio (ver docs/guia-de-estilo-admin.md) */
+  --font-display: "Archivo Black", system-ui, sans-serif;
+  --font-ui: "Space Grotesk", system-ui, -apple-system, sans-serif;
+  --brutal-border: 2px solid var(--color-secondary);
+  --brutal-border-thin: 1.5px solid var(--color-secondary);
+  --brutal-shadow: 3px 3px 0 var(--color-secondary);
+  --brutal-shadow-sm: 2px 2px 0 var(--color-secondary);
+  --brutal-shadow-lg: 4px 4px 0 var(--color-secondary);
+  --brutal-radius: 8px;
+
+  /* Fondo punteado: en el admin solo para el login */
+  --punteado-color: color-mix(in srgb, var(--color-primary) 8%, var(--color-background));
+  --punteado-imagen: radial-gradient(
+    color-mix(in srgb, var(--color-secondary) 14%, transparent) 1.2px,
+    transparent 1.2px
+  );
+  --punteado-tamano: 18px 18px;
+
+  /* Estados de pedido: en el admin se mantiene un color por estado para escanear
+     rápido. Mismos valores que hoy están sueltos en los CSS de Dashboard y Orders */
+  --estado-pendiente-fondo: #fef3c7;
+  --estado-pendiente-texto: #92400e;
+  --estado-confirmado-fondo: #dbeafe;
+  --estado-confirmado-texto: #1e40af;
+  --estado-listo-fondo: #ede9fe;
+  --estado-listo-texto: #5b21b6;
+  --estado-completado-fondo: #d1fae5;
+  --estado-completado-texto: #065f46;
+  --estado-cancelado-fondo: #fee2e2;
+  --estado-cancelado-texto: #991b1b;
 }
 
 body {
