@@ -1,3 +1,4 @@
+/* Botón flotante secundario (blanco) arriba del de WhatsApp; sin hover */
 .scrollTopFloat {
   position: fixed;
   bottom: calc(10vh + 3.25rem);
@@ -5,22 +6,33 @@
   z-index: 90;
   width: 2.5rem;
   height: 2.5rem;
-  background: #ffc800;
-  border: none;
+  padding: 0;
+  border: var(--brutal-border);
   border-radius: 50%;
-  color: #000;
+  background: var(--color-background);
+  color: var(--color-secondary);
+  box-shadow: var(--brutal-shadow-sm);
   display: flex;
   align-items: center;
   justify-content: center;
-  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.3));
-  transition:
-    transform 0.15s ease,
-    opacity 0.15s ease;
   cursor: pointer;
-  padding: 0;
+  transition: opacity 0.15s ease, visibility 0.15s ease;
 }
 
-.scrollTopFloat:hover {
-  transform: scale(1.05);
-  opacity: 0.9;
+.scrollTopFloat svg {
+  width: 1.15rem;
+  height: 1.15rem;
+}
+
+/* Mobile: más pegado al borde y oculto cuando el footer entra en pantalla */
+@media (max-width: 768px) {
+  .scrollTopFloat {
+    right: 0.9rem;
+  }
+
+  .ocultoEnFooter {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
 }

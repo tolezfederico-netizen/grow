@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
+import { useFooterVisible } from "../../hooks/useFooterVisible";
 import styles from "./ScrollToTopButton.module.css";
 
 export default function ScrollToTopButton() {
   const [visible, setVisible] = useState(false);
+  const footerVisible = useFooterVisible();
 
   useEffect(() => {
     function onScroll() {
@@ -20,7 +22,7 @@ export default function ScrollToTopButton() {
 
   return (
     <button
-      className={styles.scrollTopFloat}
+      className={`${styles.scrollTopFloat} ${footerVisible ? styles.ocultoEnFooter : ""}`}
       onClick={subirArriba}
       aria-label="Volver arriba"
     >

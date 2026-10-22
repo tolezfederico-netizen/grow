@@ -1,15 +1,17 @@
 import { useConfiguracionTienda } from '../../hooks/useConfiguracionTienda'
+import { useFooterVisible } from '../../hooks/useFooterVisible'
 import styles from './WhatsappFloatButton.module.css'
 
 export default function WhatsappFloatButton() {
   const { config: tienda } = useConfiguracionTienda()
+  const footerVisible = useFooterVisible()
 
   const tieneWhatsapp = tienda?.telefono && tienda.telefono.trim().length > 0
   if (!tieneWhatsapp) return null
 
   return (
     <a
-      className={styles.whatsappFloat}
+      className={`${styles.whatsappFloat} ${footerVisible ? styles.ocultoEnFooter : ''}`}
       href={`https://wa.me/${tienda!.telefono.replace(/\D/g, '')}`}
       target="_blank"
       rel="noopener noreferrer"

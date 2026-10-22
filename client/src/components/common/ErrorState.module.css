@@ -1,15 +1,38 @@
+/* Viñeta centrada con el mensaje en rojo y "Reintentar" como botón principal */
 .error {
+  max-width: 24rem;
+  margin: 2rem auto;
+  padding: 1.1rem 1.2rem;
+  border: var(--brutal-border);
+  border-radius: var(--brutal-radius);
+  background: var(--color-background);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.8rem;
   text-align: center;
-  padding: 3rem 1rem;
-  color: #dc2626;
+  font-family: var(--font-ui);
+  font-size: 0.85rem;
+  font-weight: 600;
+  line-height: 1.45;
+  color: var(--color-error);
+  overflow-wrap: break-word;
+}
+
+.error p {
+  margin: 0;
 }
 
 .boton {
-  margin-top: 1rem;
-  padding: 0.5rem 1.5rem;
-  border: none;
+  padding: 0.5rem 1rem;
+  border: var(--brutal-border);
   border-radius: 6px;
   background: var(--color-primary);
-  color: #fff;
+  color: var(--color-secondary);
+  box-shadow: var(--brutal-shadow-sm);
+  font-family: var(--font-ui);
+  font-size: 0.8rem;
+  font-weight: 700;
+  line-height: 1;
   cursor: pointer;
 }

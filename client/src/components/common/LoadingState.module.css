@@ -1,6 +1,9 @@
 .loading {
-  text-align: center;
   padding: 3rem 1rem;
-  color: var(--color-text);
+  text-align: center;
+  font-family: var(--font-ui);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-secondary);
   opacity: 0.6;
 }

@@ -102,9 +102,9 @@ En cada iteración el pedido fue achicar. Referencias que funcionaron:
 | Checkout `/resumen` y modal de confirmación (franja punteada, panel de datos con etiquetas, modal con el esquema del de Mi Cuenta) | ✅ | `pages/ResumePage`, `common/ConfirmarPedidoModal` |
 | Cuenta (login, registro, Mi Cuenta, detalle de pedido) | ✅ (login y registro comparten CSS; etiqueta de estado con un estilo por estado: pendiente blanca, confirmado/listo amarilla, completado negra, cancelado punteada) | `pages/LoginPage`, `RegisterPage`, `MiCuentaPage`, `common/PedidoDetalleModal` |
 | Términos y condiciones (franja punteada, secciones en viñetas; texto genérico "GROWSHOP") | ✅ | `pages/TerminosCondicionesPage` |
-| Botones flotantes (WhatsApp, volver arriba): en mobile tapan parte del footer | ⏳ | `layout/WhatsappFloatButton`, `layout/ScrollToTopButton` |
+| Botones flotantes (WhatsApp, volver arriba): borde y sombra dura, sin hover; en mobile se ocultan cuando el footer entra en pantalla (`hooks/useFooterVisible`) | ✅ | `layout/WhatsappFloatButton`, `layout/ScrollToTopButton` |
 | Menú hamburguesa mobile (drawer) | ✅ (mismo esquema que el carrito lateral) | `layout/HeaderTop` (sección drawer) |
-| Estados de carga y error | ⏳ | `common/LoadingState`, `common/ErrorState` |
+| Estados de carga y error (incluye la pantalla de `ErrorBoundary`, con CSS Module en lugar de estilos inline) | ✅ | `common/LoadingState`, `common/ErrorState`, `common/ErrorBoundary` |
 | Admin | ⏳ (sin empezar) | `admin/` |
 
 Al terminar una sección, actualizar esta tabla.
