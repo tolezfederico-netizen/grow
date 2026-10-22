@@ -2,205 +2,35 @@
   width: 100%;
 }
 
-.header {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  align-items: center;
-  gap: 0.75rem;
-  margin-bottom: 1rem;
-}
+/* ---- Barra superior: mismo esquema que Pedidos y Productos ---- */
 
-/* Título de página: único lugar con el resaltador amarillo */
-.header h2 {
-  display: inline;
-  margin: 0;
-  padding: 0 0.2rem;
-  -webkit-box-decoration-break: clone;
-  box-decoration-break: clone;
-  font-family: var(--font-display);
-  font-size: 1.15rem;
-  font-weight: 400;
-  line-height: 1.4;
-  letter-spacing: 0.01em;
-  text-transform: uppercase;
-  background: linear-gradient(transparent 58%, var(--color-primary) 58%);
-}
-
-.headerBtns {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-}
-
-/* Botones: principal amarillo, secundario blanco; sin hover */
-.btnNuevo,
-.btnSeleccion,
-.btnConfirmarAccion,
-.btnAccion,
-.btnEditar,
-.btnCancelarModal,
-.btnGuardarModal {
-  border: var(--brutal-border);
-  border-radius: 6px;
-  background: var(--color-background);
-  color: var(--color-secondary);
-  box-shadow: var(--brutal-shadow-sm);
-  font-weight: 700;
-  white-space: nowrap;
-  cursor: pointer;
-}
-
-.btnNuevo,
-.btnSeleccion {
-  padding: 0.4rem 0.85rem;
-  font-size: 0.8rem;
-}
-
-.btnNuevo {
-  background: var(--color-primary);
-}
-
-.btnConfirmarAccion {
-  padding: 0.3rem 0.75rem;
-  font-size: 0.75rem;
-}
-
-.btnConfirmarEliminar {
-  color: var(--color-error);
-}
-
-.btnConfirmarPausar {
-  background: var(--color-primary);
-}
-
-.btnAccion,
-.btnEditar {
-  padding: 0.18rem 0.55rem;
-  font-size: 0.72rem;
-}
-
-/* ---- Métricas: tarjetas en fila, borde parejo y sin sombra ---- */
-
-.stats {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 0.75rem;
-  margin-bottom: 1rem;
-}
-
-.statItem {
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-  padding: 0.7rem 0.9rem;
-  border: var(--brutal-border);
-  border-radius: var(--brutal-radius);
-  background: var(--color-background);
-}
-
-.statValor {
-  font-family: var(--font-display);
-  font-size: 1.35rem;
-  line-height: 1.15;
-}
-
-.statLabel {
-  margin-top: 0.25rem;
-  font-size: 0.66rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--color-texto-suave);
-}
-
-.statDisponible {
-  color: var(--estado-completado-texto);
-}
-
-.statPausado {
-  color: var(--estado-pendiente-texto);
-}
-
-/* ---- Barra de selección múltiple ---- */
-
-.barraSeleccion {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.85rem;
-  margin-bottom: 1rem;
-  padding: 0.5rem 0.75rem;
-  border: var(--brutal-border);
-  border-radius: var(--brutal-radius);
-  background: color-mix(in srgb, var(--color-primary) 18%, var(--color-background));
-}
-
-.selectAllLabel {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  font-size: 0.78rem;
-  font-weight: 600;
-  white-space: nowrap;
-  cursor: pointer;
-}
-
-.seleccionadosInfo {
-  font-size: 0.78rem;
-  font-weight: 700;
-}
-
-/* ---- Filtros ---- */
-
-.filtros {
+/* Bloque negro despegado de la barra lateral; el anillo blanco tapa la grilla
+   que pasa por detrás al hacer scroll */
+.barra {
+  position: sticky;
+  top: 0.75rem;
+  z-index: 5;
   display: flex;
   flex-direction: column;
   gap: 0.65rem;
-  margin-bottom: 1rem;
+  margin: -0.75rem 0 1rem;
+  padding: 0.85rem 1rem;
+  border-radius: var(--brutal-radius);
+  background: var(--color-secondary);
+  color: var(--color-background);
+  box-shadow: 0 0 0 0.75rem var(--color-background);
 }
 
-.filtroBotones {
+.filaBarra {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
-}
-
-.btnFiltroEstado {
-  display: inline-flex;
   align-items: center;
-  gap: 0.35rem;
-  padding: 0.32rem 0.7rem;
-  border: var(--brutal-border-thin);
-  border-radius: 6px;
-  background: var(--color-background);
-  color: var(--color-secondary);
-  font-size: 0.78rem;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-/* Seleccionado: borde completo y sombra dura */
-.btnFiltroEstadoActivo {
-  border: var(--brutal-border);
-  background: var(--color-secondary);
-  color: var(--color-primary);
-  box-shadow: var(--brutal-shadow-sm);
-}
-
-.contadorEstado {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 1.3rem;
-  padding: 0.05rem 0.3rem;
-  border-radius: 4px;
-  background: color-mix(in srgb, currentColor 14%, transparent);
-  font-family: var(--font-display);
-  font-size: 0.62rem;
+  gap: 0.6rem;
 }
 
 .inputBusqueda {
+  flex: 1 1 14rem;
+  min-width: 0;
   height: 2.2rem;
   padding: 0 0.6rem;
   border: var(--brutal-border);
@@ -218,49 +48,314 @@
 }
 
 .inputBusqueda:focus {
+  box-shadow: 2px 2px 0 var(--color-primary);
+}
+
+/* Botones: principal amarillo, secundario blanco; sin hover */
+.btnNuevo,
+.btnModo {
+  height: 2.2rem;
+  padding: 0 0.85rem;
+  border: var(--brutal-border);
+  border-radius: 6px;
+  background: var(--color-background);
+  color: var(--color-secondary);
+  font-size: 0.8rem;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.btnNuevo {
+  background: var(--color-primary);
+}
+
+.btnModo {
+  height: 2rem;
+  font-size: 0.76rem;
+}
+
+.btnModoActivo {
+  border-color: var(--color-primary);
+  box-shadow: 2px 2px 0 var(--color-primary);
+}
+
+.modos {
+  display: flex;
+  gap: 0.5rem;
+  margin-left: auto;
+}
+
+/* ---- Chips de estado ---- */
+
+.filtroBotones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.btnFiltroEstado {
+  --sombra-chip: var(--color-primary);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  height: 2rem;
+  padding: 0 0.75rem;
+  border: var(--brutal-border-thin);
+  border-color: var(--color-secondary);
+  border-radius: 6px;
+  background: var(--color-background);
+  color: var(--color-secondary);
+  font-size: 0.78rem;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.chipActivas {
+  --sombra-chip: var(--estado-completado-texto);
+  background: var(--estado-completado-fondo);
+  color: var(--estado-completado-texto);
+}
+
+.chipPausadas {
+  --sombra-chip: var(--estado-pendiente-texto);
+  background: var(--estado-pendiente-fondo);
+  color: var(--estado-pendiente-texto);
+}
+
+/* Seleccionado: borde y sombra del color fuerte de su estado */
+.btnFiltroEstadoActivo {
+  border: var(--brutal-border);
+  border-color: var(--sombra-chip);
+  box-shadow: 3px 3px 0 var(--sombra-chip);
+}
+
+.contadorEstado {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.3rem;
+  padding: 0.05rem 0.3rem;
+  border-radius: 4px;
+  background: color-mix(in srgb, currentColor 14%, transparent);
+  font-family: var(--font-display);
+  font-size: 0.62rem;
+  font-weight: 400;
+}
+
+/* ---- Barra de selección múltiple ---- */
+
+.barraSeleccion {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.85rem;
+  margin-bottom: 1rem;
+  padding: 0.5rem 0.75rem;
+  border: var(--brutal-border);
+  border-radius: var(--brutal-radius);
+  background: var(--color-background-muted);
+}
+
+.selectAllLabel {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.seleccionadosInfo {
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.btnConfirmarAccion,
+.btnAccion,
+.btnCancelarModal,
+.btnGuardarModal {
+  border: var(--brutal-border);
+  border-radius: 6px;
+  background: var(--color-background);
+  color: var(--color-secondary);
   box-shadow: var(--brutal-shadow-sm);
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.btnConfirmarAccion {
+  padding: 0.3rem 0.75rem;
+  font-size: 0.75rem;
+}
+
+.btnConfirmarEliminar {
+  color: var(--color-error);
+}
+
+.btnConfirmarPausar {
+  background: var(--color-primary);
 }
 
 .resultadosInfo {
-  margin-bottom: 0.5rem;
-  font-size: 0.75rem;
-  font-weight: 600;
+  margin: 0 0 0.6rem 0.2rem;
+  font-size: 0.74rem;
+  font-weight: 700;
   color: var(--color-texto-suave);
 }
 
 .vacio {
-  padding: 1rem 0;
-  font-size: 0.82rem;
-  color: var(--color-texto-suave);
+  padding: 2rem 1rem;
+  border: var(--brutal-border);
+  border-radius: var(--brutal-radius);
+  text-align: center;
+  font-size: 0.85rem;
+  font-weight: 600;
 }
 
 /* ---- Grilla: tarjetas en fila, borde parejo y sin sombra ---- */
 
 .grid {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.75rem;
-}
-
-.columna {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  gap: 0.5rem;
-  min-width: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+  gap: 0.6rem;
 }
 
 .item {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  min-height: 2.6rem;
-  padding: 0.4rem 0.6rem 0.4rem 0.75rem;
+  gap: 0.6rem;
+  min-width: 0;
+  min-height: 3.4rem;
+  padding: 0.5rem 0.6rem;
   border: var(--brutal-border);
   border-radius: var(--brutal-radius);
   background: var(--color-background);
+}
+
+.itemPausada {
+  border-style: dashed;
+}
+
+.itemSeleccionable {
+  cursor: pointer;
+}
+
+.itemSeleccionado {
+  background: color-mix(in srgb, var(--color-primary) 22%, var(--color-background));
+}
+
+/* Cantidad de productos en un cuadro de color: da ritmo a la grilla y
+   las categorías vacías resaltan en rojo */
+.contadorProductos {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 2.3rem;
+  height: 2.3rem;
+  border: var(--brutal-border);
+  border-radius: 6px;
+  background: var(--color-primary);
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  line-height: 1;
+}
+
+.contadorVacio {
+  background: var(--estado-cancelado-fondo);
+  color: var(--estado-cancelado-texto);
+}
+
+.itemPausada .contadorProductos {
+  border-style: dashed;
+  background: var(--color-background-muted);
+  color: var(--color-texto-suave);
+}
+
+.itemDatos {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.1rem;
+  min-width: 0;
+}
+
+.nombreTexto {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.cantidadProductos {
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--color-texto-suave);
+}
+
+/* Una categoría vacía no muestra nada en la tienda: se marca */
+.sinProductos {
+  color: var(--estado-cancelado-texto);
+}
+
+.input {
+  width: 100%;
+  min-width: 0;
+  height: 1.9rem;
+  padding: 0 0.5rem;
+  border: var(--brutal-border);
+  border-radius: 6px;
+  color: var(--color-secondary);
   font-size: 0.8rem;
   font-weight: 600;
+  outline: none;
+}
+
+.input:focus {
+  box-shadow: var(--brutal-shadow-sm);
+}
+
+.badgePausada {
+  flex-shrink: 0;
+  padding: 0.22rem 0.45rem;
+  border: var(--brutal-border-thin);
+  border-radius: 6px;
+  background: var(--estado-pendiente-fondo);
+  color: var(--estado-pendiente-texto);
+  font-family: var(--font-display);
+  font-size: 0.56rem;
+  line-height: 1;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.acciones {
+  display: flex;
+  flex-shrink: 0;
+  gap: 0.4rem;
+}
+
+.btnAccion {
+  padding: 0.18rem 0.55rem;
+  font-size: 0.72rem;
+}
+
+.btnGuardarFila {
+  background: var(--color-primary);
+}
+
+.btnAccion:disabled {
+  border-style: dashed;
+  background: var(--color-background-muted);
+  box-shadow: none;
+  opacity: 0.6;
+  cursor: default;
 }
 
 .checkboxSeleccion {
@@ -287,9 +382,9 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 1.15rem;
-  height: 1.15rem;
-  border: var(--brutal-border-thin);
+  width: 1.2rem;
+  height: 1.2rem;
+  border: var(--brutal-border);
   border-radius: 50%;
   background: var(--color-background);
 }
@@ -314,54 +409,6 @@
 
 .checkboxSeleccion input[type="checkbox"]:focus-visible + .checkmarkCirculo {
   box-shadow: var(--brutal-shadow-sm);
-}
-
-.nombreTexto {
-  flex: 1;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.input {
-  flex: 1;
-  min-width: 0;
-  height: 1.8rem;
-  padding: 0 0.5rem;
-  border: var(--brutal-border);
-  border-radius: 6px;
-  color: var(--color-secondary);
-  font-size: 0.8rem;
-  font-weight: 500;
-  outline: none;
-}
-
-.input:focus {
-  box-shadow: var(--brutal-shadow-sm);
-}
-
-.badgePausada {
-  display: inline-block;
-  flex-shrink: 0;
-  padding: 0.22rem 0.45rem;
-  border: var(--brutal-border-thin);
-  border-radius: 6px;
-  background: var(--estado-pendiente-fondo);
-  color: var(--estado-pendiente-texto);
-  font-family: var(--font-display);
-  font-size: 0.58rem;
-  font-weight: 400;
-  line-height: 1;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  white-space: nowrap;
-}
-
-.acciones {
-  display: flex;
-  flex-shrink: 0;
-  gap: 0.4rem;
 }
 
 /* ---- Modal de nueva categoría ---- */
@@ -484,25 +531,24 @@
 }
 
 @media (max-width: 768px) {
-  .headerBtns {
-    width: 100%;
+  /* En mobile la hamburguesa fija ocupa la esquina: la barra no se fija */
+  .barra {
+    position: static;
+    margin: 0 0 1rem;
+    box-shadow: none;
   }
 
-  .btnNuevo,
-  .btnSeleccion {
-    flex: 1 1 auto;
+  .modos {
+    width: 100%;
+    margin-left: 0;
+  }
+
+  .btnModo {
+    flex: 1;
   }
 }
 
 @media (max-width: 480px) {
-  .stats {
-    gap: 0.5rem;
-  }
-
-  .statItem {
-    padding: 0.55rem 0.65rem;
-  }
-
   .modalAcciones {
     flex-direction: column-reverse;
     gap: 0.5rem;

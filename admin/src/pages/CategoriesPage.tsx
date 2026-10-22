@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, useMemo, type FormEvent } from 'react'
+import { useEffect, useState, useCallback, type FormEvent } from 'react'
 import { supabase, mapearCategoria } from '@shared'
 import type { Categoria } from '@shared'
 import LoadingState from '../components/LoadingState'
@@ -16,31 +16,27 @@ export default function CategoriesPage() {
   const [filtroEstado, setFiltroEstado] = useState<'' | 'activa' | 'pausada'>('')
   const [modoAccion, setModoAccion] = useState<'eliminar' | 'pausar' | null>(null)
   const [seleccionados, setSeleccionados] = useState<string[]>([])
-  const [columnas, setColumnas] = useState(3)
+  const [productosPorCategoria, setProductosPorCategoria] = useState<Record<string, number>>({})
   const [creandoCategoria, setCreandoCategoria] = useState(false)
   const [nombreNuevaCategoria, setNombreNuevaCategoria] = useState('')
   const [creandoSubiendo, setCreandoSubiendo] = useState(false)
   const [errorCrear, setErrorCrear] = useState<string | null>(null)
   const { confirm, notify, toast } = useConfirm()
 
-  useEffect(() => {
-    function onResize() {
-      const w = window.innerWidth
-      if (w >= 1200) setColumnas(3)
-      else if (w >= 768) setColumnas(2)
-      else setColumnas(1)
-    }
-    onResize()
-    window.addEventListener('resize', onResize)
-    return () => window.removeEventListener('resize', onResize)
-  }, [])
-
   const cargar = useCallback(async () => {
     setLoading(true)
     setError(null)
-    const { data, error: err } = await supabase.from('categorias').select('*').order('nombre')
+    const [resCategorias, resRelaciones] = await Promise.all([
+      supabase.from('categorias').select('*').order('nombre'),
+      supabase.from('producto_categorias').select('categoria_id'),
+    ])
+    const err = resCategorias.error ?? resRelaciones.error
     if (err) { setError(err.message); setLoading(false); return }
-    setCategorias((data ?? []).map(mapearCategoria))
+    // Cantidad de productos asignados a cada categoría
+    const conteo: Record<string, number> = {}
+    ;(resRelaciones.data ?? []).forEach(r => { conteo[r.categoria_id] = (conteo[r.categoria_id] ?? 0) + 1 })
+    setCategorias((resCategorias.data ?? []).map(mapearCategoria))
+    setProductosPorCategoria(conteo)
     setLoading(false)
   }, [])
 
@@ -212,50 +208,59 @@ export default function CategoriesPage() {
 
   const baseTotal = filtroEstado === '' ? categorias.length : (filtroEstado === 'activa' ? activasCount : pausadasCount)
 
-  const columnasItems = useMemo(() => {
-    const cols: Categoria[][] = Array.from({ length: columnas }, () => [])
-    categoriasFiltradas.forEach((c, i) => {
-      cols[i % columnas].push(c)
-    })
-    return cols
-  }, [categoriasFiltradas, columnas])
+  const chipsEstado: { valor: '' | 'activa' | 'pausada'; texto: string; cantidad: number; clase: string }[] = [
+    { valor: '', texto: 'Todas', cantidad: totalCategorias, clase: styles.chipTodas },
+    { valor: 'activa', texto: 'Activas', cantidad: activasCount, clase: styles.chipActivas },
+    { valor: 'pausada', texto: 'Pausadas', cantidad: pausadasCount, clase: styles.chipPausadas },
+  ]
+
+  function cambiarModo(modo: 'eliminar' | 'pausar') {
+    setSeleccionados([])
+    setModoAccion(prev => (prev === modo ? null : modo))
+  }
 
   if (loading) return <LoadingState />
   if (error) return <ErrorState mensaje={error} onReintentar={cargar} />
 
   return (
     <div className={styles.page}>
-      <div className={styles.header}>
-        <h2>Categorías</h2>
-        <div className={styles.headerBtns}>
+      <div className={styles.barra}>
+        <div className={styles.filaBarra}>
+          <input
+            className={styles.inputBusqueda}
+            type="text"
+            placeholder="Buscar por nombre..."
+            value={busqueda}
+            onChange={e => setBusqueda(e.target.value)}
+          />
           <button className={styles.btnNuevo} onClick={abrirCrear}>+ Nueva</button>
-          <button
-            className={styles.btnSeleccion}
-            onClick={() => { setSeleccionados([]); setModoAccion(prev => (prev === 'pausar' ? null : 'pausar')) }}
-          >
-            {modoAccion === 'pausar' ? 'Cancelar' : 'Pausar'}
-          </button>
-          <button
-            className={styles.btnSeleccion}
-            onClick={() => { setSeleccionados([]); setModoAccion(prev => (prev === 'eliminar' ? null : 'eliminar')) }}
-          >
-            {modoAccion === 'eliminar' ? 'Cancelar' : 'Eliminar'}
-          </button>
         </div>
-      </div>
-
-      <div className={styles.stats}>
-        <div className={styles.statItem}>
-          <span className={styles.statValor}>{totalCategorias}</span>
-          <span className={styles.statLabel}>Total</span>
-        </div>
-        <div className={styles.statItem}>
-          <span className={`${styles.statValor} ${styles.statDisponible}`}>{activasCount}</span>
-          <span className={styles.statLabel}>Activas</span>
-        </div>
-        <div className={styles.statItem}>
-          <span className={`${styles.statValor} ${styles.statPausado}`}>{pausadasCount}</span>
-          <span className={styles.statLabel}>Pausadas</span>
+        <div className={styles.filaBarra}>
+          <div className={styles.filtroBotones}>
+            {chipsEstado.map(c => (
+              <button
+                key={c.valor || 'todas'}
+                className={`${styles.btnFiltroEstado} ${c.clase} ${filtroEstado === c.valor ? styles.btnFiltroEstadoActivo : ''}`}
+                onClick={() => setFiltroEstado(c.valor)}
+              >
+                {c.texto} <span className={styles.contadorEstado}>{c.cantidad}</span>
+              </button>
+            ))}
+          </div>
+          <div className={styles.modos}>
+            <button
+              className={`${styles.btnModo} ${modoAccion === 'pausar' ? styles.btnModoActivo : ''}`}
+              onClick={() => cambiarModo('pausar')}
+            >
+              {modoAccion === 'pausar' ? 'Cancelar' : 'Pausar'}
+            </button>
+            <button
+              className={`${styles.btnModo} ${modoAccion === 'eliminar' ? styles.btnModoActivo : ''}`}
+              onClick={() => cambiarModo('eliminar')}
+            >
+              {modoAccion === 'eliminar' ? 'Cancelar' : 'Eliminar'}
+            </button>
+          </div>
         </div>
       </div>
 
@@ -275,7 +280,7 @@ export default function CategoriesPage() {
             />
             Seleccionar todas
           </label>
-          {seleccionados.length > 0 && (
+          {seleccionados.length > 0 ? (
             <>
               <span className={styles.seleccionadosInfo}>{seleccionados.length} categoría{seleccionados.length > 1 ? 's' : ''} seleccionada{seleccionados.length > 1 ? 's' : ''}</span>
               <button
@@ -285,30 +290,11 @@ export default function CategoriesPage() {
                 {modoAccion === 'eliminar' ? 'Eliminar' : 'Pausar'} {seleccionados.length} categoría{seleccionados.length > 1 ? 's' : ''}
               </button>
             </>
+          ) : (
+            <span className={styles.seleccionadosInfo}>Tocá las categorías para seleccionarlas.</span>
           )}
         </div>
       )}
-
-      <div className={styles.filtros}>
-        <div className={styles.filtroBotones}>
-          <button className={`${styles.btnFiltroEstado} ${filtroEstado === '' ? styles.btnFiltroEstadoActivo : ''}`} onClick={() => setFiltroEstado('')}>
-            Todas <span className={styles.contadorEstado}>{totalCategorias}</span>
-          </button>
-          <button className={`${styles.btnFiltroEstado} ${filtroEstado === 'activa' ? styles.btnFiltroEstadoActivo : ''}`} onClick={() => setFiltroEstado('activa')}>
-            Activas <span className={styles.contadorEstado}>{activasCount}</span>
-          </button>
-          <button className={`${styles.btnFiltroEstado} ${filtroEstado === 'pausada' ? styles.btnFiltroEstadoActivo : ''}`} onClick={() => setFiltroEstado('pausada')}>
-            Pausadas <span className={styles.contadorEstado}>{pausadasCount}</span>
-          </button>
-        </div>
-        <input
-          className={styles.inputBusqueda}
-          type="text"
-          placeholder="Buscar por nombre..."
-          value={busqueda}
-          onChange={e => setBusqueda(e.target.value)}
-        />
-      </div>
 
       {categoriasFiltradas.length === 0 ? (
         <p className={styles.vacio}>No se encontraron categorías.</p>
@@ -320,47 +306,69 @@ export default function CategoriesPage() {
             </p>
           )}
           <div className={styles.grid}>
-            {columnasItems.map((col, i) => (
-              <div key={i} className={styles.columna}>
-                {col.map(c => (
-                  <div key={c.id} className={styles.item}>
-                    {modoAccion !== null && (
-                      <label className={styles.checkboxSeleccion}>
-                        <input
-                          type="checkbox"
-                          checked={seleccionados.includes(c.id)}
-                          onChange={() => toggleSeleccionado(c.id)}
-                        />
-                        <span className={styles.checkmarkCirculo} aria-hidden="true" />
-                      </label>
-                    )}
+            {categoriasFiltradas.map(c => {
+              const cantidad = productosPorCategoria[c.id] ?? 0
+              const seleccionada = seleccionados.includes(c.id)
+              return (
+                <div
+                  key={c.id}
+                  className={`${styles.item} ${c.estado === 'pausada' ? styles.itemPausada : ''} ${seleccionada ? styles.itemSeleccionado : ''} ${modoAccion !== null ? styles.itemSeleccionable : ''}`}
+                  onClick={modoAccion !== null ? () => toggleSeleccionado(c.id) : undefined}
+                >
+                  {modoAccion !== null && (
+                    <label className={styles.checkboxSeleccion} onClick={e => e.stopPropagation()}>
+                      <input
+                        type="checkbox"
+                        checked={seleccionada}
+                        onChange={() => toggleSeleccionado(c.id)}
+                        aria-label={`Seleccionar ${c.nombre}`}
+                      />
+                      <span className={styles.checkmarkCirculo} aria-hidden="true" />
+                    </label>
+                  )}
+                  <span
+                    className={`${styles.contadorProductos} ${cantidad === 0 ? styles.contadorVacio : ''}`}
+                    aria-hidden="true"
+                  >
+                    {cantidad}
+                  </span>
+                  <div className={styles.itemDatos}>
                     {editando?.id === c.id ? (
-                      <input value={nombreEdit} onChange={e => setNombreEdit(e.target.value)} className={styles.input} />
+                      <input
+                        value={nombreEdit}
+                        onChange={e => setNombreEdit(e.target.value)}
+                        onKeyDown={e => { if (e.key === 'Enter') guardarEdicion(); if (e.key === 'Escape') setEditando(null) }}
+                        className={styles.input}
+                        autoFocus
+                      />
                     ) : (
                       <span className={styles.nombreTexto}>{c.nombre}</span>
                     )}
-                    {c.estado === 'pausada' && <span className={styles.badgePausada}>Pausada</span>}
-                    <div className={styles.acciones}>
-                      {editando?.id === c.id ? (
-                        <>
-                          <button className={styles.btnAccion} onClick={guardarEdicion}>Guardar</button>
-                          <button className={styles.btnAccion} onClick={() => setEditando(null)}>Cancelar</button>
-                        </>
-                      ) : (
-                        <>
-                          <button className={styles.btnEditar} onClick={() => iniciarEdicion(c)}>Editar</button>
-                          {c.estado === 'pausada' && (
-                            <button className={styles.btnAccion} onClick={() => toggleEstado(c)}>
-                              Reactivar
-                            </button>
-                          )}
-                        </>
-                      )}
-                    </div>
+                    <span className={`${styles.cantidadProductos} ${cantidad === 0 ? styles.sinProductos : ''}`}>
+                      {cantidad === 0 ? 'Sin productos' : `${cantidad} producto${cantidad !== 1 ? 's' : ''}`}
+                    </span>
                   </div>
-                ))}
-              </div>
-            ))}
+                  {c.estado === 'pausada' && <span className={styles.badgePausada}>Pausada</span>}
+                  <div className={styles.acciones}>
+                    {editando?.id === c.id ? (
+                      <>
+                        <button className={`${styles.btnAccion} ${styles.btnGuardarFila}`} onClick={guardarEdicion}>Guardar</button>
+                        <button className={styles.btnAccion} onClick={() => setEditando(null)}>Cancelar</button>
+                      </>
+                    ) : (
+                      <>
+                        {c.estado === 'pausada' && (
+                          <button className={styles.btnAccion} onClick={() => toggleEstado(c)} disabled={modoAccion !== null}>
+                            Reactivar
+                          </button>
+                        )}
+                        <button className={styles.btnAccion} onClick={() => iniciarEdicion(c)} disabled={modoAccion !== null}>Editar</button>
+                      </>
+                    )}
+                  </div>
+                </div>
+              )
+            })}
           </div>
         </>
       )}
