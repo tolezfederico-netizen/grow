@@ -303,23 +303,6 @@
   color: var(--estado-cancelado-texto);
 }
 
-.input {
-  width: 100%;
-  min-width: 0;
-  height: 1.9rem;
-  padding: 0 0.5rem;
-  border: var(--brutal-border);
-  border-radius: 6px;
-  color: var(--color-secondary);
-  font-size: 0.8rem;
-  font-weight: 600;
-  outline: none;
-}
-
-.input:focus {
-  box-shadow: var(--brutal-shadow-sm);
-}
-
 .badgePausada {
   flex-shrink: 0;
   padding: 0.22rem 0.45rem;
@@ -344,10 +327,6 @@
 .btnAccion {
   padding: 0.18rem 0.55rem;
   font-size: 0.72rem;
-}
-
-.btnGuardarFila {
-  background: var(--color-primary);
 }
 
 .btnAccion:disabled {

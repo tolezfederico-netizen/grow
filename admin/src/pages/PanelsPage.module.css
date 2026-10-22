@@ -1,41 +1,31 @@
 .page {
   width: 100%;
   min-width: 0;
-  overflow-x: hidden;
 }
 
-.header {
+/* ---- Barra superior: mismo esquema que Pedidos y Productos ---- */
+
+/* Bloque negro despegado de la barra lateral; el anillo blanco tapa la tabla
+   que pasa por detrás al hacer scroll */
+.barra {
+  position: sticky;
+  top: 0.75rem;
+  z-index: 5;
   display: flex;
   flex-wrap: wrap;
-  justify-content: space-between;
   align-items: center;
-  gap: 0.75rem;
-  margin-bottom: 0.85rem;
-}
-
-/* Título de página: único lugar con el resaltador amarillo */
-.header h2 {
-  display: inline;
-  margin: 0;
-  padding: 0 0.2rem;
-  -webkit-box-decoration-break: clone;
-  box-decoration-break: clone;
-  font-family: var(--font-display);
-  font-size: 1.15rem;
-  font-weight: 400;
-  line-height: 1.4;
-  letter-spacing: 0.01em;
-  text-transform: uppercase;
-  background: linear-gradient(transparent 58%, var(--color-primary) 58%);
-}
-
-.headerFiltros {
-  margin-bottom: 1rem;
+  gap: 0.6rem;
+  margin: -0.75rem 0 1rem;
+  padding: 0.85rem 1rem;
+  border-radius: var(--brutal-radius);
+  background: var(--color-secondary);
+  color: var(--color-background);
+  box-shadow: 0 0 0 0.75rem var(--color-background);
 }
 
 .inputBusquedaPanel {
-  width: 16rem;
-  max-width: 100%;
+  flex: 1 1 14rem;
+  min-width: 0;
   height: 2.2rem;
   padding: 0 0.6rem;
   border: var(--brutal-border);
@@ -53,13 +43,17 @@
 }
 
 .inputBusquedaPanel:focus {
-  box-shadow: var(--brutal-shadow-sm);
+  box-shadow: 2px 2px 0 var(--color-primary);
 }
 
-.headerBtns {
+.modos {
   display: flex;
-  flex-wrap: wrap;
   gap: 0.5rem;
+}
+
+.btnModoActivo {
+  border-color: var(--color-primary);
+  box-shadow: 2px 2px 0 var(--color-primary);
 }
 
 /* Botones: principal amarillo, secundario blanco; sin hover */
@@ -79,8 +73,18 @@
 
 .btnNuevo,
 .btnSeleccion {
-  padding: 0.4rem 0.85rem;
+  height: 2.2rem;
+  padding: 0 0.85rem;
   font-size: 0.8rem;
+}
+
+.barra .btnNuevo,
+.barra .btnSeleccion {
+  box-shadow: none;
+}
+
+.barra .btnSeleccion.btnModoActivo {
+  box-shadow: 2px 2px 0 var(--color-primary);
 }
 
 .btnNuevo {
@@ -135,7 +139,7 @@
   padding: 0.5rem 0.75rem;
   border: var(--brutal-border);
   border-radius: var(--brutal-radius);
-  background: color-mix(in srgb, var(--color-primary) 18%, var(--color-background));
+  background: var(--color-background-muted);
 }
 
 .seleccionadosInfo {
@@ -221,17 +225,50 @@
   display: grid;
   grid-template-columns: var(--cols);
   align-items: start;
-  gap: 0.5rem;
-  padding: 0.55rem 0.75rem;
+  gap: 0.6rem;
+  padding: 0.6rem 0.75rem;
   font-size: 0.8rem;
 }
 
-.filaPanel + .filaPanel {
+.tabla > * + * {
   border-top: var(--brutal-border-thin);
 }
 
+/* Panel abierto: gris neutro, como el pedido desplegado */
 .selFila {
-  background: color-mix(in srgb, var(--color-primary) 18%, var(--color-background));
+  background: var(--color-background-muted);
+}
+
+/* Orden en un cuadro amarillo, igual que la cantidad en Categorías */
+.orden {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.1rem;
+  height: 2.1rem;
+  border: var(--brutal-border);
+  border-radius: 6px;
+  background: var(--color-primary);
+  font-family: var(--font-display);
+  font-size: 0.9rem;
+  line-height: 1;
+}
+
+.ordenSinAsignar {
+  border-style: dashed;
+  background: var(--color-background-muted);
+  color: var(--color-texto-suave);
+}
+
+.celdaTitulo {
+  min-width: 0;
+  padding-top: 0.1rem;
+}
+
+.celdaCategorias {
+  padding-top: 0.35rem;
+  font-family: var(--font-display);
+  font-size: 0.8rem;
 }
 
 .linkFila {
@@ -328,28 +365,19 @@
 }
 
 @media (max-width: 768px) {
-  .header {
-    align-items: stretch;
+  /* En mobile la hamburguesa fija ocupa la esquina: la barra no se fija */
+  .barra {
+    position: static;
+    margin: 0 0 1rem;
+    box-shadow: none;
   }
 
-  .header h2 {
-    align-self: flex-start;
-  }
-
-  .headerBtns {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 0.5rem;
+  .modos {
     width: 100%;
   }
 
-  .btnNuevo,
-  .btnSeleccion {
-    width: 100%;
-  }
-
-  .inputBusquedaPanel {
-    width: 100%;
+  .modos .btnSeleccion {
+    flex: 1;
   }
 
   .filaHeader {
@@ -357,23 +385,27 @@
   }
 
   .filaPanel {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: 2.4rem 1fr 1fr;
     row-gap: 0.4rem;
     padding: 0.65rem 0.75rem;
   }
 
-  .filaPanel > div:nth-child(1) {
-    grid-column: 1 / -1;
+  .filaPanel > .orden {
+    grid-row: span 2;
   }
 
-  .filaPanel > div:nth-child(4),
+  .filaPanel > .celdaTitulo {
+    grid-column: 2 / -1;
+  }
+
   .filaPanel > .acciones,
   .filaPanel > .celdaCheckbox {
-    grid-column: 1 / -1;
+    grid-column: 2 / -1;
   }
 
   .filaPanel [data-label]::before {
     content: attr(data-label) ": ";
+    font-family: var(--font-ui);
     font-size: 0.66rem;
     font-weight: 700;
     letter-spacing: 0.06em;
@@ -387,15 +419,8 @@
 }
 
 @media (max-width: 480px) {
-  .filaPanel {
-    grid-template-columns: 1fr;
-  }
-
-  .filaPanel > div:nth-child(1),
-  .filaPanel > div:nth-child(2),
-  .filaPanel > div:nth-child(3),
-  .filaPanel > div:nth-child(4) {
-    grid-column: 1;
+  .filaPanel > [data-label] {
+    grid-column: 2 / -1;
   }
 
   .btnAccion {

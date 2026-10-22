@@ -333,44 +333,57 @@ export default function CategoriesPage() {
                     {cantidad}
                   </span>
                   <div className={styles.itemDatos}>
-                    {editando?.id === c.id ? (
-                      <input
-                        value={nombreEdit}
-                        onChange={e => setNombreEdit(e.target.value)}
-                        onKeyDown={e => { if (e.key === 'Enter') guardarEdicion(); if (e.key === 'Escape') setEditando(null) }}
-                        className={styles.input}
-                        autoFocus
-                      />
-                    ) : (
-                      <span className={styles.nombreTexto}>{c.nombre}</span>
-                    )}
+                    <span className={styles.nombreTexto}>{c.nombre}</span>
                     <span className={`${styles.cantidadProductos} ${cantidad === 0 ? styles.sinProductos : ''}`}>
                       {cantidad === 0 ? 'Sin productos' : `${cantidad} producto${cantidad !== 1 ? 's' : ''}`}
                     </span>
                   </div>
                   {c.estado === 'pausada' && <span className={styles.badgePausada}>Pausada</span>}
                   <div className={styles.acciones}>
-                    {editando?.id === c.id ? (
-                      <>
-                        <button className={`${styles.btnAccion} ${styles.btnGuardarFila}`} onClick={guardarEdicion}>Guardar</button>
-                        <button className={styles.btnAccion} onClick={() => setEditando(null)}>Cancelar</button>
-                      </>
-                    ) : (
-                      <>
-                        {c.estado === 'pausada' && (
-                          <button className={styles.btnAccion} onClick={() => toggleEstado(c)} disabled={modoAccion !== null}>
-                            Reactivar
-                          </button>
-                        )}
-                        <button className={styles.btnAccion} onClick={() => iniciarEdicion(c)} disabled={modoAccion !== null}>Editar</button>
-                      </>
+                    {c.estado === 'pausada' && (
+                      <button className={styles.btnAccion} onClick={() => toggleEstado(c)} disabled={modoAccion !== null}>
+                        Reactivar
+                      </button>
                     )}
+                    <button className={styles.btnAccion} onClick={() => iniciarEdicion(c)} disabled={modoAccion !== null}>Editar</button>
                   </div>
                 </div>
               )
             })}
           </div>
         </>
+      )}
+
+      {/* Edición del nombre: mismo modal que "Nueva categoría" */}
+      {editando && (
+        <div className={styles.overlayModal} onClick={() => setEditando(null)}>
+          <div className={styles.modalCrear} onClick={e => e.stopPropagation()}>
+            <div className={styles.modalHeader}>
+              <h2>Editar categoría</h2>
+              <button type="button" className={styles.btnCerrarModal} onClick={() => setEditando(null)} aria-label="Cerrar">✕</button>
+            </div>
+            <form
+              onSubmit={e => { e.preventDefault(); guardarEdicion() }}
+              onKeyDown={e => { if (e.key === 'Escape') setEditando(null) }}
+              className={styles.modalForm}
+            >
+              <input
+                className={styles.modalInput}
+                placeholder="Nombre de la categoría"
+                value={nombreEdit}
+                onChange={e => setNombreEdit(e.target.value)}
+                autoFocus
+                required
+              />
+              <div className={styles.modalAcciones}>
+                <button type="button" className={styles.btnCancelarModal} onClick={() => setEditando(null)}>Cancelar</button>
+                <button type="submit" className={styles.btnGuardarModal} disabled={!nombreEdit.trim()}>
+                  Guardar
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
       )}
 
       {creandoCategoria && (

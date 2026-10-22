@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { Fragment, useEffect, useState, useCallback } from "react";
 import {
   supabase,
   mapearPanelCategoria,
@@ -264,10 +264,11 @@ export default function PanelsPage() {
   const panelSel = paneles.find((p) => p.id === selPanelId) ?? null;
   const itemsSel = items.filter((i) => i.panel_id === selPanelId);
 
+  // Orden | Panel | Estado | Categorías | Acciones (+ selección)
   const colsBase =
-    "minmax(10rem, 1fr) minmax(4rem, 6rem) minmax(4rem, 6rem) minmax(4rem, 6rem) minmax(7rem, 10rem)";
+    "2.4rem minmax(10rem, 1fr) minmax(5rem, 7rem) minmax(5rem, 7rem) minmax(7rem, 10rem)";
   const colsConCheckbox =
-    "minmax(10rem, 1fr) minmax(4rem, 6rem) minmax(4rem, 6rem) minmax(4rem, 6rem) minmax(6rem, 9rem) 3rem";
+    "2.4rem minmax(10rem, 1fr) minmax(5rem, 7rem) minmax(5rem, 7rem) minmax(6rem, 9rem) 3rem";
   const cols = modoAccion !== null ? colsConCheckbox : colsBase;
   const colsVar = { "--cols": cols } as React.CSSProperties;
 
@@ -280,14 +281,20 @@ export default function PanelsPage() {
 
   return (
     <div className={styles.page}>
-      <div className={styles.header}>
-        <h2>Paneles de Categoría</h2>
-        <div className={styles.headerBtns}>
-          <button className={styles.btnNuevo} onClick={() => setCreando(true)}>
-            + Nuevo panel
-          </button>
+      <div className={styles.barra}>
+        <input
+          className={styles.inputBusquedaPanel}
+          type="text"
+          placeholder="Buscar panel..."
+          value={busqueda}
+          onChange={(e) => setBusqueda(e.target.value)}
+        />
+        <button className={styles.btnNuevo} onClick={() => setCreando(true)}>
+          + Nuevo panel
+        </button>
+        <div className={styles.modos}>
           <button
-            className={styles.btnSeleccion}
+            className={`${styles.btnSeleccion} ${modoAccion === "pausar" ? styles.btnModoActivo : ""}`}
             onClick={() => {
               setSeleccionados([]);
               setModoAccion((prev) => (prev === "pausar" ? null : "pausar"));
@@ -296,7 +303,7 @@ export default function PanelsPage() {
             {modoAccion === "pausar" ? "Cancelar" : "Pausar"}
           </button>
           <button
-            className={styles.btnSeleccion}
+            className={`${styles.btnSeleccion} ${modoAccion === "eliminar" ? styles.btnModoActivo : ""}`}
             onClick={() => {
               setSeleccionados([]);
               setModoAccion((prev) =>
@@ -309,32 +316,30 @@ export default function PanelsPage() {
         </div>
       </div>
 
-      <div className={styles.headerFiltros}>
-        <input
-          className={styles.inputBusquedaPanel}
-          type="text"
-          placeholder="Buscar panel..."
-          value={busqueda}
-          onChange={(e) => setBusqueda(e.target.value)}
-        />
-      </div>
-
-      {modoAccion !== null && seleccionados.length > 0 && (
+      {modoAccion !== null && (
         <div className={styles.barraSeleccion}>
-          <span className={styles.seleccionadosInfo}>
-            {seleccionados.length} panel(es) seleccionado(s)
-          </span>
-          <button
-            className={`${styles.btnConfirmarAccion} ${modoAccion === "eliminar" ? styles.btnConfirmarEliminar : styles.btnConfirmarPausar}`}
-            onClick={
-              modoAccion === "eliminar"
-                ? eliminarSeleccionados
-                : pausarSeleccionados
-            }
-          >
-            {modoAccion === "eliminar" ? "Eliminar" : "Pausar"}{" "}
-            {seleccionados.length} panel(es)
-          </button>
+          {seleccionados.length > 0 ? (
+            <>
+              <span className={styles.seleccionadosInfo}>
+                {seleccionados.length} panel(es) seleccionado(s)
+              </span>
+              <button
+                className={`${styles.btnConfirmarAccion} ${modoAccion === "eliminar" ? styles.btnConfirmarEliminar : styles.btnConfirmarPausar}`}
+                onClick={
+                  modoAccion === "eliminar"
+                    ? eliminarSeleccionados
+                    : pausarSeleccionados
+                }
+              >
+                {modoAccion === "eliminar" ? "Eliminar" : "Pausar"}{" "}
+                {seleccionados.length} panel(es)
+              </button>
+            </>
+          ) : (
+            <span className={styles.seleccionadosInfo}>
+              Marcá los paneles en la columna de la derecha.
+            </span>
+          )}
         </div>
       )}
 
@@ -367,8 +372,8 @@ export default function PanelsPage() {
       ) : (
         <div className={styles.tabla}>
           <div className={styles.filaHeader} style={colsVar}>
-            <span>Título</span>
-            <span>Orden</span>
+            <span>#</span>
+            <span>Panel</span>
             <span>Estado</span>
             <span>Categorías</span>
             <span></span>
@@ -376,8 +381,8 @@ export default function PanelsPage() {
           </div>
 
           {panelesFiltrados.map((p) => (
+            <Fragment key={p.id}>
             <div
-              key={p.id}
               className={`${styles.filaPanel}${selPanelId === p.id ? ` ${styles.selFila}` : ""}${dragOverId === p.id ? ` ${styles.dragOver}` : ""}${draggedId === p.id ? ` ${styles.arrastrando}` : ""}`}
               style={colsVar}
               draggable={puedeArrastrar}
@@ -386,7 +391,13 @@ export default function PanelsPage() {
               onDrop={() => handleDrop(p.id)}
               onDragEnd={handleDragEnd}
             >
-              <div>
+              <span
+                className={`${styles.orden} ${p.orden === null ? styles.ordenSinAsignar : ""}`}
+                title={p.orden === null ? "Orden sin asignar" : `Orden ${p.orden}`}
+              >
+                {p.orden ?? "–"}
+              </span>
+              <div className={styles.celdaTitulo}>
                 {puedeArrastrar && (
                   <span
                     className={styles.dragHandle}
@@ -434,13 +445,6 @@ export default function PanelsPage() {
                   <span className={styles.sub}>{p.descripcion}</span>
                 )}
               </div>
-              <div data-label="Orden">
-                {p.orden !== null ? (
-                  p.orden
-                ) : (
-                  <span className={styles.sinAsignar}>Sin asignar</span>
-                )}
-              </div>
               <div data-label="Estado">
                 <span
                   className={`${styles.badgeEstado} ${p.estado === "activo" ? styles.activo : styles.pausado}`}
@@ -448,7 +452,7 @@ export default function PanelsPage() {
                   {p.estado}
                 </span>
               </div>
-              <div data-label="Categorías">
+              <div data-label="Categorías" className={styles.celdaCategorias}>
                 {items.filter((i) => i.panel_id === p.id).length}
               </div>
               <div className={styles.acciones}>
@@ -483,21 +487,22 @@ export default function PanelsPage() {
                 </div>
               )}
             </div>
+            {/* El editor se despliega debajo de su fila, como el detalle en Pedidos */}
+            {selPanelId === p.id && panelSel && (
+              <PanelItemsEditor
+                panel={panelSel}
+                items={itemsSel}
+                todosLosItems={items}
+                itemProductos={itemProductos}
+                categorias={categorias}
+                relaciones={relaciones}
+                productos={productos}
+                onReload={cargar}
+              />
+            )}
+            </Fragment>
           ))}
         </div>
-      )}
-
-      {selPanelId && panelSel && (
-        <PanelItemsEditor
-          panel={panelSel}
-          items={itemsSel}
-          todosLosItems={items}
-          itemProductos={itemProductos}
-          categorias={categorias}
-          relaciones={relaciones}
-          productos={productos}
-          onReload={cargar}
-        />
       )}
 
       {(editando || creando) && (

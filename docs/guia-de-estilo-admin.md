@@ -43,7 +43,7 @@ Viven en `admin/src/index.css`, **duplicadas** de las del client (apps aisladas:
 ### 3.1 Layout (`AdminLayout`)
 - Barra lateral negra (`--color-secondary`) con ítems en `--font-ui`; el activo en amarillo con texto negro. Sin hover de color en los ítems (solo cursor), igual que los botones del client.
 - Contenido sobre blanco, padding compacto (~1.5rem). Sin título de página (decisión del usuario: repite la barra lateral).
-- Páginas con filtros: barra superior negra, despegada de la barra lateral (bloque redondeado, fija al hacer scroll). Sobre el negro, el filtro seleccionado lleva borde y sombra del color fuerte de su estado (`--estado-*-texto`); "Todos" queda blanco con amarillo. Ver `OrdersPage.module.css`.
+- Páginas con filtros: barra superior negra, despegada de la barra lateral (bloque redondeado, fija al hacer scroll). Sobre el negro, el filtro seleccionado lleva borde y sombra del color fuerte de su estado (`--estado-*-texto`); "Todos" queda blanco con amarillo. Ver `OrdersPage.module.css`. Ojo: ningún ancestro de la barra puede tener `overflow` distinto de `visible`/`clip`, o deja de quedar fija.
 
 ### 3.2 Tablas y listados (Pedidos, Productos, Paneles, Categorías, Clientes)
 - Una sola viñeta (`--brutal-border`, radio estándar, fondo blanco) con filas separadas por `--brutal-border-thin`. Encabezado de columnas en `--font-display` chico (≈0.68rem, mayúsculas).
@@ -80,8 +80,8 @@ Viven en `admin/src/index.css`, **duplicadas** de las del client (apps aisladas:
 | Dashboard | ✅ (rediseño con cambios funcionales pedidos por el usuario: sin métricas duplicadas ni "Ventas de hoy"; fila de 5 estados con Pendiente resaltado, últimos pedidos clickeables que abren el pedido, gráfico de pedidos de 7 días y aviso de productos sin stock) | `pages/DashboardPage` |
 | Pedidos + modal de notificar | ✅ (barra superior negra fija; sin título ni total; carga los últimos 30 días + abiertos, con botón para ver antiguos; grupos por fecha en viñetas separadas; marca "Sin atender" para pendientes de más de 24 h; abre el pedido de `?id=`) | `pages/OrdersPage`, `components/NotificarPedidoModal` |
 | Productos + formulario + selector de imagen | ✅ Productos y formulario (barra superior negra con buscador, categoría, completitud, chips de estado y acciones; grilla de tarjetas con imagen real y aviso de información incompleta; modal en dos columnas con pie fijo y categorías como chips). 🔶 selector de imagen | `pages/ProductsPage`, `components/ProductForm`, `components/ProductoImagenSelector` |
-| Paneles + formularios | 🔶 primera pasada | `pages/PanelsPage`, `components/PanelForm`, `PanelItemForm`, `PanelItemsEditor` |
-| Categorías | ✅ (barra negra con buscador, chips de estado y acciones; grilla CSS en lugar del cálculo de columnas con JS; cuadro de color con la cantidad de productos: amarillo, rojo si está vacía, gris si está pausada) | `pages/CategoriesPage` |
+| Paneles + formularios | ✅ Paneles y editor (barra negra; orden en cuadro amarillo; el editor de categorías se despliega debajo de su fila). 🔶 formularios | `pages/PanelsPage`, `components/PanelForm`, `PanelItemForm`, `PanelItemsEditor` |
+| Categorías | ✅ (barra negra con buscador, chips de estado y acciones; grilla CSS en lugar del cálculo de columnas con JS; cuadro de color con la cantidad de productos: amarillo, rojo si está vacía, gris si está pausada; edición del nombre en modal) | `pages/CategoriesPage` |
 | Clientes | ✅ (barra negra con buscador por nombre/email/teléfono, orden y Excel; tarjetas con cantidad de pedidos y último pedido; modal de detalle con contacto, total retirado y sus pedidos) | `pages/CustomersPage` |
 | Configuración | 🔶 primera pasada | `pages/SettingsPage` |
 | Diálogos (confirm / notify / toast) | 🔶 primera pasada | `components/ConfirmDialog`, `context/ConfirmContext` |

@@ -1,11 +1,28 @@
-/* Bloque de categorías del panel seleccionado: viñeta debajo de la tabla */
+/* Categorías del panel abierto: se despliega debajo de su fila, dentro de la
+   misma tabla (sin viñeta propia), sobre el gris del panel abierto */
 .editor {
   min-width: 0;
-  margin-top: 1rem;
-  padding: 0.85rem 0.9rem 0.9rem;
+  padding: 0.75rem 0.9rem 0.9rem 3.75rem;
+  background: var(--color-background-muted);
+}
+
+.editor .tabla {
   border: var(--brutal-border);
   border-radius: var(--brutal-radius);
+  border-collapse: separate;
+  border-spacing: 0;
+  overflow: hidden;
   background: var(--color-background);
+}
+
+.editor .preview {
+  background: var(--color-background);
+}
+
+@media (max-width: 768px) {
+  .editor {
+    padding-left: 0.9rem;
+  }
 }
 
 .header {
@@ -116,7 +133,7 @@
   text-transform: uppercase;
 }
 
-.tabla tbody tr + tr {
+.tabla tbody tr + tr td {
   border-top: var(--brutal-border-thin);
 }
 
