@@ -267,319 +267,260 @@ export default function ProductsPage() {
   if (loading) return <LoadingState />;
   if (error) return <ErrorState mensaje={error} onReintentar={cargar} />;
 
+  // Chips de estado: mismos valores que el filtro por estado
+  const chipsEstado: { valor: string; texto: string; cantidad: number; clase: string }[] = [
+    { valor: "", texto: "Todos", cantidad: totalProductos, clase: styles.chipTodos },
+    { valor: "disponible", texto: "Disponibles", cantidad: disponiblesCount, clase: styles.chipDisponible },
+    { valor: "pausado", texto: "Pausados", cantidad: pausadosCount, clase: styles.chipPausado },
+    { valor: "sin_stock", texto: "Sin stock", cantidad: sinStockCount, clase: styles.chipSinStock },
+  ];
+
+  function nombresCategorias(productoId: string): string {
+    const ids = categoriaIds(productoId);
+    return categorias
+      .filter((c) => ids.includes(c.id))
+      .map((c) => c.nombre)
+      .join(" · ");
+  }
+
+  function claseEstadoProducto(estado: string): string {
+    if (estado === "disponible") return styles.disponible;
+    if (estado === "sin_stock") return styles.sinStock;
+    return styles.pausado;
+  }
+
+  function cambiarModo(modo: "eliminar" | "pausar" | "sin_stock") {
+    setSeleccionados([]);
+    setModoAccion((prev) => (prev === modo ? null : modo));
+  }
+
   return (
     <div className={styles.page}>
-      <div className={styles.header}>
-        <h2>Productos</h2>
-        <div className={styles.headerBtns}>
+      <div className={styles.barra}>
+        <div className={styles.filaBarra}>
+          <div className={styles.busquedaWrap}>
+            <input
+              ref={inputBusquedaRef}
+              className={styles.inputBusqueda}
+              type="text"
+              placeholder="Buscar por nombre..."
+              value={busqueda}
+              onChange={(e) => setBusqueda(e.target.value)}
+            />
+            {busqueda.trim() !== "" && (
+              <button
+                type="button"
+                className={styles.btnLimpiarBusqueda}
+                aria-label="Limpiar búsqueda"
+                onClick={() => {
+                  setBusqueda("");
+                  inputBusquedaRef.current?.focus();
+                }}
+              >
+                ✕
+              </button>
+            )}
+          </div>
+          <select
+            className={styles.selectCategoria}
+            value={categoriaFiltro}
+            onChange={(e) => setCategoriaFiltro(e.target.value)}
+            aria-label="Filtrar por categoría"
+          >
+            <option value="">Todas las categorías</option>
+            {categorias.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.nombre}
+              </option>
+            ))}
+          </select>
+          <select
+            className={styles.selectCategoria}
+            value={completitudFiltro}
+            onChange={(e) => setCompletitudFiltro(e.target.value)}
+            aria-label="Filtrar por información completa"
+          >
+            <option value="">Completos e incompletos</option>
+            <option value="completo">Completos</option>
+            <option value="incompleto">Incompletos</option>
+          </select>
           <button className={styles.btnNuevo} onClick={() => setCreando(true)}>
             + Nuevo
           </button>
-          <button
-            className={styles.btnSeleccion}
-            onClick={() => {
-              setSeleccionados([]);
-              setModoAccion((prev) => (prev === "pausar" ? null : "pausar"));
-            }}
-          >
-            {modoAccion === "pausar" ? "Cancelar" : "Pausar"}
-          </button>
-          <button
-            className={styles.btnSeleccion}
-            onClick={() => {
-              setSeleccionados([]);
-              setModoAccion((prev) =>
-                prev === "eliminar" ? null : "eliminar",
-              );
-            }}
-          >
-            {modoAccion === "eliminar" ? "Cancelar" : "Eliminar"}
-          </button>
-          <button
-            className={styles.btnSeleccion}
-            onClick={() => {
-              setSeleccionados([]);
-              setModoAccion((prev) =>
-                prev === "sin_stock" ? null : "sin_stock",
-              );
-            }}
-          >
-            {modoAccion === "sin_stock" ? "Cancelar" : "Sin Stock"}
-          </button>
+        </div>
+        <div className={styles.filaBarra}>
+          <div className={styles.chips}>
+            {chipsEstado.map((c) => (
+              <button
+                key={c.valor || "todos"}
+                className={`${styles.chip} ${c.clase} ${estadoFiltro === c.valor ? styles.chipActivo : ""}`}
+                onClick={() => setEstadoFiltro(c.valor)}
+              >
+                {c.texto} <span className={styles.chipContador}>{c.cantidad}</span>
+              </button>
+            ))}
+          </div>
+          <span className={styles.destacadosInfo}>
+            Destacados {destacadosCount}/10
+          </span>
+          <div className={styles.modos}>
+            <button
+              className={`${styles.btnModo} ${modoAccion === "pausar" ? styles.btnModoActivo : ""}`}
+              onClick={() => cambiarModo("pausar")}
+            >
+              {modoAccion === "pausar" ? "Cancelar" : "Pausar"}
+            </button>
+            <button
+              className={`${styles.btnModo} ${modoAccion === "eliminar" ? styles.btnModoActivo : ""}`}
+              onClick={() => cambiarModo("eliminar")}
+            >
+              {modoAccion === "eliminar" ? "Cancelar" : "Eliminar"}
+            </button>
+            <button
+              className={`${styles.btnModo} ${modoAccion === "sin_stock" ? styles.btnModoActivo : ""}`}
+              onClick={() => cambiarModo("sin_stock")}
+            >
+              {modoAccion === "sin_stock" ? "Cancelar" : "Sin Stock"}
+            </button>
+          </div>
         </div>
       </div>
 
-      <div className={styles.stats}>
-        <div className={styles.statItem}>
-          <span className={styles.statValor}>{totalProductos}</span>
-          <span className={styles.statLabel}>Total</span>
-        </div>
-        <div className={styles.statItem}>
-          <span className={`${styles.statValor} ${styles.statDisponible}`}>
-            {disponiblesCount}
-          </span>
-          <span className={styles.statLabel}>Disponibles</span>
-        </div>
-        <div className={styles.statItem}>
-          <span className={`${styles.statValor} ${styles.statPausado}`}>
-            {pausadosCount}
-          </span>
-          <span className={styles.statLabel}>Pausados</span>
-        </div>
-        <div className={styles.statItem}>
-          <span className={`${styles.statValor} ${styles.statSinStock}`}>
-            {sinStockCount}
-          </span>
-          <span className={styles.statLabel}>Sin Stock</span>
-        </div>
-        <div className={styles.statItem}>
-          <span className={styles.statValor}>{destacadosCount}/10</span>
-          <span className={styles.statLabel}>Destacados</span>
-        </div>
-      </div>
-
-      {modoAccion !== null && seleccionados.length > 0 && (
+      {modoAccion !== null && (
         <div className={styles.barraSeleccion}>
           <span className={styles.seleccionadosInfo}>
-            {seleccionados.length} producto{seleccionados.length > 1 ? "s" : ""}{" "}
-            seleccionado{seleccionados.length > 1 ? "s" : ""}
+            {seleccionados.length === 0
+              ? "Tocá los productos para seleccionarlos."
+              : `${seleccionados.length} producto${seleccionados.length > 1 ? "s" : ""} seleccionado${seleccionados.length > 1 ? "s" : ""}`}
           </span>
-          {(() => {
-            const accion = (() => {
-              if (modoAccion === "eliminar")
+          {seleccionados.length > 0 &&
+            (() => {
+              const accion = (() => {
+                if (modoAccion === "eliminar")
+                  return {
+                    texto: "Eliminar",
+                    fn: eliminarSeleccionados,
+                    clase: styles.btnConfirmarEliminar,
+                  };
+                if (modoAccion === "sin_stock")
+                  return {
+                    texto: "Marcar sin stock",
+                    fn: sinStockSeleccionados,
+                    clase: styles.btnConfirmarSinStock,
+                  };
                 return {
-                  texto: "Eliminar",
-                  fn: eliminarSeleccionados,
-                  clase: styles.btnConfirmarEliminar,
+                  texto: "Pausar",
+                  fn: pausarSeleccionados,
+                  clase: styles.btnConfirmarPausar,
                 };
-              if (modoAccion === "sin_stock")
-                return {
-                  texto: "Marcar sin stock",
-                  fn: sinStockSeleccionados,
-                  clase: styles.btnConfirmarSinStock,
-                };
-              return {
-                texto: "Pausar",
-                fn: pausarSeleccionados,
-                clase: styles.btnConfirmarPausar,
-              };
-            })();
-            return (
-              <button
-                className={`${styles.btnConfirmarAccion} ${accion.clase}`}
-                onClick={accion.fn}
-              >
-                {accion.texto} {seleccionados.length} producto
-                {seleccionados.length > 1 ? "s" : ""}
-              </button>
-            );
-          })()}
+              })();
+              return (
+                <button
+                  className={`${styles.btnConfirmarAccion} ${accion.clase}`}
+                  onClick={accion.fn}
+                >
+                  {accion.texto} {seleccionados.length} producto
+                  {seleccionados.length > 1 ? "s" : ""}
+                </button>
+              );
+            })()}
         </div>
       )}
 
-      <div className={styles.filtros}>
-        <div className={styles.busquedaWrap}>
-          <input
-            ref={inputBusquedaRef}
-            className={styles.inputBusqueda}
-            type="text"
-            placeholder="Buscar por nombre..."
-            value={busqueda}
-            onChange={(e) => setBusqueda(e.target.value)}
-          />
-          {busqueda.trim() !== "" && (
-            <button
-              type="button"
-              className={styles.btnLimpiarBusqueda}
-              aria-label="Limpiar búsqueda"
-              onClick={() => {
-                setBusqueda("");
-                inputBusquedaRef.current?.focus();
-              }}
-            >
-              ✕
-            </button>
-          )}
-        </div>
-        <select
-          className={styles.selectCategoria}
-          value={categoriaFiltro}
-          onChange={(e) => setCategoriaFiltro(e.target.value)}
-        >
-          <option value="">Todas las categorías</option>
-          {categorias.map((c) => (
-            <option key={c.id} value={c.id}>
-              {c.nombre}
-            </option>
-          ))}
-        </select>
-        <select
-          className={styles.selectCategoria}
-          value={estadoFiltro}
-          onChange={(e) => setEstadoFiltro(e.target.value)}
-        >
-          <option value="">Todos los estados</option>
-          <option value="disponible">Disponibles</option>
-          <option value="pausado">Pausados</option>
-          <option value="sin_stock">Sin Stock</option>
-        </select>
-        <select
-          className={styles.selectCategoria}
-          value={completitudFiltro}
-          onChange={(e) => setCompletitudFiltro(e.target.value)}
-        >
-          <option value="">Todas</option>
-          <option value="completo">Completos</option>
-          <option value="incompleto">Incompletos</option>
-        </select>
-      </div>
-
-      <div className={styles.tablaWrapper}>
-        <table className={styles.tabla}>
-          <thead>
-            <tr>
-              <th>Nombre</th>
-              <th>Estado</th>
-              <th>Precio</th>
-              <th>Destacado</th>
-              <th></th>
-              {modoAccion !== null && <th></th>}
-            </tr>
-          </thead>
-          <tbody>
-            {productosFiltrados.length === 0 ? (
-              <tr>
-                <td colSpan={modoAccion !== null ? 6 : 5}>
-                  No se encontraron productos.
-                </td>
-              </tr>
-            ) : (
-              productosFiltrados.map((p) => {
-                const vars = variantesDe(p.id);
-                const precio = p.tiene_variantes
-                  ? vars.length > 0
-                    ? formatPrecio(
-                        Math.min(...vars.map((v) => Number(v.precio))),
-                      )
-                    : "Con variantes"
-                  : formatPrecio(Number(p.precio_base));
-                return (
-                  <tr key={p.id}>
-                    <td>{p.nombre}</td>
-                    <td>
-                      <span
-                        className={
-                          p.estado === "disponible"
-                            ? styles.disponible
-                            : p.estado === "sin_stock"
-                              ? styles.sinStock
-                              : styles.pausado
-                        }
-                      >
-                        {labelEstado(p.estado)}
-                      </span>
-                    </td>
-                    <td>{precio}</td>
-                    <td>
+      {productosFiltrados.length === 0 ? (
+        <p className={styles.vacio}>No se encontraron productos.</p>
+      ) : (
+        <div className={styles.grilla}>
+          {productosFiltrados.map((p) => {
+            const vars = variantesDe(p.id);
+            const precio = p.tiene_variantes
+              ? vars.length > 0
+                ? formatPrecio(Math.min(...vars.map((v) => Number(v.precio))))
+                : "Con variantes"
+              : formatPrecio(Number(p.precio_base));
+            const ec = estadoCompletitud(p);
+            const seleccionado = seleccionados.includes(p.id);
+            const categoriasTexto = nombresCategorias(p.id);
+            return (
+              <article
+                key={p.id}
+                className={`${styles.card} ${p.estado !== "disponible" ? styles.cardInactiva : ""} ${seleccionado ? styles.cardSeleccionada : ""} ${modoAccion !== null ? styles.cardSeleccionable : ""}`}
+                onClick={modoAccion !== null ? () => toggleSeleccionado(p.id) : undefined}
+              >
+                <div className={styles.cardImagen}>
+                  {p.imagen_url ? (
+                    <img src={p.imagen_url} alt={p.nombre} loading="lazy" />
+                  ) : (
+                    <span className={styles.sinImagen}>Sin imagen</span>
+                  )}
+                  {modoAccion !== null && (
+                    <label
+                      className={styles.checkboxSeleccion}
+                      onClick={(e) => e.stopPropagation()}
+                    >
                       <input
                         type="checkbox"
-                        className={styles.checkDestacado}
-                        checked={p.destacado}
-                        onChange={() => toggleDestacado(p)}
-                        title={
-                          p.destacado
-                            ? "Quitar de destacados"
-                            : "Marcar como destacado"
-                        }
+                        checked={seleccionado}
+                        onChange={() => toggleSeleccionado(p.id)}
+                        aria-label={`Seleccionar ${p.nombre}`}
                       />
-                    </td>
-                    <td className={styles.acciones}>
-                      <button
-                        className={styles.btnAccion}
-                        onClick={() => setEditando(p)}
-                      >
-                        Editar
-                      </button>
-                      {(() => {
-                        const ec = estadoCompletitud(p);
-                        return (
-                          <span
-                            className={styles.tooltipWrap}
-                            data-tooltip={ec.mensaje}
-                          >
-                            <span
-                              className={
-                                ec.completo
-                                  ? styles.iconoCompleto
-                                  : styles.iconoIncompleto
-                              }
-                            >
-                              {ec.completo ? (
-                                <svg
-                                  width="1rem"
-                                  height="1rem"
-                                  viewBox="0 0 24 24"
-                                  fill="none"
-                                  stroke="currentColor"
-                                  strokeWidth="3"
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  aria-label={ec.mensaje}
-                                >
-                                  <polyline points="20 6 9 17 4 12" />
-                                </svg>
-                              ) : (
-                                <svg
-                                  width="1rem"
-                                  height="1rem"
-                                  viewBox="0 0 24 24"
-                                  fill="none"
-                                  stroke="currentColor"
-                                  strokeWidth="2.5"
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  aria-label={ec.mensaje}
-                                >
-                                  <circle cx="12" cy="12" r="10" />
-                                  <line x1="12" y1="8" x2="12" y2="12" />
-                                  <line x1="12" y1="16" x2="12.01" y2="16" />
-                                </svg>
-                              )}
-                            </span>
-                          </span>
-                        );
-                      })()}
-                      {p.estado !== "disponible" && (
-                        <button
-                          className={styles.btnAccion}
-                          onClick={() => reactivar(p)}
-                        >
-                          Reactivar
-                        </button>
-                      )}
-                    </td>
-                    {modoAccion !== null && (
-                      <td>
-                        <label className={styles.checkboxSeleccion}>
-                          <input
-                            type="checkbox"
-                            checked={seleccionados.includes(p.id)}
-                            onChange={() => toggleSeleccionado(p.id)}
-                          />
-                          <span
-                            className={styles.checkmarkCirculo}
-                            aria-hidden="true"
-                          />
-                        </label>
-                      </td>
-                    )}
-                  </tr>
-                );
-              })
-            )}
-          </tbody>
-        </table>
-      </div>
+                      <span className={styles.checkmarkCirculo} aria-hidden="true" />
+                    </label>
+                  )}
+                  <span className={`${styles.estadoBadge} ${claseEstadoProducto(p.estado)}`}>
+                    {labelEstado(p.estado)}
+                  </span>
+                </div>
+                <div className={styles.cardCuerpo}>
+                  <span className={styles.cardNombre} title={p.nombre}>
+                    {p.nombre}
+                  </span>
+                  <span
+                    className={styles.cardCategorias}
+                    title={categoriasTexto || undefined}
+                  >
+                    {categoriasTexto || "Sin categoría"}
+                  </span>
+                  <span className={styles.cardPrecio}>{precio}</span>
+                  {!ec.completo && (
+                    <span className={styles.avisoIncompleto}>{ec.mensaje}</span>
+                  )}
+                </div>
+                <div className={styles.cardAcciones}>
+                  <label
+                    className={styles.checkDestacado}
+                    title={p.destacado ? "Quitar de destacados" : "Marcar como destacado"}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={p.destacado}
+                      onChange={() => toggleDestacado(p)}
+                      disabled={modoAccion !== null}
+                    />
+                    Destacado
+                  </label>
+                  {p.estado !== "disponible" && (
+                    <button
+                      className={styles.btnAccion}
+                      onClick={() => reactivar(p)}
+                      disabled={modoAccion !== null}
+                    >
+                      Reactivar
+                    </button>
+                  )}
+                  <button
+                    className={styles.btnAccion}
+                    onClick={() => setEditando(p)}
+                    disabled={modoAccion !== null}
+                  >
+                    Editar
+                  </button>
+                </div>
+              </article>
+            );
+          })}
+        </div>
+      )}
 
       {(editando || creando) && (
         <ProductForm

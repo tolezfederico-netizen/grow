@@ -171,76 +171,105 @@ export default function ProductForm({ producto, categorias, categoriaIdsActuales
           <button type="button" className={styles.btnCerrar} onClick={onClose} aria-label="Cerrar">✕</button>
         </div>
         <form onSubmit={handleSubmit} className={styles.form}>
-          <input className={styles.input} placeholder="Nombre" value={nombre} onChange={e => setNombre(e.target.value)} maxLength={40} required />
-          <span className={styles.contador}>{nombre.length}/40</span>
-          <textarea className={styles.input} placeholder="Descripción" value={descripcion} onChange={e => setDescripcion(e.target.value)} rows={3} maxLength={20} />
-          <span className={styles.contador}>{descripcion.length}/20</span>
-          <p className={styles.catsLabel}>Especificaciones</p>
-          <textarea className={styles.input} placeholder="Especificaciones (opcional) — información detallada del producto" value={especificaciones} onChange={e => setEspecificaciones(e.target.value)} rows={8} />
+          <div className={styles.cuerpo}>
+            <div className={styles.columnaImagen}>
+              <div className={styles.imagenCaja}>
+                {preview ? (
+                  <img src={preview} alt="" className={styles.previs} />
+                ) : (
+                  <span className={styles.sinImagen}>Sin imagen</span>
+                )}
+              </div>
+              <label className={styles.btnArchivo}>
+                <input type="file" accept="image/*" className={styles.inputArchivo} onChange={e => { const f = e.target.files?.[0]; if (f) { setArchivo(f); setPreview(URL.createObjectURL(f)) } }} />
+                {preview ? 'Cambiar imagen' : 'Subir imagen'}
+              </label>
 
-          <label className={styles.label}>
-            <input type="file" accept="image/*" onChange={e => { const f = e.target.files?.[0]; if (f) { setArchivo(f); setPreview(URL.createObjectURL(f)) } }} />
-            {preview && <img src={preview} alt="" className={styles.previs} />}
-          </label>
-
-          <label className={styles.check}>
-            <input type="checkbox" checked={tieneVariantes} onChange={e => { setTieneVariantes(e.target.checked); if (e.target.checked) { setPrecioBase('') } else { setVariantes([]) } }} />
-            Tiene variantes
-          </label>
-
-          {!tieneVariantes && (
-            <>
-              <p className={styles.catsLabel}>Precio</p>
-              <input className={styles.input} type="text" inputMode="numeric" placeholder="Precio base" value={precioBase ? new Intl.NumberFormat('es-AR').format(Number(precioBase)) : ''} onChange={e => setPrecioBase(e.target.value.replace(/\D/g, ''))} required />
-            </>
-          )}
-
-          {tieneVariantes && (
-            <div className={styles.variantes}>
-              {variantes.map((v, i) => (
-                <div key={i} className={`${styles.varRow} ${v.estado === 'pausado' ? styles.pausado : ''}`}>
-                  <input className={styles.input} placeholder="Nombre (ej: 10L)" value={v.nombre_variante} onChange={e => actualizarVariante(i, 'nombre_variante', e.target.value)} />
-                  <input className={styles.input} type="text" inputMode="numeric" placeholder="Precio" value={v.precio ? new Intl.NumberFormat('es-AR').format(Number(v.precio)) : ''} onChange={e => actualizarVariante(i, 'precio', e.target.value.replace(/\D/g, ''))} />
-                  <button type="button" className={styles.btnToggle} onClick={() => toggleEstadoVariante(i)}>
-                    {v.estado === 'disponible' ? 'Pausar' : 'Reactivar'}
-                  </button>
-                  <button type="button" className={styles.btnEliminar} onClick={() => eliminarVariante(i)}>✕</button>
-                </div>
-              ))}
-              <button type="button" className={styles.btnAgregar} onClick={agregarVariante}>+ Agregar variante</button>
+              <div className={styles.bloquePrecio}>
+                <p className={styles.catsLabel}>Precio</p>
+                <label className={styles.check}>
+                  <input type="checkbox" checked={tieneVariantes} onChange={e => { setTieneVariantes(e.target.checked); if (e.target.checked) { setPrecioBase('') } else { setVariantes([]) } }} />
+                  Tiene variantes
+                </label>
+                {!tieneVariantes ? (
+                  <input className={`${styles.input} ${styles.inputPrecio}`} type="text" inputMode="numeric" placeholder="Precio base" value={precioBase ? new Intl.NumberFormat('es-AR').format(Number(precioBase)) : ''} onChange={e => setPrecioBase(e.target.value.replace(/\D/g, ''))} required />
+                ) : (
+                  <p className={styles.ayuda}>Cada variante tiene su propio precio.</p>
+                )}
+              </div>
             </div>
-          )}
 
-          <div className={styles.cats}>
-            <p className={styles.catsLabel}>Categorías</p>
-            <input
-              className={styles.inputBusquedaCategoria}
-              type="text"
-              placeholder="Buscar categoría..."
-              value={busquedaCategoria}
-              onChange={e => setBusquedaCategoria(e.target.value)}
-            />
-            <div className={styles.catsLista}>
-              {categorias.filter(c => c.nombre.toLowerCase().includes(busquedaCategoria.trim().toLowerCase())).length === 0 ? (
-                <p className={styles.sinResultadosCategoria}>No se encontraron categorías.</p>
-              ) : (
-                categorias
-                  .filter(c => c.nombre.toLowerCase().includes(busquedaCategoria.trim().toLowerCase()))
-                  .map(c => (
-                    <label key={c.id} className={styles.catCheck}>
-                      <input type="checkbox" checked={categoriaIds.includes(c.id)} onChange={() => toggleCategoria(c.id)} />
-                      {c.nombre}
-                    </label>
-                  ))
+            <div className={styles.columnaDatos}>
+              <div className={styles.campo}>
+                <p className={styles.catsLabel}>Nombre</p>
+                <input className={styles.input} placeholder="Nombre" value={nombre} onChange={e => setNombre(e.target.value)} maxLength={40} required />
+                <span className={styles.contador}>{nombre.length}/40</span>
+              </div>
+              <div className={styles.campo}>
+                <p className={styles.catsLabel}>Descripción</p>
+                <input className={styles.input} placeholder="Descripción" value={descripcion} onChange={e => setDescripcion(e.target.value)} maxLength={20} />
+                <span className={styles.contador}>{descripcion.length}/20</span>
+              </div>
+              <div className={styles.campo}>
+                <p className={styles.catsLabel}>Especificaciones</p>
+                <textarea className={styles.input} placeholder="Especificaciones (opcional) — información detallada del producto" value={especificaciones} onChange={e => setEspecificaciones(e.target.value)} rows={7} />
+              </div>
+
+              {tieneVariantes && (
+                <div className={styles.campo}>
+                  <p className={styles.catsLabel}>Variantes</p>
+                  <div className={styles.variantes}>
+                    {variantes.map((v, i) => (
+                      <div key={i} className={`${styles.varRow} ${v.estado === 'pausado' ? styles.pausado : ''}`}>
+                        <input className={styles.input} placeholder="Nombre (ej: 10L)" value={v.nombre_variante} onChange={e => actualizarVariante(i, 'nombre_variante', e.target.value)} />
+                        <input className={`${styles.input} ${styles.inputPrecio}`} type="text" inputMode="numeric" placeholder="Precio" value={v.precio ? new Intl.NumberFormat('es-AR').format(Number(v.precio)) : ''} onChange={e => actualizarVariante(i, 'precio', e.target.value.replace(/\D/g, ''))} />
+                        <button type="button" className={styles.btnToggle} onClick={() => toggleEstadoVariante(i)}>
+                          {v.estado === 'disponible' ? 'Pausar' : 'Reactivar'}
+                        </button>
+                        <button type="button" className={styles.btnEliminar} onClick={() => eliminarVariante(i)} aria-label="Quitar variante">✕</button>
+                      </div>
+                    ))}
+                    <button type="button" className={styles.btnAgregar} onClick={agregarVariante}>+ Agregar variante</button>
+                  </div>
+                </div>
               )}
+
+              <div className={styles.cats}>
+                <div className={styles.catsHeader}>
+                  <p className={styles.catsLabel}>Categorías</p>
+                  <span className={styles.catsContador}>{categoriaIds.length} seleccionada{categoriaIds.length !== 1 ? 's' : ''}</span>
+                </div>
+                <input
+                  className={styles.inputBusquedaCategoria}
+                  type="text"
+                  placeholder="Buscar categoría..."
+                  value={busquedaCategoria}
+                  onChange={e => setBusquedaCategoria(e.target.value)}
+                />
+                <div className={styles.catsLista}>
+                  {categorias.filter(c => c.nombre.toLowerCase().includes(busquedaCategoria.trim().toLowerCase())).length === 0 ? (
+                    <p className={styles.sinResultadosCategoria}>No se encontraron categorías.</p>
+                  ) : (
+                    categorias
+                      .filter(c => c.nombre.toLowerCase().includes(busquedaCategoria.trim().toLowerCase()))
+                      .map(c => (
+                        <label key={c.id} className={styles.catCheck}>
+                          <input type="checkbox" checked={categoriaIds.includes(c.id)} onChange={() => toggleCategoria(c.id)} />
+                          {c.nombre}
+                        </label>
+                      ))
+                  )}
+                </div>
+              </div>
             </div>
           </div>
 
-          {error && <p className={styles.error}>{error}</p>}
-
-          <div className={styles.acciones}>
-            <button type="button" className={styles.btnCancelar} onClick={onClose}>Cancelar</button>
-            <button type="submit" className={styles.btnGuardar} disabled={subiendo}>{subiendo ? 'Guardando…' : 'Guardar'}</button>
+          <div className={styles.pie}>
+            {error && <p className={styles.error}>{error}</p>}
+            <div className={styles.acciones}>
+              <button type="button" className={styles.btnCancelar} onClick={onClose}>Cancelar</button>
+              <button type="submit" className={styles.btnGuardar} disabled={subiendo}>{subiendo ? 'Guardando…' : 'Guardar'}</button>
+            </div>
           </div>
         </form>
       </div>

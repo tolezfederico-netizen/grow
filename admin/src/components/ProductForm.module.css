@@ -1,19 +1,22 @@
-/* Modal como los del client: cabecera amarilla, borde y sombra dura */
+/* Modal como los del client: cabecera amarilla, borde y sombra dura.
+   Dos columnas (imagen y precio | datos) con el pie de acciones fijo */
 .overlay {
   position: fixed;
   inset: 0;
   z-index: 100;
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: center;
-  padding: 1.5rem 1rem;
-  overflow-y: auto;
+  padding: 1.25rem 1rem;
   background: var(--color-overlay);
 }
 
 .modal {
+  display: flex;
+  flex-direction: column;
   width: 100%;
-  max-width: 36rem;
+  max-width: 56rem;
+  max-height: 100%;
   overflow: hidden;
   border: var(--brutal-border);
   border-radius: var(--brutal-radius);
@@ -24,6 +27,7 @@
 
 .header {
   display: flex;
+  flex-shrink: 0;
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
@@ -58,10 +62,113 @@
 
 .form {
   display: flex;
+  flex: 1;
   flex-direction: column;
-  gap: 0.6rem;
+  min-height: 0;
+}
+
+/* Solo el cuerpo hace scroll; cabecera y pie quedan fijos */
+.cuerpo {
+  display: grid;
+  grid-template-columns: 15rem minmax(0, 1fr);
+  align-items: start;
+  gap: 1.25rem;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 1rem;
+}
+
+.columnaImagen,
+.columnaDatos {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
   min-width: 0;
-  padding: 0.9rem;
+}
+
+/* ---- Imagen ---- */
+
+/* Imagen real sin recortar, sobre blanco */
+.imagenCaja {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 1;
+  padding: 0.6rem;
+  border: var(--brutal-border);
+  border-radius: var(--brutal-radius);
+  background: var(--color-background);
+}
+
+.previs {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.sinImagen {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-texto-suave);
+}
+
+/* El input de archivo queda oculto; el label hace de botón */
+.btnArchivo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 2.2rem;
+  border: var(--brutal-border);
+  border-radius: 6px;
+  background: var(--color-background);
+  color: var(--color-secondary);
+  box-shadow: var(--brutal-shadow-sm);
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.inputArchivo {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.btnArchivo:focus-within {
+  box-shadow: 3px 3px 0 var(--color-secondary);
+}
+
+.bloquePrecio {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  padding-top: 0.75rem;
+  border-top: var(--brutal-border-thin);
+}
+
+.ayuda {
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: var(--color-texto-suave);
+}
+
+/* ---- Campos ---- */
+
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.catsLabel {
+  font-family: var(--font-display);
+  font-size: 0.68rem;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 
 /* Inputs como el client */
@@ -96,62 +203,31 @@ textarea.input {
   box-shadow: var(--brutal-shadow-sm);
 }
 
-.input[type="number"]::-webkit-outer-spin-button,
-.input[type="number"]::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
+/* Los precios rara vez pasan de 6 cifras: campo angosto */
+.inputPrecio {
+  max-width: 9rem;
+  font-family: var(--font-display);
+  font-size: 0.85rem;
 }
 
-.input[type="number"] {
-  -moz-appearance: textfield;
-  appearance: textfield;
-}
-
-.label {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  font-size: 0.8rem;
-}
-
-.label input[type="file"] {
-  max-width: 100%;
-  font-size: 0.78rem;
-  color: var(--color-secondary);
-}
-
-.label input[type="file"]::file-selector-button {
-  margin-right: 0.6rem;
-  padding: 0.35rem 0.75rem;
-  border: var(--brutal-border);
-  border-radius: 6px;
-  background: var(--color-background);
-  color: var(--color-secondary);
-  box-shadow: var(--brutal-shadow-sm);
-  font-family: var(--font-ui);
-  font-size: 0.78rem;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-/* Imagen real sin recortar, sobre blanco */
-.previs {
-  width: 6rem;
-  height: 6rem;
-  padding: 0.3rem;
-  object-fit: contain;
-  border: var(--brutal-border-thin);
-  border-radius: 6px;
-  background: var(--color-background);
+.contador {
+  margin-top: -0.15rem;
+  font-size: 0.66rem;
+  font-weight: 600;
+  line-height: 1;
+  text-align: right;
+  color: var(--color-texto-suave);
 }
 
 .check {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  font-size: 0.82rem;
+  font-size: 0.8rem;
   font-weight: 600;
 }
+
+/* ---- Variantes ---- */
 
 .variantes {
   display: flex;
@@ -207,39 +283,59 @@ textarea.input {
   font-size: 0.78rem;
 }
 
+/* ---- Categorías: chips que se marcan, sin scroll interno ---- */
+
 .cats {
   display: flex;
   flex-direction: column;
-  gap: 0.4rem;
+  gap: 0.45rem;
   min-width: 0;
 }
 
-.catsLabel {
-  margin-top: 0.2rem;
-  font-family: var(--font-display);
+.catsHeader {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.catsContador {
   font-size: 0.7rem;
-  font-weight: 400;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--color-texto-suave);
+}
+
+.inputBusquedaCategoria {
+  min-height: 2.1rem;
 }
 
 .catsLista {
   display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-  max-height: 12rem;
-  overflow-y: auto;
-  padding: 0.55rem 0.65rem;
-  border: var(--brutal-border);
-  border-radius: 6px;
+  flex-wrap: wrap;
+  gap: 0.4rem;
 }
 
 .catCheck {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 0.45rem;
-  font-size: 0.8rem;
-  font-weight: 500;
+  gap: 0.35rem;
+  padding: 0.28rem 0.55rem;
+  border: var(--brutal-border-thin);
+  border-radius: 6px;
+  background: var(--color-background);
+  font-size: 0.76rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.catCheck:has(input:checked) {
+  border-width: 2px;
+  background: var(--color-primary);
+}
+
+.catCheck input[type="checkbox"] {
+  width: 0.85rem;
+  height: 0.85rem;
 }
 
 .sinResultadosCategoria {
@@ -248,7 +344,17 @@ textarea.input {
   color: var(--color-texto-suave);
 }
 
+/* ---- Pie fijo ---- */
+
+.pie {
+  flex-shrink: 0;
+  padding: 0.75rem 1rem;
+  border-top: var(--brutal-border);
+  background: var(--color-background);
+}
+
 .error {
+  margin-bottom: 0.5rem;
   font-size: 0.78rem;
   font-weight: 600;
   color: var(--color-error);
@@ -259,9 +365,6 @@ textarea.input {
   display: flex;
   justify-content: flex-end;
   gap: 0.6rem;
-  margin-top: 0.3rem;
-  padding-top: 0.8rem;
-  border-top: var(--brutal-border-thin);
 }
 
 .btnCancelar,
@@ -282,16 +385,34 @@ textarea.input {
   cursor: default;
 }
 
-.contador {
-  margin: -0.3rem 0 0;
-  font-size: 0.68rem;
-  font-weight: 600;
-  line-height: 1;
-  text-align: right;
-  color: var(--color-texto-suave);
+@media (max-width: 760px) {
+  .cuerpo {
+    grid-template-columns: 1fr;
+  }
+
+  .columnaImagen {
+    display: grid;
+    grid-template-columns: 7rem 1fr;
+    align-items: start;
+    gap: 0.75rem;
+  }
+
+  .imagenCaja {
+    grid-row: span 2;
+  }
+
+  .bloquePrecio {
+    grid-column: 2;
+    padding-top: 0;
+    border-top: none;
+  }
 }
 
 @media (max-width: 480px) {
+  .overlay {
+    padding: 0.5rem;
+  }
+
   .varRow {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -308,6 +429,7 @@ textarea.input {
 
   .varRow .input:nth-child(2) {
     grid-area: precio;
+    max-width: none;
   }
 
   .varRow .btnToggle {
@@ -320,13 +442,8 @@ textarea.input {
     justify-self: center;
   }
 
-  .acciones {
-    flex-direction: column-reverse;
-    gap: 0.5rem;
-  }
-
-  .btnCancelar,
-  .btnGuardar {
-    width: 100%;
+  .acciones .btnCancelar,
+  .acciones .btnGuardar {
+    flex: 1;
   }
 }
