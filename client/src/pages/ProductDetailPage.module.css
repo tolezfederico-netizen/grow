@@ -216,53 +216,6 @@
   cursor: not-allowed;
 }
 
-/* ---- Compra Protegida: etiqueta informativa (igual que en el catálogo) ---- */
-
-.badgeConfianza {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.35rem 0.6rem;
-  margin-top: 0.2rem;
-  align-self: stretch;
-}
-
-.badgeIcono {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  padding: 0.32rem 0.6rem;
-  border: var(--brutal-border);
-  border-radius: 6px;
-  background: var(--color-secondary);
-  color: var(--color-primary);
-  flex-shrink: 0;
-}
-
-.badgeIcono svg {
-  width: 0.85rem;
-  height: 0.85rem;
-  stroke-width: 2.5;
-}
-
-.badgeTexto {
-  margin: 0;
-  font-family: var(--font-display);
-  font-size: 0.68rem;
-  line-height: 1;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  white-space: nowrap;
-}
-
-.badgeSubtexto {
-  margin: 0;
-  font-size: 0.72rem;
-  font-weight: 500;
-  opacity: 0.65;
-  overflow-wrap: break-word;
-}
-
 /* ---- Compartir ---- */
 
 .compartir {

@@ -27,7 +27,7 @@
   min-width: 0;
 }
 
-/* "Ver todos" y el cartel de Compra Protegida en la misma fila */
+/* Fila de "Ver todos" (solo con categoría o panel elegido) */
 .barra {
   display: flex;
   flex-wrap: wrap;
@@ -73,63 +73,11 @@
   box-shadow: none;
 }
 
-/* ---- Compra Protegida: etiqueta informativa (sin sombra, no es botón) ---- */
-
-/* contents: la etiqueta y el subtexto pasan a ser ítems de .barra, así primero
-   baja el subtexto y la etiqueta sigue al lado de "Ver todos" mientras entre */
-.badgeConfianza {
-  display: contents;
-}
-
-.badgeIcono {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  padding: 0.32rem 0.6rem;
-  border: var(--brutal-border);
-  border-radius: 6px;
-  background: var(--color-secondary);
-  color: var(--color-primary);
-  flex-shrink: 0;
-}
-
-.badgeIcono svg {
-  width: 0.85rem;
-  height: 0.85rem;
-  stroke-width: 2.5;
-}
-
-.badgeTexto {
-  margin: 0;
-  font-family: var(--font-display);
-  font-size: 0.68rem;
-  line-height: 1;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  white-space: nowrap;
-}
-
-.badgeSubtexto {
-  margin: 0;
-  font-size: 0.72rem;
-  font-weight: 500;
-  opacity: 0.65;
-  overflow-wrap: break-word;
-}
-
-/* Celular: botón y etiqueta un poco más chicos para que entren en la misma fila */
+/* Celular: botón un poco más chico */
 @media (max-width: 30rem) {
   .verTodos {
     padding: 0.36rem 0.5rem;
     font-size: 0.7rem;
-  }
-
-  .badgeIcono {
-    padding: 0.32rem 0.45rem;
-  }
-
-  .badgeTexto {
-    font-size: 0.62rem;
   }
 }
 

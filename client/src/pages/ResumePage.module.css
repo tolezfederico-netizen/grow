@@ -245,7 +245,7 @@
   overflow-wrap: break-word;
 }
 
-/* ---- Compra Protegida: etiqueta informativa (igual que en el catálogo) ---- */
+/* ---- Datos protegidos: etiqueta informativa con link a la política de privacidad ---- */
 
 .badgeConfianza {
   display: flex;
@@ -288,6 +288,12 @@
   font-weight: 500;
   opacity: 0.65;
   overflow-wrap: break-word;
+}
+
+.badgeLink {
+  color: inherit;
+  font-weight: 700;
+  text-decoration: underline;
 }
 
 /* ---- Botones principales ---- */

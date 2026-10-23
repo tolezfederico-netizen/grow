@@ -372,10 +372,13 @@ export default function ResumePage() {
                 >
                   <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
                 </svg>
-                <span className={styles.badgeTexto}>Compra Protegida</span>
+                <span className={styles.badgeTexto}>Datos protegidos</span>
               </span>
               <p className={styles.badgeSubtexto}>
-                Tus datos cuidados durante toda la compra
+                Usamos tus datos solo para gestionar tu reserva.{" "}
+                <Link to="/politica-de-privacidad" className={styles.badgeLink}>
+                  Política de privacidad
+                </Link>
               </p>
             </div>
 
