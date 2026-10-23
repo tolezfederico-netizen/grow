@@ -1,0 +1,50 @@
+.svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* Tres intensidades del color primario para variar los fondos */
+.fondo1 {
+  fill: var(--color-primary);
+}
+
+.fondo2 {
+  fill: color-mix(in srgb, var(--color-primary) 50%, var(--color-background));
+}
+
+.fondo3 {
+  fill: color-mix(in srgb, var(--color-primary) 18%, var(--color-background));
+}
+
+.piel,
+.ropaClara {
+  fill: var(--color-background);
+  stroke: var(--color-secondary);
+  stroke-width: 1.5;
+}
+
+.ropaPrimaria,
+.gorra {
+  fill: var(--color-primary);
+  stroke: var(--color-secondary);
+  stroke-width: 1.5;
+}
+
+.ropaSecundaria,
+.pelo {
+  fill: var(--color-secondary);
+}
+
+.linea,
+.lineaClara {
+  fill: none;
+  stroke: var(--color-secondary);
+  stroke-width: 1.3;
+  stroke-linecap: round;
+}
+
+/* Boca sobre la barba */
+.lineaClara {
+  stroke: var(--color-background);
+}
