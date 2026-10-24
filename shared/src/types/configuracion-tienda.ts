@@ -13,6 +13,10 @@ export interface ConfiguracionTienda {
   red_social_destacada: string | null
   mensaje_alerta: string | null
   mensaje_alerta_expira_en: string | null
+  /** Datos legales del proveedor: vacíos en la demo, se completan al personalizar. */
+  razon_social: string | null
+  cuit: string | null
+  domicilio_legal: string | null
 }
 
 /** Mismo tipo que `ConfiguracionTienda` (no hay campos autogenerados que omitir). */

@@ -101,39 +101,48 @@ export type Database = {
       }
       configuracion_tienda: {
         Row: {
+          cuit: string | null
           direccion: string
+          domicilio_legal: string | null
           email_contacto: string | null
           horario_apertura: string
           horario_cierre: string
           mensaje_alerta: string | null
           mensaje_alerta_expira_en: string | null
           nombre_tienda: string
+          razon_social: string | null
           red_social_destacada: string | null
           redes_sociales: Json
           singleton: boolean
           telefono: string
         }
         Insert: {
+          cuit?: string | null
           direccion: string
+          domicilio_legal?: string | null
           email_contacto?: string | null
           horario_apertura: string
           horario_cierre: string
           mensaje_alerta?: string | null
           mensaje_alerta_expira_en?: string | null
           nombre_tienda: string
+          razon_social?: string | null
           red_social_destacada?: string | null
           redes_sociales?: Json
           singleton?: boolean
           telefono: string
         }
         Update: {
+          cuit?: string | null
           direccion?: string
+          domicilio_legal?: string | null
           email_contacto?: string | null
           horario_apertura?: string
           horario_cierre?: string
           mensaje_alerta?: string | null
           mensaje_alerta_expira_en?: string | null
           nombre_tienda?: string
+          razon_social?: string | null
           red_social_destacada?: string | null
           redes_sociales?: Json
           singleton?: boolean

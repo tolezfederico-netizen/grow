@@ -173,6 +173,11 @@ export default function RegisterPage() {
 
               {errorGeneral && <p className={styles.error}>{errorGeneral}</p>}
 
+              <p className={styles.aviso}>
+                Al registrarte aceptás los <Link to="/terminos-y-condiciones">Términos y Condiciones</Link>.
+                Usamos tus datos según nuestra <Link to="/politica-de-privacidad">Política de privacidad</Link>.
+              </p>
+
               <button className={styles.boton} disabled={enviando}>
                 {enviando ? 'Registrando…' : 'Registrarme'}
               </button>

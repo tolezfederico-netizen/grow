@@ -169,6 +169,9 @@ CREATE TABLE configuracion_tienda (
   redes_sociales       jsonb   NOT NULL DEFAULT '{}'::jsonb,
   red_social_destacada text,
   mensaje_alerta       text,
+  razon_social         text,
+  cuit                 text,
+  domicilio_legal      text,
 
   CONSTRAINT config_singleton_unique UNIQUE (singleton),
   CONSTRAINT config_singleton_check CHECK (singleton = true),
@@ -180,7 +183,10 @@ CREATE TABLE configuracion_tienda (
   -- Nullable a nivel de columna (para no romper la fila singleton existente antes de que el admin
   -- lo cargue por primera vez); la obligatoriedad real se exige en el formulario de SettingsPage.
   CONSTRAINT config_email_contacto_check
-    CHECK (email_contacto IS NULL OR email_contacto ~* '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$')
+    CHECK (email_contacto IS NULL OR email_contacto ~* '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$'),
+
+  -- CUIT: solo los 11 dígitos (el admin quita guiones antes de guardar).
+  CONSTRAINT config_cuit_check CHECK (cuit IS NULL OR cuit ~ '^[0-9]{11}$')
 );
 
 COMMENT ON COLUMN configuracion_tienda.redes_sociales IS 'jsonb flexible: {"instagram": "...", "tiktok": "..."} — claves en minúscula, valores URL completas';
@@ -651,3 +657,30 @@ SET nombre_variante = v.nombre_variante
 FROM producto_variantes v
 WHERE v.id = pi.variante_id
   AND pi.nombre_variante IS NULL;
+
+
+-- ── 7b. Datos legales del proveedor en configuracion_tienda ──────────────────
+-- Exigidos para comercio electrónico (Res. 270/2020, Res. GMC 37/2019): razón
+-- social, CUIT y domicilio físico. Quedan vacíos en la demo y se completan al
+-- personalizar para cada negocio. La tienda los muestra en Términos y en la
+-- política de privacidad; si están vacíos, usa nombre_tienda y direccion.
+ALTER TABLE configuracion_tienda ADD COLUMN IF NOT EXISTS razon_social text;
+ALTER TABLE configuracion_tienda ADD COLUMN IF NOT EXISTS cuit text;
+ALTER TABLE configuracion_tienda ADD COLUMN IF NOT EXISTS domicilio_legal text;
+
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint WHERE conname = 'config_cuit_check'
+  ) THEN
+    ALTER TABLE configuracion_tienda
+      ADD CONSTRAINT config_cuit_check CHECK (cuit IS NULL OR cuit ~ '^[0-9]{11}$');
+  END IF;
+END $$;
+
+COMMENT ON COLUMN configuracion_tienda.razon_social IS
+  'Razón social del titular (dato legal del proveedor). NULL = no cargada; la tienda usa nombre_tienda.';
+COMMENT ON COLUMN configuracion_tienda.cuit IS
+  'CUIT del titular, solo los 11 dígitos (el admin quita guiones). NULL = no cargado.';
+COMMENT ON COLUMN configuracion_tienda.domicilio_legal IS
+  'Domicilio legal del titular. NULL = no cargado; la tienda usa direccion.';

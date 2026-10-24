@@ -36,6 +36,25 @@ const ICONO_TIENDA = (
   </svg>
 );
 
+const ICONO_LEGAL = (
+  <svg
+    width="18"
+    height="18"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden="true"
+  >
+    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+    <polyline points="14 2 14 8 20 8" />
+    <line x1="8" y1="13" x2="16" y2="13" />
+    <line x1="8" y1="17" x2="13" y2="17" />
+  </svg>
+);
+
 const ICONO_TELEFONO = (
   <svg
     width="18"
@@ -287,6 +306,14 @@ interface ConfigData {
   red_social_destacada: string | null;
   mensaje_alerta: string;
   mensaje_alerta_expira_en: string;
+  razon_social: string;
+  cuit: string;
+  domicilio_legal: string;
+}
+
+/** El CUIT se guarda solo con sus 11 dígitos; se muestra como 20-12345678-9. */
+function soloDigitosCuit(valor: string): string {
+  return valor.replace(/\D/g, "");
 }
 
 function IconoValido() {
@@ -353,6 +380,9 @@ export default function SettingsPage() {
           ...mapeada,
           email_contacto: mapeada.email_contacto ?? "",
           mensaje_alerta: mapeada.mensaje_alerta ?? "",
+          razon_social: mapeada.razon_social ?? "",
+          cuit: mapeada.cuit ?? "",
+          domicilio_legal: mapeada.domicilio_legal ?? "",
           mensaje_alerta_expira_en: isoAInputLocal(
             mapeada.mensaje_alerta_expira_en,
           ),
@@ -372,6 +402,9 @@ export default function SettingsPage() {
           red_social_destacada: null,
           mensaje_alerta: "",
           mensaje_alerta_expira_en: "",
+          razon_social: "",
+          cuit: "",
+          domicilio_legal: "",
         });
         setExiste(false);
       }
@@ -467,6 +500,13 @@ export default function SettingsPage() {
       return;
     }
 
+    const cuit = soloDigitosCuit(config.cuit);
+    if (cuit !== "" && cuit.length !== 11) {
+      setError("El CUIT debe tener 11 dígitos (ej: 20-12345678-9).");
+      setGuardando(false);
+      return;
+    }
+
     const mensajeAlerta = config.mensaje_alerta.trim();
     if (mensajeAlerta === "") {
       actualizar("mensaje_alerta_expira_en", "");
@@ -482,6 +522,9 @@ export default function SettingsPage() {
     const payload = {
       ...config,
       email_contacto: config.email_contacto.trim() || null,
+      razon_social: config.razon_social.trim() || null,
+      cuit: cuit || null,
+      domicilio_legal: config.domicilio_legal.trim() || null,
       mensaje_alerta: mensajeAlerta || null,
       mensaje_alerta_expira_en: inputLocalAIso(
         mensajeAlerta === "" ? "" : config.mensaje_alerta_expira_en,
@@ -898,6 +941,60 @@ export default function SettingsPage() {
                   : "En la tienda el texto se desplaza de derecha a izquierda."}
               </span>
             </div>
+          </div>
+        </section>
+
+        {/* ---- Datos legales ---- */}
+        <section className={styles.seccion}>
+          <header className={styles.seccionHeader}>
+            <span className={styles.seccionIcono}>{ICONO_LEGAL}</span>
+            <div>
+              <h3 className={styles.seccionTitulo}>Datos legales</h3>
+              <p className={styles.seccionSub}>
+                Titular del negocio. Se muestran en Términos y Condiciones y en
+                la Política de privacidad de la tienda.
+              </p>
+            </div>
+          </header>
+          <div className={styles.seccionCuerpo}>
+            <div className={styles.grilla}>
+              <label className={styles.label}>
+                <span className={styles.labelTexto}>Razón social</span>
+                <input
+                  className={styles.input}
+                  value={config.razon_social}
+                  onChange={(e) => actualizar("razon_social", e.target.value)}
+                  placeholder="Ej: Juan Pérez o Tu Negocio S.R.L."
+                />
+              </label>
+
+              <label className={styles.label}>
+                <span className={styles.labelTexto}>CUIT</span>
+                <input
+                  className={styles.input}
+                  inputMode="numeric"
+                  value={config.cuit}
+                  onChange={(e) => actualizar("cuit", e.target.value)}
+                  placeholder="20-12345678-9"
+                />
+              </label>
+
+              <label className={styles.label}>
+                <span className={styles.labelTexto}>Domicilio legal</span>
+                <input
+                  className={styles.input}
+                  value={config.domicilio_legal}
+                  onChange={(e) =>
+                    actualizar("domicilio_legal", e.target.value)
+                  }
+                  placeholder="Calle 123, Ciudad, Provincia"
+                />
+              </label>
+            </div>
+            <span className={styles.ayuda}>
+              Opcionales. Si quedan vacíos, la tienda usa el nombre y la
+              dirección del local.
+            </span>
           </div>
         </section>
 

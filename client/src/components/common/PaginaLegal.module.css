@@ -33,15 +33,24 @@
   background: linear-gradient(transparent 58%, var(--color-primary) 58%);
 }
 
+.actualizado {
+  margin: 0.45rem 0 0;
+  font-size: 0.72rem;
+  font-weight: 600;
+  opacity: 0.6;
+}
+
+/* Texto legal largo: alineado a la izquierda para que se lea bien */
 .section {
   margin-top: 1rem;
+  text-align: left;
   padding: 1rem 1.1rem 1.1rem;
   border: var(--brutal-border);
   border-radius: var(--brutal-radius);
   background: var(--color-background);
 }
 
-.titulo + .section {
+.actualizado + .section {
   margin-top: 0.9rem;
 }
 
@@ -67,8 +76,64 @@
   margin-bottom: 0;
 }
 
+.lista {
+  margin: 0 0 0.65rem;
+  padding-left: 1.2rem;
+  font-size: 0.82rem;
+  font-weight: 500;
+  line-height: 1.65;
+  opacity: 0.8;
+  overflow-wrap: break-word;
+}
+
+.lista:last-child {
+  margin-bottom: 0;
+}
+
+.link {
+  color: inherit;
+  font-weight: 700;
+  text-decoration: underline;
+  overflow-wrap: anywhere;
+}
+
+/* Datos del responsable: etiqueta y valor en filas separadas por una línea */
+.datos {
+  margin: 0;
+  font-size: 0.82rem;
+}
+
+.datoFila {
+  display: grid;
+  grid-template-columns: 9rem 1fr;
+  gap: 0.75rem;
+  padding: 0.4rem 0;
+  border-top: var(--brutal-border-thin);
+}
+
+.datoFila:first-child {
+  border-top: none;
+  padding-top: 0;
+}
+
+.datoFila dt {
+  font-weight: 700;
+}
+
+.datoFila dd {
+  margin: 0;
+  font-weight: 500;
+  opacity: 0.8;
+  overflow-wrap: anywhere;
+}
+
 @media (max-width: 37.5rem) {
   .page {
     padding: 1.25rem 0.75rem 1.5rem;
+  }
+
+  .datoFila {
+    grid-template-columns: 1fr;
+    gap: 0.1rem;
   }
 }

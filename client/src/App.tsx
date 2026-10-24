@@ -17,6 +17,7 @@ import MiCuentaPage from "./pages/MiCuentaPage";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import SoloInvitadoRoute from "./components/auth/SoloInvitadoRoute";
 import TerminosCondicionesPage from "./pages/TerminosCondicionesPage";
+import PoliticaPrivacidadPage from "./pages/PoliticaPrivacidadPage";
 import NotFoundPage from "./pages/NotFoundPage";
 
 function App() {
@@ -65,6 +66,10 @@ function App() {
           <Route
             path="/terminos-y-condiciones"
             element={<TerminosCondicionesPage />}
+          />
+          <Route
+            path="/politica-de-privacidad"
+            element={<PoliticaPrivacidadPage />}
           />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>

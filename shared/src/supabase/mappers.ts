@@ -196,6 +196,9 @@ export function mapearConfiguracionTienda(
     red_social_destacada: row.red_social_destacada ?? null,
     mensaje_alerta: row.mensaje_alerta ?? null,
     mensaje_alerta_expira_en: row.mensaje_alerta_expira_en ?? null,
+    razon_social: row.razon_social ?? null,
+    cuit: row.cuit ?? null,
+    domicilio_legal: row.domicilio_legal ?? null,
   }
 }
 

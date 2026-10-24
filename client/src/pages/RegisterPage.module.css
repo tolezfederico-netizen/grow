@@ -145,6 +145,15 @@
   cursor: not-allowed;
 }
 
+/* Aviso legal sobre el botón: mismo estilo de link que "Iniciá sesión" */
+.aviso {
+  margin: 0;
+  font-size: 0.72rem;
+  font-weight: 500;
+  line-height: 1.5;
+  opacity: 0.8;
+}
+
 .linkTexto {
   margin: 0.9rem 0 0;
   text-align: center;
@@ -152,7 +161,8 @@
   font-weight: 500;
 }
 
-.linkTexto a {
+.linkTexto a,
+.aviso a {
   color: var(--color-secondary);
   font-weight: 700;
   text-decoration: underline;
