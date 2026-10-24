@@ -297,6 +297,22 @@ CREATE POLICY "Gestión completa para administradores"
 -- Storage: bucket imagenes-productos
 -- =============================================================================
 
+-- Bucket público (las imágenes se sirven sin token), 5 MB por archivo y solo
+-- WebP, JPEG y PNG: sin SVG ni HTML, que podrían ejecutar scripts. Si ya
+-- existe (creado desde el dashboard), se le aplican los mismos límites.
+INSERT INTO storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+VALUES (
+  'imagenes-productos',
+  'imagenes-productos',
+  true,
+  5242880,
+  ARRAY['image/webp', 'image/jpeg', 'image/png']::text[]
+)
+ON CONFLICT (id) DO UPDATE
+SET public             = EXCLUDED.public,
+    file_size_limit    = EXCLUDED.file_size_limit,
+    allowed_mime_types = EXCLUDED.allowed_mime_types;
+
 -- Las políticas de Storage se aplican sobre la tabla storage.objects.
 -- Por defecto, Supabase activa RLS en storage.objects automáticamente.
 -- Si no está activado, descomentar la línea siguiente:

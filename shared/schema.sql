@@ -318,22 +318,8 @@ CREATE TRIGGER trg_validar_transicion_pedido
 
 
 -- =============================================================================
--- Bloque opcional: creación del bucket de Storage
---
--- Si se prefiere crear el bucket desde SQL en vez del dashboard, descomentar:
---
---   INSERT INTO storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
---   VALUES (
---     'imagenes-productos',
---     'imagenes-productos',
---     true,                                     -- público: las imágenes se sirven sin token de autenticación
---     5242880,                                  -- 5 MB de límite por archivo
---     ARRAY['image/webp', 'image/jpeg', 'image/png']::text[]
---   );
---
--- Esto requiere el rol adecuado (service_role o superadmin) y no es necesario
--- para el funcionamiento del schema. Se puede crear manualmente desde el
--- dashboard de Supabase (Storage → Create bucket) con id "imagenes-productos".
+-- Bucket de Storage: se crea (con su límite de tamaño y tipos) en rls.sql,
+-- junto a sus policies, en la sección "Storage: bucket imagenes-productos".
 -- =============================================================================
 
 
@@ -551,7 +537,13 @@ CREATE TABLE IF NOT EXISTS clientes (
   apellido   text NOT NULL,
   email      text NOT NULL,
   telefono   text,
-  creado_en  timestamptz NOT NULL DEFAULT now()
+  creado_en  timestamptz NOT NULL DEFAULT now(),
+
+  -- Largos máximos y teléfono solo con dígitos (mismo formato que crear_pedido_completo)
+  CONSTRAINT clientes_largos_check CHECK (
+    char_length(nombre) <= 80 AND char_length(apellido) <= 80
+    AND (telefono IS NULL OR telefono ~ '^[0-9]{8,15}$')
+  )
 );
 
 COMMENT ON TABLE clientes IS 'Perfil de usuarios finales registrados en el client vía Supabase Auth. 1:1 con auth.users. El admin los lee para poder contactarlos.';
@@ -684,3 +676,19 @@ COMMENT ON COLUMN configuracion_tienda.cuit IS
   'CUIT del titular, solo los 11 dígitos (el admin quita guiones). NULL = no cargado.';
 COMMENT ON COLUMN configuracion_tienda.domicilio_legal IS
   'Domicilio legal del titular. NULL = no cargado; la tienda usa direccion.';
+
+
+-- ── 14a. CHECK de clientes en instancias existentes ──────────────────────────
+-- En una instancia nueva ya viene en el CREATE TABLE. En una existente se
+-- agrega NOT VALID: no revisa filas viejas, sí las nuevas o editadas.
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint WHERE conname = 'clientes_largos_check'
+  ) THEN
+    ALTER TABLE clientes ADD CONSTRAINT clientes_largos_check CHECK (
+      char_length(nombre) <= 80 AND char_length(apellido) <= 80
+      AND (telefono IS NULL OR telefono ~ '^[0-9]{8,15}$')
+    ) NOT VALID;
+  END IF;
+END $$;

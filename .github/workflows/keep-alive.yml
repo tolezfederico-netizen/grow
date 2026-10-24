@@ -10,16 +10,19 @@ jobs:
   ping-supabase:
     runs-on: ubuntu-latest
     steps:
-      - name: Ping Supabase REST endpoint
+      # Lee una fila real de una tabla (configuracion_tienda es pública por RLS):
+      # así la consulta llega a Postgres y cuenta como actividad. La raíz
+      # /rest/v1/ solo devuelve el esquema de la API.
+      - name: Consultar una tabla de Supabase
         run: |
           response=$(curl -s -o /dev/null -w "%{http_code}" \
-            "${{ secrets.SUPABASE_URL }}/rest/v1/" \
+            "${{ secrets.SUPABASE_URL }}/rest/v1/configuracion_tienda?select=nombre_tienda&limit=1" \
             -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
             -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}")
           echo "Respuesta HTTP: $response"
-          if [ "$response" -ge 200 ] && [ "$response" -lt 500 ]; then
-            echo "Ping exitoso (Supabase respondió, base activa)."
+          if [ "$response" -eq 200 ]; then
+            echo "Consulta exitosa (base activa)."
           else
-            echo "Advertencia: respuesta inesperada ($response)."
+            echo "Error: respuesta inesperada ($response)."
             exit 1
           fi
