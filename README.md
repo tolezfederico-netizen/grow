@@ -28,4 +28,4 @@ Cada aplicación es independiente y se despliega por separado en Vercel. No exis
 
 ## Filosofía
 
-Ningún dato de negocio específico está hardcodeado en el código. Todo vive en Supabase como datos de tablas. La única excepción son los colores del tema, que se definen como variables CSS en `index.css` y pueden personalizarse por implementación. Este monorepo se entrega como un producto único y autónomo, listo para ser adquirido y puesto en producción por cualquier growshop.
+Ningún dato de negocio específico está hardcodeado en el código. Todo vive en Supabase como datos de tablas. Las excepciones deliberadas son los colores del tema (variables CSS en `index.css`), el logo y las reseñas de ejemplo, que se personalizan por implementación (ver `docs/arquitectura/arquitectura-v13.md`, sección 1.2). Este monorepo se entrega como un producto único y autónomo, listo para ser adquirido y puesto en producción por cualquier growshop.

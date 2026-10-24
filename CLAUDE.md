@@ -4,7 +4,7 @@ Plataforma modular de ventas para growshops físicos sin e-commerce. Se vende de
 
 Estado actual: proyecto terminado y desplegado, en etapa de venta (sin usuarios reales todavía).
 
-Documentación de arquitectura completa (incremental por versión): [docs/arquitectura/](docs/arquitectura/README.md). La vigente es [arquitectura-v12.md](docs/arquitectura/arquitectura-v12.md); las bases de cada área están en v6, v7 y v8. Leerlas cuando haga falta el detalle o el porqué de una decisión.
+Documentación de arquitectura: [arquitectura-v13.md](docs/arquitectura/arquitectura-v13.md), documento único y consolidado del estado actual (reemplaza a v6–v12). Leerlo cuando haga falta el detalle o el porqué de una decisión, y actualizarlo cuando cambie algo de lo que describe (también existe como `Grow_Arquitectura_v13.docx`).
 
 ## Rediseño visual
 
@@ -29,7 +29,7 @@ Client y admin terminados (el admin, salvo una etapa mobile dedicada). Estilo ne
 - Supabase: Postgres + Auth + RLS + RPC + pg_cron + Edge Function en Deno (`supabase/functions/enviar-notificacion-pedido`, emails vía Resend).
 - `@shared/*` → `shared/src/*`, alias resuelto por Vite (sin build intermedio). Las Edge Functions (Deno) **no** pueden importar `@shared`.
 - Admin usa `exceljs` para exportar clientes (no SheetJS: no soporta estilos de celda gratis).
-- Deploy: dos proyectos de Vercel sobre el mismo repo (Root Directory `client/` y `admin/`), cada uno con `vercel.json` de rewrite SPA a `index.html`.
+- Deploy: dos proyectos de Vercel sobre el mismo repo (Root Directory `client/` y `admin/`), cada uno con `vercel.json` de rewrite SPA a `index.html`. Decidido migrar a Cloudflare Pages (tarea 1.11, pendiente).
 - Sin tests automatizados en ningún paquete.
 
 ## Comandos (desde la raíz)
@@ -50,10 +50,13 @@ Verificar con `npm run typecheck` y el build correspondiente después de cada ca
 ```
 client/src/
   components/{layout,common,product,cart,home,auth}/   # organizados por dominio
-  hooks/     usePaneles, useSucursales, useConfiguracionTienda, useModalAccesible
+  hooks/     usePaneles, useSucursales, useConfiguracionTienda (los tres con caché
+             compartida por pestaña), useModalAccesible, useFooterVisible
   context/   CartContext (useReducer), AuthContext
   pages/     Home, Products, ProductDetail, Resume (checkout), Login, Register,
-             TerminosCondiciones, MiCuenta (+ miCuentaCache.ts, cache en memoria)
+             TerminosCondiciones, PoliticaPrivacidad, MiCuenta (+ miCuentaCache.ts,
+             cache en memoria), NotFound
+  components/common/  CampoTelefono (área + número), PaginaLegal (Términos y privacidad)
   utils/     redesSociales.tsx
 admin/src/
   components/  AdminLayout, ProtectedRoute, ConfirmDialog, NotificarPedidoModal, forms…
@@ -61,6 +64,7 @@ admin/src/
   pages/       Login, Dashboard, Products, Categories, Orders, Panels, Settings, Customers
 shared/
   schema.sql, rpc.sql, rls.sql          # los SQL viven acá, NO en supabase/
+  migraciones/                          # scripts incrementales para instancias con datos
   src/{types,supabase,utils,constants}  # supabase/: client, database.types.ts, mappers
 supabase/
   functions/enviar-notificacion-pedido, config.toml
@@ -72,7 +76,10 @@ Convenciones: utilidades que devuelven JSX van como `.tsx` dentro de `utils/`. N
 ## Modelo de datos y lógica clave
 
 - `configuracion_tienda`: fila única con los datos del negocio (incluye `mensaje_alerta` y `mensaje_alerta_expira_en`; un job de pg_cron cada minuto limpia el mensaje vencido y `AlertaBanner` también lo oculta del lado del cliente).
-- Pedidos: se crean con la RPC `crear_pedido_completo` (incluye `p_usuario_id` opcional; checkout como invitado sigue existiendo). Estados: `pendiente → confirmado | cancelado`, `confirmado → listo_para_retirar | cancelado`, `listo_para_retirar → completado | cancelado`; validado por el trigger `trg_validar_transicion_pedido`. Al confirmar o marcar "listo para retirar", el admin puede notificar por WhatsApp y/o email.
+- Lenguaje: tienda, admin, WhatsApp y emails hablan de **reservas** (no compras ni pedidos); los estados se muestran como Nueva, Confirmada, Lista para retirar, Retirada y Cancelada (`formatEstadoPedido`). Tablas, estados y rutas conservan los nombres técnicos (`pedidos`, `pendiente`…).
+- Teléfonos: formato `549` + código de área + número (13 dígitos), cargados en dos campos (`shared/src/utils/telefono.ts`). Los links de WhatsApp usan el número tal cual.
+- Productos: se guardan con la RPC `guardar_producto` (producto, variantes por id y categorías en una transacción). Imágenes en WebP: `imagen_url` (1000 px) e `imagen_miniatura_url` (400 px).
+- Pedidos: se crean con la RPC `crear_pedido_completo`, que toma precios del catálogo y el usuario de `auth.uid()` (el `p_usuario_id` de la firma se ignora; checkout como invitado sigue existiendo). Estados: `pendiente → confirmado | cancelado`, `confirmado → listo_para_retirar | cancelado`, `listo_para_retirar → completado | cancelado`; validado por el trigger `trg_validar_transicion_pedido`. Al confirmar o marcar "listo para retirar", el admin puede notificar por WhatsApp y/o email.
 - Auth: admins y clientes conviven en el mismo `auth.users`. Admin = presencia en la tabla `admins` (RPC `is_admin()`); `ProtectedRoute` del admin expulsa a cualquier sesión que no sea admin. Clientes tienen perfil en `clientes`, creado por el trigger `handle_new_cliente` desde la metadata del `signUp`.
 
 ## Reglas de trabajo con la base de datos
@@ -83,12 +90,15 @@ Convenciones: utilidades que devuelven JSX van como `.tsx` dentro de `utils/`. N
 - Que una policy esté en `rls.sql` no garantiza que esté aplicada en producción (ya pasó con `pedido_items`). Ante datos que "no aparecen", sospechar de RLS y comparar contra `pg_policies`.
 - Variables `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY` en `.env.local` de cada app (no versionado); los `.env.example` solo llevan placeholders. En Vercel, cambiar variables requiere redeploy.
 
-## Pendientes conocidos (ver sección 11 de v12)
+## Plan de trabajo y pendientes (detalle en la sección 12 de v13)
 
-- Auditoría de seguridad 2026-10 en [docs/auditoria/](docs/auditoria/auditoria-seguridad-2026-10.md): RLS de producción verificado y corregido; quedan los pendientes listados ahí (Auth en el dashboard, código país `54` fijo, deploy de la Edge Function).
-- Regenerar `database.types.ts` con el CLI (se editó a mano en v9).
-- `usePaneles.ts` todavía hace su propio fetch de `configuracion_tienda`.
-- `schema.sql` declara `pedidos.usuario_id` dos veces.
-- Migrar los `alert()` restantes a `notify()` de ConfirmContext; hook compartido para `precioMinimo` (ProductsPage/FeaturedCarousel); conectar `CategoryCard`/`es_card`.
-- Admin responsive: falta una etapa mobile dedicada (las páginas ya se ven en 375px, pero sin revisión pensada para el celular).
-- Dominio propio en Resend (hoy en sandbox). Sin suite de tests.
+Las decisiones de producto y el plan por fases están en [guia-auditoria-decisiones-2026-10.pdf](docs/auditoria/guia-auditoria-decisiones-2026-10.pdf) (secciones 5, 15, 16 y 17); el estado de cada tarea, en [roadmap-funcionalidades.md](docs/auditoria/roadmap-funcionalidades.md). No volver a discutir las decisiones de la sección 5 salvo que aparezca un hecho nuevo.
+
+- **Fase 1 hecha pero sin desplegar** (al 24/10/2026): commits en `main` sin push. Falta revisar los textos legales, push, confirmar los deploys y recién después correr `shared/migraciones/2026-10-23-telefonos-normalizados.sql`. Pasos completos en v13 §12.1.
+- Fase 1 pendiente: 1.7 (email al dueño, necesita Resend con dominio), 1.11 (Cloudflare Pages), 1.12 (backups). Pregunta 5 de la sección 17 ("+18") sin responder.
+- Antes de vender: dominio propio en Resend → SMTP propio en Supabase, template de confirmación en español y secret `RESEND_FROM`; datos legales y teléfono del local por instancia.
+- Seguridad: auditoría 2026-10 en [docs/auditoria/](docs/auditoria/auditoria-seguridad-2026-10.md), aplicada y verificada en producción. Auditoría externa de la fase 1 en [informe-auditoria-codex-fase1.md](docs/auditoria/informe-auditoria-codex-fase1.md) (hallazgos corregidos o diferidos, ver v13 §12.3).
+- Hook compartido para `precioMinimo` (repetido en ProductsPage, FeaturedCarousel y la búsqueda de HeaderTop).
+- Admin responsive: falta una etapa mobile dedicada (las páginas ya se ven en 375px, pero sin revisión pensada para el celular). Logo del admin todavía en PNG de 720 KB.
+- `Grow_Arquitectura_v13.docx` desactualizado respecto del Markdown.
+- Sin suite de tests.

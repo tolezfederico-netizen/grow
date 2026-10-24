@@ -1,12 +1,12 @@
 # Documentos de arquitectura
 
-Conversión a Markdown de los documentos `Grow_Arquitectura_vN.docx`. Cada versión es **incremental**: documenta lo que cambió y remite a versiones anteriores ("sin cambios respecto a vX") para el resto.
+[arquitectura-v13.md](arquitectura-v13.md) es el documento vigente y único. Consolida las versiones incrementales v6–v12 (los `Grow_Arquitectura_vN.docx`) y describe el proyecto tal como está en el código y en la base de producción a octubre de 2026. Lo que fue reemplazado o resuelto ya no figura en el cuerpo; la evolución por versión está resumida en su anexo A.
 
-| Archivo | Contenido propio |
-|---|---|
-| [arquitectura-v6.md](arquitectura-v6.md) | Base más completa: filosofía, modelo de negocio, multi-tenancy, convención de estilos, client (pages, AlertaBanner, ProductDetailPage, ReviewsCarousel), admin (OrdersPage, Edge Function, SettingsPage), variables de entorno, lección sobre verificar el trabajo de agentes |
-| [arquitectura-v7.md](arquitectura-v7.md) | Reorganización de `client/src/components/` por dominio, auditoría de calidad, trigger de transiciones de pedido, `useConfiguracionTienda`, `useModalAccesible` duplicado a propósito, regeneración de `database.types.ts` |
-| [arquitectura-v8.md](arquitectura-v8.md) | Autenticación de clientes, tablas `admins`/`clientes`, `is_admin()`, `pedidos.usuario_id`, `MiCuentaPage`, endurecimiento de `ProtectedRoute` en admin |
-| [arquitectura-v12.md](arquitectura-v12.md) | Versión vigente. Incluye todo lo de v9, v10 y v11 (MiCuenta con modal de detalle, confirmación de checkout, vencimiento del mensaje de alerta con pg_cron, CustomersPage + Excel, normalización responsive del admin, despliegue en Vercel) más el keep-alive de Supabase |
+Existe también como Word (`Grow_Arquitectura_v13.docx`), generado a partir de este Markdown. Si se edita uno, regenerar el otro. **Pendiente (24/10/2026):** el Word no refleja los cambios de la fase 1; el Markdown es el vigente.
 
-v9, v10 y v11 no se incluyen porque su contenido quedó contenido íntegramente en v12. Las versiones v1–v5 no están disponibles.
+Documentos relacionados:
+
+- [Guía de estilo del client](../guia-de-estilo.md) y [del admin](../guia-de-estilo-admin.md).
+- [Auditoría de seguridad 2026-10](../auditoria/auditoria-seguridad-2026-10.md), con los SQL de diagnóstico y corrección.
+- [Guía de auditoría y decisiones](../auditoria/guia-auditoria-decisiones-2026-10.pdf) (decisiones, legal y plan por fases) y su [estado de avance](../auditoria/roadmap-funcionalidades.md).
+- [Informe de la auditoría externa de la fase 1](../auditoria/informe-auditoria-codex-fase1.md), con el seguimiento de cada hallazgo.

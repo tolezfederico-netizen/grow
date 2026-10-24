@@ -50,7 +50,7 @@ En cada iteración el pedido fue achicar. Referencias que funcionaron:
 
 ### 3.2 Botones
 - **Secundario**: fondo blanco, `--brutal-border`, `--brutal-shadow-sm`, texto negro `--font-ui` 700.
-- **Principal** (Agregar al carrito, Proceder al pago): igual pero con fondo amarillo.
+- **Principal** (Agregar al carrito, Continuar con la reserva): igual pero con fondo amarillo.
 - **Deshabilitado**: borde punteado (`border-style: dashed`), fondo `--color-background-muted`, sin sombra, `opacity: 0.6`.
 - **Etiqueta informativa** (no clickeable, por ejemplo "No realizamos envíos"): fondo negro, texto amarillo, `--font-display`, **sin sombra**, para que no se confunda con un botón.
 
@@ -97,7 +97,7 @@ En cada iteración el pedido fue achicar. Referencias que funcionaron:
 | Footer | ✅ | `layout/Footer` |
 | Carrito lateral | ✅ | `cart/CartDrawer`, `cart/CartItemRow` |
 | Barra fija del carrito (solo mobile, en home, catálogo y detalle cuando hay productos) | ✅ | `cart/CarritoFlotante`, montada en `App.tsx` |
-| Catálogo `/productos` (barra lateral, badge "Compra Protegida", grilla) | ✅ | `pages/ProductsPage`, `product/ArticulosSidebar` |
+| Catálogo `/productos` (barra lateral, grilla con "Ver más"; el badge "Compra Protegida" se quitó en la fase 1) | ✅ | `pages/ProductsPage`, `product/ArticulosSidebar` |
 | Detalle de producto (franja punteada con viñetas de imagen, compra y especificaciones) | ✅ | `pages/ProductDetailPage` |
 | Checkout `/resumen` y modal de confirmación (franja punteada, panel de datos con etiquetas, modal con el esquema del de Mi Cuenta) | ✅ | `pages/ResumePage`, `common/ConfirmarPedidoModal` |
 | Cuenta (login, registro, Mi Cuenta, detalle de pedido) | ✅ (login y registro comparten CSS; etiqueta de estado con un estilo por estado: pendiente blanca, confirmado/listo amarilla, completado negra, cancelado punteada) | `pages/LoginPage`, `RegisterPage`, `MiCuentaPage`, `common/PedidoDetalleModal` |

@@ -94,7 +94,7 @@ Al terminar una sección, actualizar esta tabla.
 
 ## 6. Pendientes detectados (no estéticos; consultar antes de tocar)
 
-- **Logo fijo**: `admin/src/assets/logo.png` (y `client/src/assets/logo.png`) es la imagen de un negocio dentro del código. Va contra el principio de genericidad; hoy se cambia reemplazando el archivo en cada instancia.
+- **Logo fijo**: `admin/src/assets/logo.png` (y `client/src/assets/logo.webp`, ya optimizado) es la imagen de un negocio dentro del código. El del admin todavía pesa 720 KB: pendiente pasarlo a WebP como el de la tienda. Va contra el principio de genericidad; hoy se cambia reemplazando el archivo en cada instancia.
 - "Grow Admin" en la barra lateral y `<title>Grow</title>`: es el nombre del producto, no de un negocio; confirmar con el usuario si se deja.
 
 ## 7. Forma de trabajo
