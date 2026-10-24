@@ -176,7 +176,7 @@ export default function OrdersPage() {
     // Solo los ítems de los pedidos cargados (con todo el historial, sin filtro)
     let consultaItems = supabase
       .from("pedido_items")
-      .select("*, producto_variantes(nombre_variante)");
+      .select("*");
     if (!verAntiguos) {
       consultaItems = consultaItems.in(
         "pedido_id",

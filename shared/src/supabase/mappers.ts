@@ -144,13 +144,17 @@ export function mapearPedido(
  * Convierte una fila cruda de `pedido_items` al tipo de dominio.
  */
 export function mapearPedidoItem(
-  row: Database['public']['Tables']['pedido_items']['Row'] & {
-    producto_variantes?: { nombre_variante: string } | null
-  },
+  row: Database['public']['Tables']['pedido_items']['Row'],
 ): PedidoItem {
   return {
-    ...row,
-    nombre_variante: row.producto_variantes?.nombre_variante ?? null,
+    id: row.id,
+    pedido_id: row.pedido_id,
+    producto_id: row.producto_id,
+    variante_id: row.variante_id,
+    nombre_producto: row.nombre_producto,
+    nombre_variante: row.nombre_variante,
+    cantidad: row.cantidad,
+    precio_unitario: row.precio_unitario,
   }
 }
 

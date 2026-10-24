@@ -172,7 +172,7 @@ Deno.serve(async req => {
       .maybeSingle(),
     supabase
       .from('pedido_items')
-      .select('nombre_producto, cantidad, precio_unitario, producto_variantes(nombre_variante)')
+      .select('nombre_producto, nombre_variante, cantidad, precio_unitario')
       .eq('pedido_id', body.pedido_id),
     supabase
       .from('configuracion_tienda')
@@ -195,16 +195,12 @@ Deno.serve(async req => {
     return responder(409, { error: 'El estado del pedido no coincide' })
   }
 
-  const items: ItemEmail[] = (itemsRes.data ?? []).map(i => {
-    const variante = i.producto_variantes as { nombre_variante: string } | { nombre_variante: string }[] | null
-    const nombreVariante = Array.isArray(variante) ? variante[0]?.nombre_variante : variante?.nombre_variante
-    return {
-      nombre_producto: i.nombre_producto,
-      nombre_variante: nombreVariante ?? null,
-      cantidad: i.cantidad,
-      precio_unitario: Number(i.precio_unitario),
-    }
-  })
+  const items: ItemEmail[] = (itemsRes.data ?? []).map(i => ({
+    nombre_producto: i.nombre_producto,
+    nombre_variante: i.nombre_variante ?? null,
+    cantidad: i.cantidad,
+    precio_unitario: Number(i.precio_unitario),
+  }))
 
   const nombreTienda = configRes.data?.nombre_tienda ?? ''
 

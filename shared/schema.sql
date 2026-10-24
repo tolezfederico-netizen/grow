@@ -126,6 +126,8 @@ COMMENT ON COLUMN pedidos.usuario_id IS 'Nullable: conviven checkout invitado y 
 --   precio_unitario — snapshot del precio, no referencia viva
 --   nombre_producto — snapshot del nombre del producto en el momento de la compra,
 --                     permite eliminar productos sin perder el historial legible.
+--   nombre_variante — snapshot del nombre de la variante (NULL si no tiene);
+--                     el pedido conserva qué variante se vendió aunque cambie o se borre.
 -- Si el producto se borra después, producto_id pasa a NULL (SET NULL).
 
 CREATE TABLE pedido_items (
@@ -136,6 +138,7 @@ CREATE TABLE pedido_items (
   cantidad        integer NOT NULL,
   precio_unitario numeric NOT NULL,
   nombre_producto text    NOT NULL,
+  nombre_variante text,
 
   CONSTRAINT items_cantidad_check       CHECK (cantidad > 0),
   CONSTRAINT items_precio_unitario_check CHECK (precio_unitario >= 0)
@@ -144,6 +147,7 @@ CREATE TABLE pedido_items (
 COMMENT ON COLUMN pedido_items.precio_unitario IS 'Congelado al momento de la compra — no es referencia viva al precio actual';
 COMMENT ON COLUMN pedido_items.nombre_producto IS 'Snapshot del nombre del producto al momento de la compra. Permite eliminar productos sin perder el historial legible.';
 COMMENT ON COLUMN pedido_items.variante_id IS 'Nullable: un pedido puede incluir productos con y sin variante';
+COMMENT ON COLUMN pedido_items.nombre_variante IS 'Snapshot del nombre de la variante al momento de la compra. NULL si el producto no tiene variantes.';
 COMMENT ON CONSTRAINT pedido_items_producto_id_fkey ON pedido_items IS 'SET NULL: si se elimina el producto, producto_id pasa a null pero nombre_producto conserva el historial';
 COMMENT ON CONSTRAINT pedido_items_variante_id_fkey ON pedido_items IS 'SET NULL: si se elimina la variante (por borrado del producto padre en cascada), variante_id pasa a null';
 
@@ -634,3 +638,16 @@ ALTER TABLE clientes ENABLE ROW LEVEL SECURITY;
 ALTER TABLE configuracion_tienda ADD COLUMN IF NOT EXISTS mensaje_alerta_expira_en timestamptz;
 COMMENT ON COLUMN configuracion_tienda.mensaje_alerta_expira_en IS
   'Momento en el que mensaje_alerta se borra automáticamente vía cron job (ver shared/rpc.sql o documentación de infraestructura). NULL = sin vencimiento.';
+
+
+-- ── 6c. Snapshot nombre_variante en pedido_items ──────────────────────────────
+ALTER TABLE pedido_items ADD COLUMN IF NOT EXISTS nombre_variante text;
+COMMENT ON COLUMN pedido_items.nombre_variante IS
+  'Snapshot del nombre de la variante al momento de la compra. NULL si el producto no tiene variantes.';
+
+-- Backfill: solo se recupera el nombre de los items cuya variante todavía existe.
+UPDATE pedido_items pi
+SET nombre_variante = v.nombre_variante
+FROM producto_variantes v
+WHERE v.id = pi.variante_id
+  AND pi.nombre_variante IS NULL;

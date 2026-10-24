@@ -44,6 +44,7 @@ DECLARE
   v_cantidad integer;
   v_precio numeric;
   v_variante_id uuid;
+  v_nombre_variante text;
   v_items_validados jsonb := '[]'::jsonb;
   v_nombre text := btrim(coalesce(p_cliente_nombre, ''));
   v_telefono text := btrim(coalesce(p_cliente_telefono, ''));
@@ -115,11 +116,13 @@ BEGIN
       END IF;
 
       v_precio := v_variante.precio;
+      v_nombre_variante := v_variante.nombre_variante;
     ELSE
       IF v_variante_id IS NOT NULL THEN
         RAISE EXCEPTION 'El producto "%" no tiene variantes.', v_producto.nombre;
       END IF;
       v_precio := v_producto.precio_base;
+      v_nombre_variante := NULL;
     END IF;
 
     v_total := v_total + v_cantidad * v_precio;
@@ -128,7 +131,8 @@ BEGIN
       'variante_id', v_variante_id,
       'cantidad', v_cantidad,
       'precio_unitario', v_precio,
-      'nombre_producto', v_producto.nombre
+      'nombre_producto', v_producto.nombre,
+      'nombre_variante', v_nombre_variante
     );
   END LOOP;
 
@@ -137,13 +141,14 @@ BEGIN
   VALUES (v_nombre, v_telefono, v_email, auth.uid(), v_total)
   RETURNING id INTO v_pedido_id;
 
-  INSERT INTO pedido_items (pedido_id, producto_id, variante_id, cantidad, precio_unitario, nombre_producto)
+  INSERT INTO pedido_items (pedido_id, producto_id, variante_id, cantidad, precio_unitario, nombre_producto, nombre_variante)
   SELECT v_pedido_id,
          (i->>'producto_id')::uuid,
          (i->>'variante_id')::uuid,
          (i->>'cantidad')::integer,
          (i->>'precio_unitario')::numeric,
-         i->>'nombre_producto'
+         i->>'nombre_producto',
+         i->>'nombre_variante'
   FROM jsonb_array_elements(v_items_validados) AS i;
 
   RETURN (
@@ -165,6 +170,140 @@ $$;
 
 REVOKE ALL ON FUNCTION public.crear_pedido_completo(text, text, text, jsonb, uuid) FROM PUBLIC;
 GRANT EXECUTE ON FUNCTION public.crear_pedido_completo(text, text, text, jsonb, uuid) TO anon, authenticated;
+
+
+-- ── guardar_producto ───────────────────────────────────────────────────────
+-- Crea o edita un producto con sus variantes y categorías en una sola
+-- transacción: si algo falla no queda nada a medias.
+-- Las variantes se sincronizan por id: las que llegan con id se actualizan
+-- (conservan su id, así los carritos abiertos y el historial siguen valiendo),
+-- las que llegan sin id se crean y las que ya no vienen se borran. Si el
+-- producto no tiene variantes, las existentes no se tocan.
+-- SECURITY INVOKER: corre con los permisos del admin, así que RLS sigue
+-- aplicando; el chequeo de is_admin() solo da un mensaje claro.
+--
+-- Uso desde el admin:
+--   supabase.rpc('guardar_producto', {
+--     p_datos: { nombre, descripcion, especificaciones, imagen_url,
+--                tiene_variantes, precio_base },
+--     p_variantes: [{ id?, nombre_variante, precio, estado }],
+--     p_categoria_ids: string[],
+--     p_producto_id?: string                 -- sin id = producto nuevo
+--   })  → id del producto
+-- ──────────────────────────────────────────────────────────────────────────
+
+CREATE OR REPLACE FUNCTION public.guardar_producto(
+  p_datos jsonb,
+  p_variantes jsonb,
+  p_categoria_ids uuid[],
+  p_producto_id uuid DEFAULT NULL
+) RETURNS uuid
+LANGUAGE plpgsql
+SECURITY INVOKER
+SET search_path = public
+AS $$
+DECLARE
+  v_id uuid := p_producto_id;
+  v_tiene_variantes boolean := coalesce((p_datos->>'tiene_variantes')::boolean, false);
+  v_variantes jsonb := coalesce(p_variantes, '[]'::jsonb);
+  v_variante jsonb;
+  v_variante_id uuid;
+  v_nombre_variante text;
+  v_precio numeric;
+  v_ids_conservados uuid[] := '{}';
+BEGIN
+  IF NOT public.is_admin() THEN
+    RAISE EXCEPTION 'Solo un administrador puede guardar productos.';
+  END IF;
+  IF p_categoria_ids IS NULL OR cardinality(p_categoria_ids) = 0 THEN
+    RAISE EXCEPTION 'Debés seleccionar al menos una categoría.';
+  END IF;
+  IF jsonb_typeof(v_variantes) <> 'array' THEN
+    RAISE EXCEPTION 'Variantes inválidas.';
+  END IF;
+
+  -- 1. Producto
+  IF v_id IS NULL THEN
+    INSERT INTO productos (nombre, descripcion, especificaciones, imagen_url, tiene_variantes, precio_base)
+    VALUES (
+      p_datos->>'nombre',
+      p_datos->>'descripcion',
+      p_datos->>'especificaciones',
+      p_datos->>'imagen_url',
+      v_tiene_variantes,
+      (p_datos->>'precio_base')::numeric
+    )
+    RETURNING id INTO v_id;
+  ELSE
+    UPDATE productos
+    SET nombre           = p_datos->>'nombre',
+        descripcion      = p_datos->>'descripcion',
+        especificaciones = p_datos->>'especificaciones',
+        imagen_url       = p_datos->>'imagen_url',
+        tiene_variantes  = v_tiene_variantes,
+        precio_base      = (p_datos->>'precio_base')::numeric
+    WHERE id = v_id;
+
+    IF NOT FOUND THEN
+      RAISE EXCEPTION 'Producto no encontrado.';
+    END IF;
+  END IF;
+
+  -- 2. Variantes, sincronizadas por id
+  IF v_tiene_variantes THEN
+    FOR v_variante IN SELECT * FROM jsonb_array_elements(v_variantes)
+    LOOP
+      v_variante_id := NULLIF(v_variante->>'id', '')::uuid;
+      v_nombre_variante := btrim(coalesce(v_variante->>'nombre_variante', ''));
+      v_precio := (v_variante->>'precio')::numeric;
+
+      IF v_nombre_variante = '' THEN
+        RAISE EXCEPTION 'Cada variante necesita un nombre.';
+      END IF;
+      IF v_precio IS NULL OR v_precio <= 0 THEN
+        RAISE EXCEPTION 'El precio de la variante "%" debe ser mayor a 0.', v_nombre_variante;
+      END IF;
+
+      IF v_variante_id IS NOT NULL THEN
+        UPDATE producto_variantes
+        SET nombre_variante = v_nombre_variante,
+            precio          = v_precio,
+            estado          = v_variante->>'estado'
+        WHERE id = v_variante_id
+          AND producto_id = v_id;
+
+        IF NOT FOUND THEN
+          RAISE EXCEPTION 'La variante "%" no pertenece a este producto.', v_nombre_variante;
+        END IF;
+      ELSE
+        INSERT INTO producto_variantes (producto_id, nombre_variante, precio, estado)
+        VALUES (v_id, v_nombre_variante, v_precio, v_variante->>'estado')
+        RETURNING id INTO v_variante_id;
+      END IF;
+
+      v_ids_conservados := v_ids_conservados || v_variante_id;
+    END LOOP;
+
+    DELETE FROM producto_variantes
+    WHERE producto_id = v_id
+      AND NOT (id = ANY (v_ids_conservados));
+  END IF;
+
+  -- 3. Categorías
+  DELETE FROM producto_categorias
+  WHERE producto_id = v_id
+    AND NOT (categoria_id = ANY (p_categoria_ids));
+
+  INSERT INTO producto_categorias (producto_id, categoria_id)
+  SELECT v_id, c FROM unnest(p_categoria_ids) AS c
+  ON CONFLICT DO NOTHING;
+
+  RETURN v_id;
+END;
+$$;
+
+REVOKE ALL ON FUNCTION public.guardar_producto(jsonb, jsonb, uuid[], uuid) FROM PUBLIC, anon;
+GRANT EXECUTE ON FUNCTION public.guardar_producto(jsonb, jsonb, uuid[], uuid) TO authenticated;
 
 
 -- ── limpiar_mensaje_alerta_vencido (pg_cron) ──────────────────────────────

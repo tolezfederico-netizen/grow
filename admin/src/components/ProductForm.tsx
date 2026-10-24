@@ -104,57 +104,25 @@ export default function ProductForm({ producto, categorias, categoriaIdsActuales
         imagen_url = publicUrl
       }
 
-      const data = {
-        nombre,
-        descripcion: descripcion || null,
-        especificaciones: especificaciones || null,
-        imagen_url,
-        tiene_variantes: tieneVariantes,
-        precio_base: tieneVariantes ? null : Math.round(Number(precioBase)),
-      }
-
-      if (producto) {
-        const { error: err } = await supabase.from('productos').update(data).eq('id', producto.id)
-        if (err) { setError(err.message); setSubiendo(false); return }
-
-        if (tieneVariantes) {
-          await supabase.from('producto_variantes').delete().eq('producto_id', producto.id)
-          if (variantes.length > 0) {
-            const { error: errV } = await supabase.from('producto_variantes').insert(
-              variantes.map(v => ({ producto_id: producto.id, nombre_variante: v.nombre_variante, precio: Math.round(Number(v.precio)), estado: v.estado }))
-            )
-            if (errV) { setError(errV.message); setSubiendo(false); return }
-          }
-        }
-      } else {
-        const { data: nuevo, error: err } = await supabase
-          .from('productos')
-          .insert(data)
-          .select()
-          .single()
-        if (err) { setError(err.message); setSubiendo(false); return }
-
-        if (tieneVariantes && variantes.length > 0) {
-          const { error: errV } = await supabase.from('producto_variantes').insert(
-            variantes.map(v => ({ producto_id: nuevo.id, nombre_variante: v.nombre_variante, precio: Math.round(Number(v.precio)), estado: v.estado }))
-          )
-          if (errV) { setError(errV.message); setSubiendo(false); return }
-        }
-      }
-
-      const productoId = producto?.id ?? (await supabase.from('productos').select('id').eq('nombre', nombre).single()).data?.id
-      if (!productoId) {
-        setError('Error interno: no se pudo determinar el ID del producto.')
-        setSubiendo(false)
-        return
-      }
-
-      await supabase.from('producto_categorias').delete().eq('producto_id', productoId)
-      if (categoriaIds.length > 0) {
-        await supabase.from('producto_categorias').insert(
-          categoriaIds.map(catId => ({ producto_id: productoId, categoria_id: catId }))
-        )
-      }
+      // Producto, variantes y categorías se guardan en una sola transacción.
+      // Las variantes viajan con su id: la base actualiza las existentes (sin
+      // cambiarles el id), crea las nuevas y borra las que se quitaron.
+      const { error: err } = await supabase.rpc('guardar_producto', {
+        p_datos: {
+          nombre,
+          descripcion: descripcion || null,
+          especificaciones: especificaciones || null,
+          imagen_url,
+          tiene_variantes: tieneVariantes,
+          precio_base: tieneVariantes ? null : Math.round(Number(precioBase)),
+        },
+        p_variantes: tieneVariantes
+          ? variantes.map(v => ({ id: v.id ?? null, nombre_variante: v.nombre_variante, precio: Math.round(Number(v.precio)), estado: v.estado }))
+          : [],
+        p_categoria_ids: categoriaIds,
+        p_producto_id: producto?.id,
+      })
+      if (err) { setError(err.message); setSubiendo(false); return }
 
       onSave()
     } catch {
