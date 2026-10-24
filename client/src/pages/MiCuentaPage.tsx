@@ -6,10 +6,14 @@ import {
   formatEstadoPedido,
   formatPrecio,
   supabase,
+  armarTelefonoAR,
+  separarTelefonoAR,
+  TELEFONO_AR_AYUDA,
 } from "@shared";
 import { useAuth } from "../context/AuthContext";
 import Footer from "../components/layout/Footer";
 import PedidoDetalleModal from "../components/common/PedidoDetalleModal";
+import CampoTelefono from "../components/common/CampoTelefono";
 import {
   getMiCuentaCache,
   setMiCuentaCache,
@@ -22,15 +26,19 @@ function esNombreValido(valor: string): boolean {
   return valor.trim().length > 0;
 }
 
-function esTelefonoValido(valor: string): boolean {
-  return valor.length >= 8 && valor.length <= 10;
-}
-
 export default function MiCuentaPage() {
   const { session } = useAuth();
   const [nombre, setNombre] = useState("");
   const [apellido, setApellido] = useState("");
-  const [telefono, setTelefono] = useState("");
+  const [telefonoArea, setTelefonoArea] = useState("");
+  const [telefonoNumero, setTelefonoNumero] = useState("");
+
+  /** Carga un teléfono guardado (549…) en los dos campos. */
+  function ponerTelefono(guardado: string | null | undefined) {
+    const { area, numero } = separarTelefonoAR(guardado);
+    setTelefonoArea(area);
+    setTelefonoNumero(numero);
+  }
   const [email, setEmail] = useState("");
   const [errorNombre, setErrorNombre] = useState<string | null>(null);
   const [errorApellido, setErrorApellido] = useState<string | null>(null);
@@ -128,7 +136,7 @@ export default function MiCuentaPage() {
     if (cache) {
       setNombre(cache.perfil.nombre);
       setApellido(cache.perfil.apellido);
-      setTelefono(cache.perfil.telefono);
+      ponerTelefono(cache.perfil.telefono);
       setEmail(cache.perfil.email);
       setPedidos(cache.pedidos);
       setItemsPorPedido(cache.itemsPorPedido);
@@ -172,7 +180,7 @@ export default function MiCuentaPage() {
         const perfil = perfilRes.data;
         setNombre(perfil.nombre ?? "");
         setApellido(perfil.apellido ?? "");
-        setTelefono(perfil.telefono ?? "");
+        ponerTelefono(perfil.telefono);
         setEmail(perfil.email ?? "");
       }
       setCargandoPerfil(false);
@@ -250,9 +258,8 @@ export default function MiCuentaPage() {
     const errApellido = esNombreValido(apellido)
       ? null
       : "Ingresá tu apellido.";
-    const errTelefono = esTelefonoValido(telefono)
-      ? null
-      : "El teléfono debe tener entre 8 y 10 dígitos.";
+    const telefono = armarTelefonoAR(telefonoArea, telefonoNumero);
+    const errTelefono = telefono ? null : TELEFONO_AR_AYUDA;
 
     setErrorNombre(errNombre);
     setErrorApellido(errApellido);
@@ -260,7 +267,7 @@ export default function MiCuentaPage() {
     setErrorGeneral(null);
     setExito(false);
 
-    if (errNombre || errApellido || errTelefono || !session) return;
+    if (errNombre || errApellido || !telefono || !session) return;
 
     setGuardando(true);
     const userId = session.user.id;
@@ -269,7 +276,7 @@ export default function MiCuentaPage() {
       .update({
         nombre: nombre.trim(),
         apellido: apellido.trim(),
-        telefono: telefono.trim(),
+        telefono,
       })
       .eq("id", userId);
 
@@ -285,7 +292,7 @@ export default function MiCuentaPage() {
       updateMiCuentaCachePerfil(session.user.id, {
         nombre: nombre.trim(),
         apellido: apellido.trim(),
-        telefono: telefono.trim(),
+        telefono,
         email,
       });
     }
@@ -388,36 +395,20 @@ export default function MiCuentaPage() {
                       <label className={styles.etiqueta} htmlFor="mi-cuenta-telefono">
                         Teléfono
                       </label>
-                      <div className={styles.inputCaja}>
-                        <span className={styles.inputIcon} aria-hidden="true">
-                          <svg
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                          >
-                            <path d="M4 5a2 2 0 012-2h2.09a2 2 0 011.9 1.37l.72 2.16a2 2 0 01-.45 2.08l-1.21 1.2a14.05 14.05 0 006.06 6.06l1.2-1.21a2 2 0 012.08-.45l2.16.72A2 2 0 0121 16.91V19a2 2 0 01-2 2h-1C8.82 21 3 15.18 3 8V7a2 2 0 012-2z" />
-                          </svg>
-                        </span>
-                        <input
-                          id="mi-cuenta-telefono"
-                          className={`${styles.input} ${errorTelefono ? styles.inputError : ""}`}
-                          placeholder="Teléfono"
-                          type="tel"
-                          inputMode="numeric"
-                          maxLength={10}
-                          value={telefono}
-                          onChange={(e) => {
-                            setTelefono(e.target.value.replace(/\D/g, ""));
-                            setErrorTelefono(null);
-                          }}
-                        />
-                      </div>
-                      {errorTelefono && (
-                        <p className={styles.errorCampo}>{errorTelefono}</p>
-                      )}
+                      <CampoTelefono
+                        idArea="mi-cuenta-telefono"
+                        area={telefonoArea}
+                        numero={telefonoNumero}
+                        onCambiarArea={(valor) => {
+                          setTelefonoArea(valor);
+                          setErrorTelefono(null);
+                        }}
+                        onCambiarNumero={(valor) => {
+                          setTelefonoNumero(valor);
+                          setErrorTelefono(null);
+                        }}
+                        error={errorTelefono}
+                      />
                     </div>
 
                     {errorGeneral && (

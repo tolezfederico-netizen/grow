@@ -1,10 +1,21 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { supabase, formatPrecio } from "@shared";
+import {
+  supabase,
+  formatPrecio,
+  armarTelefonoAR,
+  separarTelefonoAR,
+  TELEFONO_AR_AYUDA,
+  esTelefonoAR,
+  linkWhatsapp,
+  numeroReserva,
+} from "@shared";
 import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
+import { useConfiguracionTienda } from "../hooks/useConfiguracionTienda";
 import CartItemRow from "../components/cart/CartItemRow";
 import ConfirmarPedidoModal from "../components/common/ConfirmarPedidoModal";
+import CampoTelefono from "../components/common/CampoTelefono";
 import FeaturedCarousel from "../components/product/FeaturedCarousel";
 import Footer from "../components/layout/Footer";
 import styles from "./ResumePage.module.css";
@@ -22,7 +33,8 @@ export default function ResumePage() {
   const { items, total, removeItem, updateCantidad, clearCart } = useCart();
   const { session } = useAuth();
   const [nombre, setNombre] = useState("");
-  const [telefono, setTelefono] = useState("");
+  const [telefonoArea, setTelefonoArea] = useState("");
+  const [telefonoNumero, setTelefonoNumero] = useState("");
   const [email, setEmail] = useState("");
   const [enviando, setEnviando] = useState(false);
   const [errorNombre, setErrorNombre] = useState<string | null>(null);
@@ -30,6 +42,11 @@ export default function ResumePage() {
   const [errorEmail, setErrorEmail] = useState<string | null>(null);
   const [errorGeneral, setErrorGeneral] = useState<string | null>(null);
   const [confirmado, setConfirmado] = useState(false);
+  // Reserva recién creada: número corto y link de WhatsApp al local (null si
+  // la tienda no tiene un teléfono válido cargado)
+  const [reserva, setReserva] = useState<{ numero: string; linkWhatsapp: string | null } | null>(null);
+  const { config: tienda } = useConfiguracionTienda();
+  const telefonoLocal = tienda && esTelefonoAR(tienda.telefono) ? tienda.telefono : null;
   const [mostrarConfirmacion, setMostrarConfirmacion] = useState(false);
   const [carritoVacioAlEntrar, setCarritoVacioAlEntrar] = useState(
     items.length === 0,
@@ -38,7 +55,7 @@ export default function ResumePage() {
   const montado = useRef(true);
   const precargaHecha = useRef(false);
   const nombreActual = useRef(nombre);
-  const telefonoActual = useRef(telefono);
+  const telefonoActual = useRef("");
   const emailActual = useRef(email);
 
   useEffect(() => {
@@ -70,7 +87,9 @@ export default function ResumePage() {
       }
 
       if (!telefonoActual.current.trim()) {
-        setTelefono(cliente.telefono ?? "");
+        const { area, numero } = separarTelefonoAR(cliente.telefono);
+        setTelefonoArea(area);
+        setTelefonoNumero(numero);
       }
 
       if (!emailActual.current.trim()) {
@@ -102,10 +121,9 @@ export default function ResumePage() {
     const errNombre = !esNombreCompletoValido(nombre)
       ? "Ingresá tu nombre y apellido completo."
       : null;
-    const errTelefono =
-      telefono.length < 8 || telefono.length > 10
-        ? "El teléfono debe tener entre 8 y 10 dígitos."
-        : null;
+    const errTelefono = armarTelefonoAR(telefonoArea, telefonoNumero)
+      ? null
+      : TELEFONO_AR_AYUDA;
     const errEmail = !esEmailValido(email) ? "Ingresá un email válido." : null;
 
     setErrorNombre(errNombre);
@@ -121,11 +139,17 @@ export default function ResumePage() {
   async function handleEnviarPedidoConfirmado() {
     setEnviando(true);
 
+    // La pestaña de WhatsApp se abre ya, durante el clic: después de esperar
+    // a la base el navegador la bloquearía como pop-up. Se completa al final.
+    const ventanaWhatsapp = telefonoLocal ? window.open("", "_blank") : null;
+    if (ventanaWhatsapp) ventanaWhatsapp.opener = null;
+
     const { data: pedido, error } = await supabase.rpc(
       "crear_pedido_completo",
       {
         p_cliente_nombre: nombre.trim(),
-        p_cliente_telefono: telefono.trim(),
+        // Validado antes de abrir la confirmación: 549 + área + número
+        p_cliente_telefono: armarTelefonoAR(telefonoArea, telefonoNumero) ?? "",
         p_cliente_email: email.trim(),
         // El usuario y los precios los resuelve la RPC del lado del servidor.
         p_items: items.map((i) => ({
@@ -137,6 +161,7 @@ export default function ResumePage() {
     );
 
     if (error || !pedido) {
+      ventanaWhatsapp?.close();
       // P0001 = RAISE EXCEPTION de la RPC (mensajes pensados para el usuario);
       // cualquier otro error no se muestra crudo.
       setErrorGeneral(
@@ -148,9 +173,26 @@ export default function ResumePage() {
       return;
     }
 
-    // TODO: Edge Function de Supabase para enviar notificación WhatsApp/email
-    // enviarNotificacionPedido(pedido)
+    // Mensaje para el local con número de reserva, productos, total y nombre.
+    // El total es el que calculó la base (precios del catálogo); los productos
+    // van sin precio para no mostrar uno distinto si cambió mientras tanto.
+    const creado = pedido as { id: string; total: number };
+    const numero = numeroReserva(creado.id);
+    const lineas = items
+      .map(
+        (i) =>
+          `• ${i.cantidad}x ${i.productoNombre}${i.varianteNombre ? ` (${i.varianteNombre})` : ""}`,
+      )
+      .join("\n");
+    const mensaje =
+      `Hola, soy ${nombre.trim()}. Hice la reserva #${numero}` +
+      `${tienda?.nombre_tienda ? ` en ${tienda.nombre_tienda}` : ""}:\n` +
+      `${lineas}\nTotal: ${formatPrecio(creado.total)}\n` +
+      "Quedo a la espera de la confirmación para retirarla. ¡Gracias!";
+    const link = telefonoLocal ? linkWhatsapp(telefonoLocal, mensaje) : null;
+    if (ventanaWhatsapp && link) ventanaWhatsapp.location.href = link;
 
+    setReserva({ numero, linkWhatsapp: link });
     clearCart();
     setConfirmado(true);
     setMostrarConfirmacion(false);
@@ -163,7 +205,47 @@ export default function ResumePage() {
         <div className={styles.page}>
           <div className={styles.confirmacion}>
             <h2>¡Reserva recibida!</h2>
-            <p>Te vamos a contactar a la brevedad para coordinar el retiro.</p>
+            {reserva && (
+              <p className={styles.numeroReserva}>
+                Número de reserva <strong>#{reserva.numero}</strong>
+              </p>
+            )}
+            {reserva?.linkWhatsapp ? (
+              <>
+                <p>
+                  Para avisarle al local, enviá el mensaje de WhatsApp que se
+                  abrió con tu reserva. Si no se abrió, usá este botón:
+                </p>
+                <a
+                  href={reserva.linkWhatsapp}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={styles.boton}
+                >
+                  Enviar la reserva por WhatsApp
+                </a>
+              </>
+            ) : (
+              <p>Te vamos a contactar a la brevedad para coordinar el retiro.</p>
+            )}
+            {tienda && (
+              <div className={styles.retiroInfo}>
+                <p>
+                  <strong>Retirás en {tienda.nombre_tienda}</strong>
+                </p>
+                <p>{tienda.direccion}</p>
+                {tienda.horario_apertura && tienda.horario_cierre && (
+                  <p>
+                    Horario: {tienda.horario_apertura.slice(0, 5)} a{" "}
+                    {tienda.horario_cierre.slice(0, 5)} hs
+                  </p>
+                )}
+              </div>
+            )}
+            <p>
+              Te avisamos cuando esté confirmada y lista para retirar. El pago
+              se hace en el local.
+            </p>
             <Link to="/productos" className={styles.botonSeguirComprando}>
               Seguir viendo productos
             </Link>
@@ -301,31 +383,22 @@ export default function ResumePage() {
                 <label className={styles.etiqueta} htmlFor="resumen-telefono">
                   Teléfono
                 </label>
-                <div className={styles.inputCaja}>
-                  <span className={styles.inputIcon}>
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                      <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92Z" />
-                    </svg>
-                  </span>
-                  <input
-                    id="resumen-telefono"
-                    className={`${styles.input} ${errorTelefono ? styles.inputError : ""}`}
-                    placeholder="Teléfono"
-                    type="tel"
-                    inputMode="numeric"
-                    maxLength={10}
-                    value={telefono}
-                    onChange={(e) => {
-                      const valor = e.target.value.replace(/\D/g, "");
-                      telefonoActual.current = valor;
-                      setTelefono(valor);
-                      setErrorTelefono(null);
-                    }}
-                  />
-                </div>
-                {errorTelefono && (
-                  <p className={styles.errorCampo}>{errorTelefono}</p>
-                )}
+                <CampoTelefono
+                  idArea="resumen-telefono"
+                  area={telefonoArea}
+                  numero={telefonoNumero}
+                  onCambiarArea={(valor) => {
+                    telefonoActual.current = valor + telefonoNumero;
+                    setTelefonoArea(valor);
+                    setErrorTelefono(null);
+                  }}
+                  onCambiarNumero={(valor) => {
+                    telefonoActual.current = telefonoArea + valor;
+                    setTelefonoNumero(valor);
+                    setErrorTelefono(null);
+                  }}
+                  error={errorTelefono}
+                />
               </div>
               <div className={styles.inputWrapper}>
                 <label className={styles.etiqueta} htmlFor="resumen-email">
@@ -400,6 +473,11 @@ export default function ResumePage() {
         total={total}
         enviando={enviando}
         error={errorGeneral}
+        aviso={
+          telefonoLocal
+            ? "Al confirmar se abre WhatsApp con tu reserva lista para enviársela al local."
+            : undefined
+        }
       />
       <Footer />
     </div>

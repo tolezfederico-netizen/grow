@@ -157,6 +157,14 @@
   font-weight: 400;
 }
 
+.aviso {
+  margin: 0.6rem 0 0;
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1.45;
+  opacity: 0.75;
+}
+
 .error {
   margin: 0.6rem 0 0;
   color: var(--color-error);

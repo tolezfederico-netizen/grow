@@ -213,7 +213,7 @@ Deno.serve(async req => {
     body: JSON.stringify({
       from: nombreTienda ? `${nombreTienda} <${RESEND_FROM}>` : RESEND_FROM,
       to: [pedido.cliente_email],
-      subject: `${body.estado === 'confirmado' ? 'Reserva confirmada' : 'Reserva lista para retirar'} — #${pedido.id.slice(0, 8)}`,
+      subject: `${body.estado === 'confirmado' ? 'Reserva confirmada' : 'Reserva lista para retirar'} — #${pedido.id.slice(0, 8).toUpperCase()}`,
       html: armarHtmlEmail({
         clienteNombre: pedido.cliente_nombre,
         nombreTienda,

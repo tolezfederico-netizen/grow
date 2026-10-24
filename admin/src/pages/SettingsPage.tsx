@@ -5,6 +5,9 @@ import {
   mapearSucursal,
   REDES_SOCIALES_SUGERIDAS,
   esEmailContactoValido,
+  armarTelefonoAR,
+  separarTelefonoAR,
+  TELEFONO_AR_AYUDA,
 } from "@shared";
 import type { Sucursal } from "@shared";
 import LoadingState from "../components/LoadingState";
@@ -337,6 +340,9 @@ function IconoValido() {
 
 export default function SettingsPage() {
   const [config, setConfig] = useState<ConfigData | null>(null);
+  // Teléfono del local en dos campos; se guarda como 549 + área + número
+  const [telefonoArea, setTelefonoArea] = useState("");
+  const [telefonoNumero, setTelefonoNumero] = useState("");
   const [existe, setExiste] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -389,6 +395,9 @@ export default function SettingsPage() {
           horario_apertura,
           horario_cierre,
         });
+        const tel = separarTelefonoAR(mapeada.telefono);
+        setTelefonoArea(tel.area);
+        setTelefonoNumero(tel.numero);
         setExiste(true);
       } else {
         setConfig({
@@ -500,6 +509,13 @@ export default function SettingsPage() {
       return;
     }
 
+    const telefono = armarTelefonoAR(telefonoArea, telefonoNumero);
+    if (!telefono) {
+      setError(`Teléfono: ${TELEFONO_AR_AYUDA}`);
+      setGuardando(false);
+      return;
+    }
+
     const cuit = soloDigitosCuit(config.cuit);
     if (cuit !== "" && cuit.length !== 11) {
       setError("El CUIT debe tener 11 dígitos (ej: 20-12345678-9).");
@@ -521,6 +537,7 @@ export default function SettingsPage() {
 
     const payload = {
       ...config,
+      telefono,
       email_contacto: config.email_contacto.trim() || null,
       razon_social: config.razon_social.trim() || null,
       cuit: cuit || null,
@@ -645,20 +662,43 @@ export default function SettingsPage() {
                 </span>
               </label>
 
-              <label className={styles.label}>
+              <div className={styles.label} role="group" aria-label="Teléfono (WhatsApp del local)">
                 <span className={styles.labelTexto}>
-                  {ICONO_TELEFONO}Teléfono
+                  {ICONO_TELEFONO}Teléfono (WhatsApp del local)
                 </span>
-                <span className={styles.inputConEstado}>
+                <div className={styles.telefonoFila}>
                   <input
-                    className={styles.input}
-                    value={config.telefono}
-                    onChange={(e) => actualizar("telefono", e.target.value)}
+                    className={`${styles.input} ${styles.telefonoArea}`}
+                    inputMode="numeric"
+                    placeholder="Área"
+                    aria-label="Código de área, sin 0"
+                    value={telefonoArea}
+                    onChange={(e) =>
+                      setTelefonoArea(e.target.value.replace(/\D/g, ""))
+                    }
+                    maxLength={5}
                     required
                   />
-                  {config.telefono.trim() !== "" && <IconoValido />}
-                </span>
-              </label>
+                  <span className={styles.inputConEstado}>
+                    <input
+                      className={styles.input}
+                      inputMode="numeric"
+                      placeholder="Número"
+                      aria-label="Número, sin 15"
+                      value={telefonoNumero}
+                      onChange={(e) =>
+                        setTelefonoNumero(e.target.value.replace(/\D/g, ""))
+                      }
+                      maxLength={10}
+                      required
+                    />
+                    {armarTelefonoAR(telefonoArea, telefonoNumero) && (
+                      <IconoValido />
+                    )}
+                  </span>
+                </div>
+                <span className={styles.ayuda}>{TELEFONO_AR_AYUDA}</span>
+              </div>
 
               <label className={styles.label}>
                 <span className={styles.labelTexto}>

@@ -1,3 +1,4 @@
+import { formatTelefonoAR } from "@shared";
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { usePaneles } from "../../hooks/usePaneles";
@@ -67,7 +68,7 @@ export default function Footer() {
                 <p className={styles.text}>{s.direccion}</p>
               </div>
             ))}
-            <p className={styles.text}>{config!.telefono}</p>
+            <p className={styles.text}>{formatTelefonoAR(config!.telefono)}</p>
             {config!.email_contacto && (
               <p className={styles.text}>{config!.email_contacto}</p>
             )}

@@ -338,6 +338,24 @@
 
 /* ---- Estados: pedido recibido y carrito vacío ---- */
 
+/* Reserva recibida: número destacado y datos del local donde se retira */
+.numeroReserva strong {
+  font-family: var(--font-display);
+  font-weight: 400;
+  letter-spacing: 0.04em;
+}
+
+.retiroInfo {
+  align-self: stretch;
+  padding: 0.7rem 0.8rem;
+  border: var(--brutal-border-thin);
+  border-radius: 6px;
+  background: var(--punteado-color);
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
 .confirmacion,
 .vacioCentrado {
   max-width: 26rem;

@@ -6,6 +6,8 @@ import {
   mapearCliente,
   formatPrecio,
   formatEstadoPedido,
+  formatTelefonoAR,
+  linkWhatsapp,
 } from "@shared";
 import type { Cliente, EstadoPedido } from "@shared";
 import { useModalAccesible } from "../hooks/useModalAccesible";
@@ -141,11 +143,11 @@ function DetalleCliente({ cliente, pedidos, onCerrar, onCopiar }: DetalleProps) 
                 <span className={styles.valorFila}>
                   <a
                     className={styles.contactoLink}
-                    href={`https://wa.me/54${cliente.telefono}`}
+                    href={linkWhatsapp(cliente.telefono)}
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    {cliente.telefono}
+                    {formatTelefonoAR(cliente.telefono)}
                   </a>
                   <button
                     className={styles.btnCopiar}
@@ -442,7 +444,7 @@ export default function CustomersPage() {
                     )}
                   </span>
                   <span className={styles.cardLinea}>
-                    {cliente.telefono || "Sin teléfono"}
+                    {formatTelefonoAR(cliente.telefono) || "Sin teléfono"}
                   </span>
                   <span className={styles.cardLinea} title={cliente.email}>
                     {cliente.email}

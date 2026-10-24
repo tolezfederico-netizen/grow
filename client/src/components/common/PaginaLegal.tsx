@@ -1,3 +1,4 @@
+import { formatTelefonoAR } from '@shared'
 import type { ReactNode } from 'react'
 import type { ConfiguracionTienda } from '@shared'
 import Footer from '../layout/Footer'
@@ -57,7 +58,7 @@ export function DatosResponsable({ config }: { config: ConfiguracionTienda | nul
     ['CUIT', config.cuit ? formatearCuit(config.cuit) : null],
     ['Domicilio', config.domicilio_legal || config.direccion],
     ['Email', config.email_contacto],
-    ['Teléfono', config.telefono],
+    ['Teléfono', formatTelefonoAR(config.telefono)],
   ]
 
   return (
@@ -77,7 +78,7 @@ export function MedioContacto({ config }: { config: ConfiguracionTienda | null }
   if (config?.email_contacto) {
     return <a className={styles.link} href={`mailto:${config.email_contacto}`}>{config.email_contacto}</a>
   }
-  if (config?.telefono) return <>{`el teléfono ${config.telefono}`}</>
+  if (config?.telefono) return <>{`el teléfono ${formatTelefonoAR(config.telefono)}`}</>
   return <>los medios de contacto de la tienda</>
 }
 

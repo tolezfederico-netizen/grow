@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { armarTelefonoAR, TELEFONO_AR_AYUDA } from '@shared'
 import { useAuth } from '../context/AuthContext'
+import CampoTelefono from '../components/common/CampoTelefono'
 import Footer from '../components/layout/Footer'
 import styles from './RegisterPage.module.css'
 
@@ -11,7 +13,8 @@ function esEmailValido(valor: string): boolean {
 export default function RegisterPage() {
   const [nombre, setNombre] = useState('')
   const [apellido, setApellido] = useState('')
-  const [telefono, setTelefono] = useState('')
+  const [telefonoArea, setTelefonoArea] = useState('')
+  const [telefonoNumero, setTelefonoNumero] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [errorNombre, setErrorNombre] = useState<string | null>(null)
@@ -36,7 +39,8 @@ export default function RegisterPage() {
 
     const errNombre = nombre.trim() ? null : 'Ingresá tu nombre.'
     const errApellido = apellido.trim() ? null : 'Ingresá tu apellido.'
-    const errTelefono = telefono.length >= 8 && telefono.length <= 10 ? null : 'El teléfono debe tener entre 8 y 10 dígitos.'
+    const telefono = armarTelefonoAR(telefonoArea, telefonoNumero)
+    const errTelefono = telefono ? null : TELEFONO_AR_AYUDA
     const errEmail = !esEmailValido(email) ? 'Ingresá un email válido.' : null
     // Mismo criterio que Authentication → Policies en Supabase (8+, letras y números)
     const errPassword = password.length >= 8 && /[A-Za-z]/.test(password) && /\d/.test(password)
@@ -57,7 +61,7 @@ export default function RegisterPage() {
     const msg = await signUp(email.trim(), password, {
       nombre: nombre.trim(),
       apellido: apellido.trim(),
-      telefono: telefono.trim(),
+      telefono: telefono ?? '',
     })
 
     if (!montado.current) return
@@ -136,23 +140,13 @@ export default function RegisterPage() {
                 {errorEmail && <p className={styles.errorCampo}>{errorEmail}</p>}
               </div>
 
-              <div className={styles.inputWrapper}>
-                <span className={styles.inputIcon}>
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92Z" />
-                  </svg>
-                </span>
-                <input
-                  className={`${styles.input} ${errorTelefono ? styles.inputError : ''}`}
-                  placeholder="Teléfono"
-                  type="tel"
-                  inputMode="numeric"
-                  maxLength={10}
-                  value={telefono}
-                  onChange={e => { setTelefono(e.target.value.replace(/\D/g, '')); setErrorTelefono(null) }}
-                />
-                {errorTelefono && <p className={styles.errorCampo}>{errorTelefono}</p>}
-              </div>
+              <CampoTelefono
+                area={telefonoArea}
+                numero={telefonoNumero}
+                onCambiarArea={valor => { setTelefonoArea(valor); setErrorTelefono(null) }}
+                onCambiarNumero={valor => { setTelefonoNumero(valor); setErrorTelefono(null) }}
+                error={errorTelefono}
+              />
 
               <div className={styles.inputWrapper}>
                 <span className={styles.inputIcon}>

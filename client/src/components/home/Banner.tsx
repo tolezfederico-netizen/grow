@@ -1,3 +1,4 @@
+import { formatTelefonoAR } from "@shared";
 import { useEffect, useRef, useState } from "react";
 import type { ConfiguracionTienda } from "@shared";
 import { useSucursales } from "../../hooks/useSucursales";
@@ -166,7 +167,7 @@ export default function Banner({ configuracionTienda: c }: Props) {
               </div>
               <div className={styles.cardBody}>
                 {c.telefono && (
-                  <p className={styles.contactoLine}>📞 {c.telefono}</p>
+                  <p className={styles.contactoLine}>📞 {formatTelefonoAR(c.telefono)}</p>
                 )}
                 {c.email_contacto && (
                   <p className={`${styles.contactoLine} ${styles.contactoEmail}`}>

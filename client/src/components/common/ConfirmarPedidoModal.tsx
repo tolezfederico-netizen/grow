@@ -11,6 +11,8 @@ interface Props {
   total: number
   enviando: boolean
   error: string | null
+  /** Texto informativo sobre el botón (ej.: que se va a abrir WhatsApp) */
+  aviso?: string
 }
 
 export default function ConfirmarPedidoModal({
@@ -21,6 +23,7 @@ export default function ConfirmarPedidoModal({
   total,
   enviando,
   error,
+  aviso,
 }: Props) {
   useEffect(() => {
     if (!abierto) return
@@ -91,6 +94,7 @@ export default function ConfirmarPedidoModal({
             <strong>{formatPrecio(total)}</strong>
           </div>
 
+          {aviso && <p className={styles.aviso}>{aviso}</p>}
           {error && <p className={styles.error}>{error}</p>}
         </div>
 

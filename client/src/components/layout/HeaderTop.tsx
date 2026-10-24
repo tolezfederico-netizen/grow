@@ -5,7 +5,7 @@ import { useAuth } from "../../context/AuthContext";
 import { useCart } from "../../context/CartContext";
 import { useSucursales } from "../../hooks/useSucursales";
 import type { ConfiguracionTienda, PanelCategoriaCompleto } from "@shared";
-import { formatPrecio, supabase } from "@shared";
+import { formatPrecio, supabase, formatTelefonoAR } from "@shared";
 import { parseRedSocial, RedSocialIcon } from "../../utils/redesSociales";
 import logo from "../../assets/logo.webp";
 import styles from "./HeaderTop.module.css";
@@ -719,7 +719,7 @@ export default function HeaderTop({
               ));
             })()}
 
-            <p className={styles.infoLine}>{config.telefono}</p>
+            <p className={styles.infoLine}>{formatTelefonoAR(config.telefono)}</p>
 
             <p className={styles.infoLine}>
               {config.horario_apertura} – {config.horario_cierre}
@@ -1073,7 +1073,7 @@ export default function HeaderTop({
                         </svg>
                       </span>
 
-                      <p className={styles.infoLine}>{config.telefono}</p>
+                      <p className={styles.infoLine}>{formatTelefonoAR(config.telefono)}</p>
                     </div>
 
                     <div className={styles.drawerInfoRow}>

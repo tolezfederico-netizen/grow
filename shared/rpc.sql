@@ -54,8 +54,9 @@ BEGIN
   IF char_length(v_nombre) NOT BETWEEN 3 AND 120 THEN
     RAISE EXCEPTION 'Nombre inválido.';
   END IF;
-  IF v_telefono !~ '^[0-9]{8,15}$' THEN
-    RAISE EXCEPTION 'Teléfono inválido.';
+  -- Formato internacional argentino: 549 + código de área + número (13 dígitos)
+  IF v_telefono !~ '^549[0-9]{10}$' THEN
+    RAISE EXCEPTION 'Teléfono inválido: ingresá código de área sin 0 y número sin 15.';
   END IF;
   IF char_length(v_email) > 254
      OR v_email !~ '^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$' THEN
@@ -65,17 +66,17 @@ BEGIN
   -- 2. Items
   IF p_items IS NULL OR jsonb_typeof(p_items) <> 'array'
      OR jsonb_array_length(p_items) = 0 THEN
-    RAISE EXCEPTION 'El pedido debe contener al menos un producto.';
+    RAISE EXCEPTION 'La reserva debe tener al menos un producto.';
   END IF;
   IF jsonb_array_length(p_items) > 50 THEN
-    RAISE EXCEPTION 'El pedido tiene demasiados productos.';
+    RAISE EXCEPTION 'La reserva tiene demasiados productos.';
   END IF;
 
   -- 3. Anti-spam
   IF (SELECT count(*) FROM pedidos
       WHERE cliente_telefono = v_telefono
         AND creado_en > now() - interval '10 minutes') >= 3 THEN
-    RAISE EXCEPTION 'Demasiados pedidos seguidos. Esperá unos minutos.';
+    RAISE EXCEPTION 'Demasiadas reservas seguidas. Esperá unos minutos.';
   END IF;
 
   -- 4. Validar cada item con el precio real de catálogo

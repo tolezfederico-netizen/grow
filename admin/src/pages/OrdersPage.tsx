@@ -7,6 +7,9 @@ import {
   mapearPedido,
   mapearPedidoItem,
   ESTADOS_PEDIDO,
+  formatTelefonoAR,
+  linkWhatsapp,
+  numeroReserva,
 } from "@shared";
 import type { Pedido, PedidoItem, EstadoPedido } from "@shared";
 import LoadingState from "../components/LoadingState";
@@ -303,7 +306,7 @@ export default function OrdersPage() {
           : "Te esperamos en el local.";
 
       const mensaje = `${encabezado}\n${itemsStr}\nTotal: ${formatPrecio(pedido.total)}\n${cierre}`;
-      const url = `https://wa.me/54${pedido.cliente_telefono}?text=${encodeURIComponent(mensaje)}`;
+      const url = linkWhatsapp(pedido.cliente_telefono, mensaje);
       if (whatsappWindow) {
         whatsappWindow.location.href = url;
       } else {
@@ -517,14 +520,17 @@ export default function OrdersPage() {
                 {expandido === p.id && (
                   <div className={styles.detalle}>
                     <p>
+                      <strong>Reserva:</strong> #{numeroReserva(p.id)}
+                    </p>
+                    <p>
                       <strong>Tel:</strong>
                       <a
-                        href={`https://wa.me/54${p.cliente_telefono}`}
+                        href={linkWhatsapp(p.cliente_telefono)}
                         target="_blank"
                         rel="noopener noreferrer"
                         className={styles.contactoLink}
                       >
-                        {p.cliente_telefono}
+                        {formatTelefonoAR(p.cliente_telefono)}
                       </a>
                       <button
                         className={styles.btnCopiar}

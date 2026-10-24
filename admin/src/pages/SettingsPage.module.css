@@ -198,6 +198,22 @@
   height: 0.9rem;
 }
 
+/* Teléfono del local: código de área angosto + número */
+.telefonoFila {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.telefonoArea {
+  flex: 0 0 5.5rem;
+  width: 5.5rem;
+}
+
+.telefonoFila .inputConEstado {
+  flex: 1;
+  min-width: 0;
+}
+
 .filaAngosta {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 9rem));

@@ -33,3 +33,13 @@ export { formatPrecio } from './utils/formatPrecio'
 export { formatEstadoPedido } from './utils/formatEstadoPedido'
 export { esEmailContactoValido, EMAIL_CONTACTO_REGEX } from './utils/validarEmail'
 export { rutaEnBucket } from './utils/rutaEnBucket'
+export { numeroReserva } from './utils/numeroReserva'
+export {
+  TELEFONO_AR_REGEX,
+  TELEFONO_AR_AYUDA,
+  esTelefonoAR,
+  armarTelefonoAR,
+  separarTelefonoAR,
+  formatTelefonoAR,
+  linkWhatsapp,
+} from './utils/telefono'

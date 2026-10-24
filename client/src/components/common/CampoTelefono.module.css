@@ -1,0 +1,63 @@
+/* Mismos campos que los formularios de checkout, registro y Mi cuenta */
+.fila {
+  display: flex;
+  gap: 0.45rem;
+}
+
+.caja {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+}
+
+.cajaArea {
+  flex: 0 0 6.2rem;
+}
+
+.icono {
+  position: absolute;
+  left: 0.6rem;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  color: var(--color-secondary);
+  pointer-events: none;
+}
+
+.input {
+  width: 100%;
+  height: 2.3rem;
+  box-sizing: border-box;
+  padding: 0 0.6rem 0 2.05rem;
+  border: var(--brutal-border);
+  border-radius: 6px;
+  background: var(--color-background);
+  color: var(--color-secondary);
+  font-family: var(--font-ui);
+  font-size: 0.82rem;
+  font-weight: 500;
+  outline: none;
+}
+
+.inputSinIcono {
+  padding-left: 0.6rem;
+}
+
+.inputError {
+  border-color: var(--color-error);
+}
+
+.ayuda {
+  margin: 0.25rem 0 0;
+  font-size: 0.68rem;
+  font-weight: 500;
+  opacity: 0.6;
+}
+
+.error {
+  margin: 0.25rem 0 0;
+  color: var(--color-error);
+  font-size: 0.72rem;
+  font-weight: 600;
+  overflow-wrap: break-word;
+}
