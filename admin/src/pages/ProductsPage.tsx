@@ -4,6 +4,8 @@ import {
   formatPrecio,
   mapearCategoria,
   mapearProductoVariante,
+  rutaEnBucket,
+  BUCKET_PRODUCTOS,
 } from "@shared";
 import type { Categoria, ProductoCategoria, ProductoVariante } from "@shared";
 import ProductForm from "../components/ProductForm";
@@ -17,6 +19,7 @@ interface ProductoRow {
   nombre: string;
   descripcion: string | null;
   imagen_url: string | null;
+  imagen_miniatura_url: string | null;
   tiene_variantes: boolean;
   precio_base: number | null;
   estado: string;
@@ -165,10 +168,11 @@ export default function ProductsPage() {
       textoConfirmar: "Eliminar",
     });
     if (!confirmado) return;
-    const { error: err } = await supabase
+    const { data: borrados, error: err } = await supabase
       .from("productos")
       .delete()
-      .in("id", seleccionados);
+      .in("id", seleccionados)
+      .select("imagen_url, imagen_miniatura_url");
     if (err) {
       if (err.code === "23503") {
         await notify(
@@ -179,6 +183,19 @@ export default function ProductsPage() {
         await notify(err.message, { titulo: "Error" });
       }
       return;
+    }
+    // Sus imágenes ya no las usa nadie: se borran del bucket. Si falla, el
+    // producto igual quedó eliminado; el archivo queda huérfano y se avisa en consola.
+    const rutas = (borrados ?? [])
+      .flatMap((p) => [p.imagen_url, p.imagen_miniatura_url])
+      .map((url) => rutaEnBucket(url, BUCKET_PRODUCTOS))
+      .filter((r): r is string => !!r);
+    if (rutas.length > 0) {
+      const { error: errImg } = await supabase.storage
+        .from(BUCKET_PRODUCTOS)
+        .remove(rutas);
+      if (errImg)
+        console.warn("No se pudieron borrar imágenes del bucket:", errImg.message);
     }
     toast(`${cantidad} producto(s) eliminado(s).`);
     setSeleccionados([]);

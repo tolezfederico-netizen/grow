@@ -63,6 +63,7 @@ export function mapearProducto(
       descripcion: row.descripcion ?? '',
       especificaciones: row.especificaciones ?? '',
       imagen_url: row.imagen_url ?? '',
+      imagen_miniatura_url: row.imagen_miniatura_url ?? row.imagen_url ?? '',
       tiene_variantes: true,
       precio_base: null,
       estado,
@@ -78,6 +79,7 @@ export function mapearProducto(
     descripcion: row.descripcion ?? '',
     especificaciones: row.especificaciones ?? '',
     imagen_url: row.imagen_url ?? '',
+    imagen_miniatura_url: row.imagen_miniatura_url ?? row.imagen_url ?? '',
     tiene_variantes: false,
     precio_base: row.precio_base!, // DB CHECK garantiza NOT NULL cuando tiene_variantes = false
     estado,

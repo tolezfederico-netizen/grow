@@ -20,6 +20,7 @@ CREATE TABLE productos (
   descripcion     text,                           -- nullable: no todos los productos requieren descripción
   especificaciones text,                          -- nullable: contenido extenso tipo ficha técnica (specs, composición, modo de uso)
   imagen_url      text,                           -- nullable: puede no tener imagen al crearse
+  imagen_miniatura_url text,                      -- nullable: versión de 400 px para tarjetas y listas
   tiene_variantes boolean     NOT NULL DEFAULT false,
   precio_base     numeric,                        -- nullable → NOT NULL según CHECK cuando tiene_variantes = false
   estado          text        NOT NULL DEFAULT 'disponible',
@@ -40,6 +41,7 @@ CREATE TABLE productos (
 COMMENT ON COLUMN productos.descripcion IS 'Nullable — no todos los productos requieren descripción detallada';
 COMMENT ON COLUMN productos.especificaciones IS 'Nullable — contenido extenso tipo ficha técnica (specs, composición, modo de uso), separado de la descripción corta';
 COMMENT ON COLUMN productos.imagen_url IS 'URL en Supabase Storage (bucket imagenes-productos), formato WebP';
+COMMENT ON COLUMN productos.imagen_miniatura_url IS 'Miniatura de 400 px (WebP) para tarjetas y listas. NULL en imágenes subidas antes de que existiera: la tienda usa imagen_url.';
 COMMENT ON COLUMN productos.tiene_variantes IS 'Si true, el precio vive en producto_variantes; si false, se usa precio_base';
 COMMENT ON COLUMN productos.precio_base IS 'NOT NULL cuando tiene_variantes = false; NULL cuando tiene_variantes = true';
 COMMENT ON COLUMN productos.estado IS 'disponible | pausado | sin_stock (la eliminación es un DELETE físico, no un cuarto estado)';
@@ -692,3 +694,11 @@ BEGIN
     ) NOT VALID;
   END IF;
 END $$;
+
+
+-- ── 1a. Miniatura de la imagen de producto ───────────────────────────────────
+-- El admin sube dos versiones WebP: grande (1000 px) en imagen_url y miniatura
+-- (400 px) acá. Las imágenes anteriores quedan con NULL y la tienda usa la grande.
+ALTER TABLE productos ADD COLUMN IF NOT EXISTS imagen_miniatura_url text;
+COMMENT ON COLUMN productos.imagen_miniatura_url IS
+  'Miniatura de 400 px (WebP) para tarjetas y listas. NULL en imágenes subidas antes de que existiera: la tienda usa imagen_url.';

@@ -1,6 +1,7 @@
 import { useState, useEffect, type FormEvent } from 'react'
-import { supabase, BUCKET_PRODUCTOS } from '@shared'
+import { supabase, BUCKET_PRODUCTOS, IMAGEN_PRODUCTO, IMAGEN_PRODUCTO_CACHE_SEGUNDOS, rutaEnBucket } from '@shared'
 import type { Categoria } from '@shared'
+import { comprimirImagen } from '../utils/comprimirImagen'
 import styles from './ProductForm.module.css'
 
 interface VarianteLocal {
@@ -10,6 +11,26 @@ interface VarianteLocal {
   estado: 'disponible' | 'pausado'
 }
 
+/** Comprime y sube una versión de la imagen; devuelve su ruta en el bucket y su URL pública. */
+async function subirVersion(archivo: File, ruta: string, opciones: { ladoMaxPx: number; pesoMaxKB: number }) {
+  const { blob, extension } = await comprimirImagen(archivo, opciones)
+  const rutaFinal = `${ruta}.${extension}`
+  const { error } = await supabase.storage
+    .from(BUCKET_PRODUCTOS)
+    .upload(rutaFinal, blob, { cacheControl: String(IMAGEN_PRODUCTO_CACHE_SEGUNDOS), contentType: blob.type })
+  if (error) throw error
+  const { data: { publicUrl } } = supabase.storage.from(BUCKET_PRODUCTOS).getPublicUrl(rutaFinal)
+  return { ruta: rutaFinal, url: publicUrl }
+}
+
+/** Borra archivos del bucket sin frenar el guardado: si falla, el archivo queda huérfano y se avisa en consola. */
+async function borrarArchivos(rutas: Array<string | null>) {
+  const validas = rutas.filter((r): r is string => !!r)
+  if (validas.length === 0) return
+  const { error } = await supabase.storage.from(BUCKET_PRODUCTOS).remove(validas)
+  if (error) console.warn('No se pudieron borrar imágenes del bucket:', error.message)
+}
+
 interface Props {
   producto?: {
     id: string
@@ -17,6 +38,7 @@ interface Props {
     descripcion: string | null
     especificaciones: string | null
     imagen_url: string | null
+    imagen_miniatura_url: string | null
     tiene_variantes: boolean
     precio_base: number | null
     estado: string
@@ -90,18 +112,27 @@ export default function ProductForm({ producto, categorias, categoriaIdsActuales
 
     try {
       let imagen_url = producto?.imagen_url ?? null
+      let imagen_miniatura_url = producto?.imagen_miniatura_url ?? null
+      let rutasNuevas: string[] = []
 
+      // Imagen nueva: se comprime en dos versiones WebP (grande y miniatura)
+      // con el mismo nombre base y se suben con caché de un año.
       if (archivo) {
-        const ext = archivo.name.split('.').pop() ?? 'webp'
-        const path = `${crypto.randomUUID()}.${ext}`
-        const { error: uploadErr } = await supabase.storage
-          .from(BUCKET_PRODUCTOS)
-          .upload(path, archivo)
-        if (uploadErr) { setError('Error al subir imagen: ' + uploadErr.message); setSubiendo(false); return }
-        const { data: { publicUrl } } = supabase.storage
-          .from(BUCKET_PRODUCTOS)
-          .getPublicUrl(path)
-        imagen_url = publicUrl
+        const base = crypto.randomUUID()
+        try {
+          const grande = await subirVersion(archivo, base, IMAGEN_PRODUCTO.grande)
+          rutasNuevas = [grande.ruta]
+          const miniatura = await subirVersion(archivo, `${base}-min`, IMAGEN_PRODUCTO.miniatura)
+          rutasNuevas.push(miniatura.ruta)
+          imagen_url = grande.url
+          imagen_miniatura_url = miniatura.url
+        } catch (errImg) {
+          await borrarArchivos(rutasNuevas)
+          const detalle = errImg instanceof Error ? errImg.message : ''
+          setError(`No se pudo procesar o subir la imagen. ${detalle}`.trim())
+          setSubiendo(false)
+          return
+        }
       }
 
       // Producto, variantes y categorías se guardan en una sola transacción.
@@ -113,6 +144,7 @@ export default function ProductForm({ producto, categorias, categoriaIdsActuales
           descripcion: descripcion || null,
           especificaciones: especificaciones || null,
           imagen_url,
+          imagen_miniatura_url,
           tiene_variantes: tieneVariantes,
           precio_base: tieneVariantes ? null : Math.round(Number(precioBase)),
         },
@@ -122,7 +154,21 @@ export default function ProductForm({ producto, categorias, categoriaIdsActuales
         p_categoria_ids: categoriaIds,
         p_producto_id: producto?.id,
       })
-      if (err) { setError(err.message); setSubiendo(false); return }
+      if (err) {
+        // El producto no se guardó: las imágenes recién subidas quedarían huérfanas
+        await borrarArchivos(rutasNuevas)
+        setError(err.message)
+        setSubiendo(false)
+        return
+      }
+
+      // Imagen reemplazada: se borran las versiones anteriores del bucket
+      if (archivo && producto) {
+        await borrarArchivos([
+          rutaEnBucket(producto.imagen_url, BUCKET_PRODUCTOS),
+          rutaEnBucket(producto.imagen_miniatura_url, BUCKET_PRODUCTOS),
+        ])
+      }
 
       onSave()
     } catch {

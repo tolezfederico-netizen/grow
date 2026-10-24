@@ -185,7 +185,7 @@ GRANT EXECUTE ON FUNCTION public.crear_pedido_completo(text, text, text, jsonb, 
 -- Uso desde el admin:
 --   supabase.rpc('guardar_producto', {
 --     p_datos: { nombre, descripcion, especificaciones, imagen_url,
---                tiene_variantes, precio_base },
+--                imagen_miniatura_url, tiene_variantes, precio_base },
 --     p_variantes: [{ id?, nombre_variante, precio, estado }],
 --     p_categoria_ids: string[],
 --     p_producto_id?: string                 -- sin id = producto nuevo
@@ -224,12 +224,13 @@ BEGIN
 
   -- 1. Producto
   IF v_id IS NULL THEN
-    INSERT INTO productos (nombre, descripcion, especificaciones, imagen_url, tiene_variantes, precio_base)
+    INSERT INTO productos (nombre, descripcion, especificaciones, imagen_url, imagen_miniatura_url, tiene_variantes, precio_base)
     VALUES (
       p_datos->>'nombre',
       p_datos->>'descripcion',
       p_datos->>'especificaciones',
       p_datos->>'imagen_url',
+      p_datos->>'imagen_miniatura_url',
       v_tiene_variantes,
       (p_datos->>'precio_base')::numeric
     )
@@ -240,6 +241,7 @@ BEGIN
         descripcion      = p_datos->>'descripcion',
         especificaciones = p_datos->>'especificaciones',
         imagen_url       = p_datos->>'imagen_url',
+        imagen_miniatura_url = p_datos->>'imagen_miniatura_url',
         tiene_variantes  = v_tiene_variantes,
         precio_base      = (p_datos->>'precio_base')::numeric
     WHERE id = v_id;

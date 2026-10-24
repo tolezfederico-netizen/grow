@@ -26,6 +26,8 @@ export interface ProductoSimple {
   especificaciones: string
   /** URL de Supabase Storage, formato WebP */
   imagen_url: string
+  /** Miniatura de 400 px para tarjetas y listas; si el producto no tiene, la misma imagen_url */
+  imagen_miniatura_url: string
   tiene_variantes: false
   precio_base: number
   estado: EstadoProducto
@@ -46,6 +48,8 @@ export interface ProductoConVariantes {
   especificaciones: string
   /** URL de Supabase Storage, formato WebP */
   imagen_url: string
+  /** Miniatura de 400 px para tarjetas y listas; si el producto no tiene, la misma imagen_url */
+  imagen_miniatura_url: string
   tiene_variantes: true
   precio_base: null
   estado: EstadoProducto

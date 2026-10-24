@@ -25,9 +25,11 @@ export {
   ESTADOS_PANEL,
   REDES_SOCIALES_SUGERIDAS,
   BUCKET_PRODUCTOS,
-  IMAGEN_PRODUCTO_PESO_OBJETIVO_KB,
+  IMAGEN_PRODUCTO,
+  IMAGEN_PRODUCTO_CACHE_SEGUNDOS,
 } from './constants'
 
 export { formatPrecio } from './utils/formatPrecio'
 export { formatEstadoPedido } from './utils/formatEstadoPedido'
 export { esEmailContactoValido, EMAIL_CONTACTO_REGEX } from './utils/validarEmail'
+export { rutaEnBucket } from './utils/rutaEnBucket'

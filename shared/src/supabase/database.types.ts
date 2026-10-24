@@ -419,6 +419,7 @@ export type Database = {
           especificaciones: string | null
           estado: string
           id: string
+          imagen_miniatura_url: string | null
           imagen_url: string | null
           nombre: string
           precio_base: number | null
@@ -431,6 +432,7 @@ export type Database = {
           especificaciones?: string | null
           estado?: string
           id?: string
+          imagen_miniatura_url?: string | null
           imagen_url?: string | null
           nombre: string
           precio_base?: number | null
@@ -443,6 +445,7 @@ export type Database = {
           especificaciones?: string | null
           estado?: string
           id?: string
+          imagen_miniatura_url?: string | null
           imagen_url?: string | null
           nombre?: string
           precio_base?: number | null

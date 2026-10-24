@@ -34,10 +34,14 @@ export const REDES_SOCIALES_SUGERIDAS = [
 export const BUCKET_PRODUCTOS = 'imagenes-productos'
 
 /**
- * Peso objetivo (KB) al que la Edge Function de resize debe comprimir
- * las imágenes de producto antes de subirlas al bucket.
+ * Las dos versiones de cada imagen de producto que genera el admin antes de
+ * subirla (WebP): lado mayor en px y peso máximo objetivo en KB. La grande va
+ * a la ficha; la miniatura, a tarjetas, carruseles, búsqueda y menú.
  */
-export const IMAGEN_PRODUCTO_PESO_OBJETIVO_KB = {
-  min: 30,
-  max: 50,
+export const IMAGEN_PRODUCTO = {
+  grande: { ladoMaxPx: 1000, pesoMaxKB: 60 },
+  miniatura: { ladoMaxPx: 400, pesoMaxKB: 15 },
 } as const
+
+/** Caché de las imágenes en el navegador y la CDN: un año (cada archivo tiene nombre único). */
+export const IMAGEN_PRODUCTO_CACHE_SEGUNDOS = 31536000
