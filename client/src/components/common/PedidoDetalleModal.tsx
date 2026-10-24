@@ -105,7 +105,7 @@ export default function PedidoDetalleModal({
                       {cargandoImagenes ? (
                         <div className={styles.imagenCargando} aria-hidden="true" />
                       ) : imagen ? (
-                        <img src={imagen} alt={item.nombre_producto} className={styles.imagen} />
+                        <img src={imagen} alt={item.nombre_producto} className={styles.imagen} width={400} height={400} loading="lazy" decoding="async" />
                       ) : (
                         <PlaceholderImagen />
                       )}

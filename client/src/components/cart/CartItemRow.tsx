@@ -15,7 +15,7 @@ export default function CartItemRow({ item, onActualizarCantidad, onEliminar }: 
     <div className={styles.row}>
       <div className={styles.thumb}>
         {item.imagenUrl ? (
-          <img src={item.imagenUrl} alt={item.productoNombre} className={styles.img} />
+          <img src={item.imagenUrl} alt={item.productoNombre} className={styles.img} width={400} height={400} loading="lazy" decoding="async" />
         ) : (
           <div className={styles.sinImg}>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">

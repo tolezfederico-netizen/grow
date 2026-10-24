@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
-import { supabase, mapearPanelCategoria, mapearPanelCategoriaItem, mapearPanelCategoriaItemProducto } from '@shared'
+import { supabase, mapearPanelCategoria, mapearPanelCategoriaItem } from '@shared'
 import type { PanelCategoriaCompleto, ConfiguracionTienda } from '@shared'
-import { mapearConfiguracionTienda } from '@shared'
+import { obtenerConfiguracionTienda } from './useConfiguracionTienda'
 
 function ordenarPaneles(paneles: PanelCategoriaCompleto[]): PanelCategoriaCompleto[] {
   const conOrden = paneles.filter(p => p.orden !== null).sort((a, b) => (a.orden as number) - (b.orden as number))
@@ -37,44 +37,30 @@ function ordenarPaneles(paneles: PanelCategoriaCompleto[]): PanelCategoriaComple
   return resultado.filter(Boolean) as PanelCategoriaCompleto[]
 }
 
-export function usePaneles() {
-  const [paneles, setPaneles] = useState<PanelCategoriaCompleto[]>([])
-  const [config, setConfig] = useState<ConfiguracionTienda | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+// Caché compartida por Header, Footer y ArticulosSidebar: una sola consulta
+// por pestaña y el mismo orden (los paneles sin orden fijo se reparten al azar
+// una única vez). Si falla, se descarta para que el próximo intento reconsulte.
+let pedido: Promise<PanelCategoriaCompleto[]> | null = null
 
-  useEffect(() => {
-    let cancel = false
-
-    async function cargar() {
-      setLoading(true)
-      setError(null)
-
-      const [rPaneles, rConfig] = await Promise.all([
-        supabase
-          .from('paneles_categoria')
-          .select(`
-            id, titulo, descripcion, orden, estado, creado_en,
-            paneles_categoria_items(
-              id, panel_id, categoria_id, nombre_visible, orden, es_card,
-              categorias(nombre),
-              paneles_categoria_items_productos(
-                producto_id, orden,
-                productos(imagen_url)
-              )
+function obtenerPaneles(): Promise<PanelCategoriaCompleto[]> {
+  if (!pedido) {
+    pedido = (async () => {
+      const rPaneles = await supabase
+        .from('paneles_categoria')
+        .select(`
+          id, titulo, descripcion, orden, estado, creado_en,
+          paneles_categoria_items(
+            id, panel_id, categoria_id, nombre_visible, orden, es_card,
+            categorias(nombre),
+            paneles_categoria_items_productos(
+              producto_id, orden,
+              productos(imagen_url, imagen_miniatura_url)
             )
-          `)
-          .eq('estado', 'activo')
-          .order('orden'),
-        supabase.from('configuracion_tienda').select('*').single(),
-      ])
-
-      if (cancel) return
-      if (rPaneles.error) { setError(rPaneles.error.message); setLoading(false); return }
-
-      if (rConfig.data && !rConfig.error) {
-        setConfig(mapearConfiguracionTienda(rConfig.data))
-      }
+          )
+        `)
+        .eq('estado', 'activo')
+        .order('orden')
+      if (rPaneles.error) throw new Error(rPaneles.error.message)
 
       const data = rPaneles.data ?? []
       const completos: PanelCategoriaCompleto[] = data.map(p => {
@@ -104,10 +90,11 @@ export function usePaneles() {
               categoria_nombre: cat?.nombre ?? '',
               productos: rawProductos.map(ip => {
                 const p = ip as Record<string, unknown>
-                const prod = p.productos as { imagen_url?: string | null } | null
+                const prod = p.productos as { imagen_url?: string | null; imagen_miniatura_url?: string | null } | null
                 return {
                   producto_id: p.producto_id as string,
-                  imagen_url: prod?.imagen_url ?? null,
+                  // Las cards del menú son chicas: miniatura si existe, si no la grande
+                  imagen_url: prod?.imagen_miniatura_url ?? prod?.imagen_url ?? null,
                 }
               }),
             }
@@ -115,11 +102,31 @@ export function usePaneles() {
         }
       })
 
-      setPaneles(ordenarPaneles(completos))
-      setLoading(false)
-    }
+      return ordenarPaneles(completos)
+    })()
+    pedido.catch(() => { pedido = null })
+  }
+  return pedido
+}
 
-    cargar()
+export function usePaneles() {
+  const [paneles, setPaneles] = useState<PanelCategoriaCompleto[]>([])
+  const [config, setConfig] = useState<ConfiguracionTienda | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    let cancel = false
+
+    // La configuración es secundaria acá: si falla, el header sigue con los paneles
+    obtenerConfiguracionTienda()
+      .then(c => { if (!cancel) setConfig(c) })
+      .catch(() => {})
+
+    obtenerPaneles()
+      .then(p => { if (!cancel) { setPaneles(p); setLoading(false) } })
+      .catch(err => { if (!cancel) { setError(err instanceof Error ? err.message : 'Error al cargar los paneles'); setLoading(false) } })
+
     return () => { cancel = true }
   }, [])
 

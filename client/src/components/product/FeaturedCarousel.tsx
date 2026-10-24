@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef, useMemo, useLayoutEffect } from 'react'
-import { supabase, mapearProducto, mapearProductoVariante } from '@shared'
+import { supabase, mapearProductoVariante } from '@shared'
 import type { ProductoVariante } from '@shared'
 import { useCart } from '../../context/CartContext'
 import ProductCard from './ProductCard'
@@ -57,19 +57,19 @@ export default function FeaturedCarousel() {
     ;(async () => {
       const { data: rows, error } = await supabase
         .from('productos')
-        .select('*')
+        .select('id, nombre, descripcion, imagen_url, imagen_miniatura_url, tiene_variantes, precio_base, estado')
         .eq('destacado', true)
         .in('estado', ['disponible', 'sin_stock'])
         .order('creado_en', { ascending: false })
       if (error) { console.error('[FeaturedCarousel]', error.message); return }
       if (!rows || rows.length === 0) return
-      const raw = rows.map(mapearProducto)
+      const raw = rows
       const idsConVariantes = raw.filter(r => r.tiene_variantes).map(r => r.id)
       const variantesMap = new Map<string, ProductoVariante[]>()
       if (idsConVariantes.length > 0) {
         const { data: vars } = await supabase
           .from('producto_variantes')
-          .select('*')
+          .select('id, producto_id, nombre_variante, precio, estado')
           .in('producto_id', idsConVariantes)
           .eq('estado', 'disponible')
         for (const v of (vars ?? []).map(mapearProductoVariante)) {
@@ -88,7 +88,8 @@ export default function FeaturedCarousel() {
               id: p.id,
               nombre: p.nombre,
               descripcion: p.descripcion || null,
-              imagenUrl: p.imagen_url || null,
+              // Tarjeta chica: miniatura si existe, si no la grande
+              imagenUrl: p.imagen_miniatura_url || p.imagen_url || null,
               tieneVariantes: p.tiene_variantes,
               precioBase: p.precio_base,
               variantes,

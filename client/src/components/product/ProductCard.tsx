@@ -78,7 +78,7 @@ export default function ProductCard({
     <article className={styles.card}>
       <div className={styles.imgContainer}>
         {imagenUrl ? (
-          <img src={imagenUrl} alt={nombre} className={styles.img} />
+          <img src={imagenUrl} alt={nombre} className={styles.img} width={400} height={400} loading="lazy" decoding="async" />
         ) : (
           <div className={styles.placeholder}>
             <svg className={styles.placeholderIcon} width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">

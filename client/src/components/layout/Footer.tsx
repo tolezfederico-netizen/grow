@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { usePaneles } from "../../hooks/usePaneles";
 import { useSucursales } from "../../hooks/useSucursales";
 import { parseRedSocial, RedSocialIcon } from "../../utils/redesSociales";
-import logo from "../../assets/logo.png";
+import logo from "../../assets/logo.webp";
 import styles from "./Footer.module.css";
 
 export default function Footer() {
@@ -33,6 +33,10 @@ export default function Footer() {
               src={logo}
               alt={config?.nombre_tienda ?? "Grow"}
               className={styles.logoImg}
+              width={506}
+              height={160}
+              loading="lazy"
+              decoding="async"
             />
           </Link>
         </section>

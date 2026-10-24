@@ -52,6 +52,34 @@
   white-space: nowrap;
 }
 
+/* "Ver más": agrega la siguiente página del catálogo (mismo botón que "Ver todos") */
+.verMasWrap {
+  display: flex;
+  justify-content: center;
+  margin-top: 1.25rem;
+}
+
+.verMas {
+  padding: 0.55rem 1.1rem;
+  border: var(--brutal-border);
+  border-radius: 6px;
+  background: var(--color-primary);
+  color: var(--color-secondary);
+  box-shadow: var(--brutal-shadow-sm);
+  font-family: var(--font-ui);
+  font-size: 0.8rem;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.verMas:disabled {
+  border-style: dashed;
+  background: var(--color-background-muted);
+  box-shadow: none;
+  cursor: progress;
+}
+
 .vacio {
   padding: 3rem 1rem;
   text-align: center;

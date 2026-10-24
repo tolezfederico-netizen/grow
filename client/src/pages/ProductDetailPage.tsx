@@ -88,7 +88,7 @@ export default function ProductDetailPage() {
       addItem({
         productoId: producto.id,
         productoNombre: producto.nombre,
-        imagenUrl: producto.imagen_url,
+        imagenUrl: producto.imagen_miniatura_url,
         varianteId: variante.id,
         varianteNombre: variante.nombre_variante,
         cantidad,
@@ -98,7 +98,7 @@ export default function ProductDetailPage() {
       addItem({
         productoId: producto.id,
         productoNombre: producto.nombre,
-        imagenUrl: producto.imagen_url,
+        imagenUrl: producto.imagen_miniatura_url,
         varianteId: null,
         varianteNombre: null,
         cantidad,
@@ -155,7 +155,7 @@ export default function ProductDetailPage() {
           <div className={styles.cardColumn}>
             <div className={styles.imgContainer}>
               {producto.imagen_url ? (
-                <img src={producto.imagen_url} alt={producto.nombre} className={styles.img} />
+                <img src={producto.imagen_url} alt={producto.nombre} className={styles.img} width={1000} height={1000} decoding="async" />
               ) : (
                 <div className={styles.placeholder}>
                   <svg className={styles.placeholderIcon} width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">

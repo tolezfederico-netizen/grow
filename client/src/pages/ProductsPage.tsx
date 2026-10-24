@@ -16,11 +16,18 @@ interface ProductoRow {
   nombre: string
   descripcion: string | null
   imagen_url: string | null
+  imagen_miniatura_url: string | null
   tiene_variantes: boolean
   precio_base: number | null
-  creado_en: string
   estado: string
 }
+
+// Solo las columnas que usa la tarjeta (sin especificaciones, que es texto largo)
+const COLUMNAS_TARJETA = 'id, nombre, descripcion, imagen_url, imagen_miniatura_url, tiene_variantes, precio_base, estado'
+const COLUMNAS_VARIANTE = 'id, producto_id, nombre_variante, precio, estado'
+
+/** Productos por página: con "Ver más" se agregan de a esta cantidad. */
+const POR_PAGINA = 24
 
 interface ProductoConDatos {
   id: string
@@ -41,6 +48,9 @@ export default function ProductsPage() {
   const [productos, setProductos] = useState<ProductoConDatos[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [total, setTotal] = useState(0)
+  const [cargandoMas, setCargandoMas] = useState(false)
+  const [filtroIds, setFiltroIds] = useState<string[] | undefined>(undefined)
   const [busqueda, setBusqueda] = useState(searchParams.get('buscar') ?? '')
   const { addItem } = useCart()
 
@@ -79,7 +89,7 @@ export default function ProductsPage() {
     } else if (categoriaActual) {
       const { data: rels } = await supabase
         .from('producto_categorias')
-        .select('*')
+        .select('producto_id')
         .eq('categoria_id', categoriaActual)
       idsFiltro = (rels ?? []).map(r => r.producto_id)
       if (!idsFiltro || idsFiltro.length === 0) {
@@ -89,21 +99,44 @@ export default function ProductsPage() {
       }
     }
 
-    let query = supabase.from('productos').select('*').in('estado', ['disponible', 'sin_stock'])
+    setFiltroIds(idsFiltro)
+    const pagina = await cargarPagina(0, idsFiltro)
+    if ('error' in pagina) { setError(pagina.error); setLoading(false); return }
+
+    setProductos(pagina.productos)
+    setTotal(pagina.total)
+    setLoading(false)
+  }, [categoriaActual, panelId, busqueda])
+
+  /**
+   * Trae una página del catálogo (orden fijo: más nuevos primero, id para
+   * desempatar) con sus variantes disponibles y el total de resultados.
+   */
+  async function cargarPagina(
+    desde: number,
+    idsFiltro: string[] | undefined,
+  ): Promise<{ error: string } | { productos: ProductoConDatos[]; total: number }> {
+    let query = supabase
+      .from('productos')
+      .select(COLUMNAS_TARJETA, { count: 'exact' })
+      .in('estado', ['disponible', 'sin_stock'])
+      .order('creado_en', { ascending: false })
+      .order('id')
+      .range(desde, desde + POR_PAGINA - 1)
     if (idsFiltro) query = query.in('id', idsFiltro)
     if (busqueda) query = query.ilike('nombre', `%${busqueda}%`)
-    const { data: rows, error: errProds } = await query
-    if (errProds) { setError(errProds.message); setLoading(false); return }
+    const { data: rows, count, error: errProds } = await query
+    if (errProds) return { error: errProds.message }
 
     const raw = (rows ?? []) as ProductoRow[]
 
     const idsConVariantes = raw.filter(r => r.tiene_variantes).map(r => r.id)
 
-    let variantesMap = new Map<string, ProductoVariante[]>()
+    const variantesMap = new Map<string, ProductoVariante[]>()
     if (idsConVariantes.length > 0) {
       const { data: vars } = await supabase
         .from('producto_variantes')
-        .select('*')
+        .select(COLUMNAS_VARIANTE)
         .in('producto_id', idsConVariantes)
         .eq('estado', 'disponible')
       for (const v of (vars ?? []).map(mapearProductoVariante)) {
@@ -121,7 +154,8 @@ export default function ProductsPage() {
         id: r.id,
         nombre: r.nombre,
         descripcion: r.descripcion,
-        imagenUrl: r.imagen_url,
+        // Tarjeta chica: miniatura si existe, si no la grande
+        imagenUrl: r.imagen_miniatura_url ?? r.imagen_url,
         tieneVariantes: r.tiene_variantes,
         precioBase: r.precio_base,
         variantes,
@@ -130,9 +164,19 @@ export default function ProductsPage() {
       }
     })
 
-    setProductos(completos)
-    setLoading(false)
-  }, [categoriaActual, panelId, busqueda])
+    return { productos: completos, total: count ?? completos.length }
+  }
+
+  async function verMas() {
+    setCargandoMas(true)
+    const pagina = await cargarPagina(productos.length, filtroIds)
+    if ('error' in pagina) setError(pagina.error)
+    else {
+      setProductos(prev => [...prev, ...pagina.productos])
+      setTotal(pagina.total)
+    }
+    setCargandoMas(false)
+  }
 
   useEffect(() => { cargar() }, [cargar])
 
@@ -175,6 +219,14 @@ export default function ProductsPage() {
                     onAddToCart={addItem}
                   />
                 ))}
+              </div>
+            )}
+
+            {productos.length > 0 && productos.length < total && (
+              <div className={styles.verMasWrap}>
+                <button type="button" className={styles.verMas} onClick={verMas} disabled={cargandoMas}>
+                  {cargandoMas ? 'Cargando…' : `Ver más (${total - productos.length})`}
+                </button>
               </div>
             )}
           </div>

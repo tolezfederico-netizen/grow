@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import type { ConfiguracionTienda } from "@shared";
 import { useSucursales } from "../../hooks/useSucursales";
 import { parseRedSocial, RedSocialIcon } from "../../utils/redesSociales";
-import logo from "../../assets/logo.png";
+import logo from "../../assets/logo.webp";
 import styles from "./Banner.module.css";
 
 interface Props {
@@ -70,7 +70,7 @@ export default function Banner({ configuracionTienda: c }: Props) {
                 referrerPolicy="no-referrer-when-downgrade"
               />
             )}
-            <img src={logo} alt={c.nombre_tienda} className={styles.mapLogo} />
+            <img src={logo} alt={c.nombre_tienda} className={styles.mapLogo} width={506} height={160} loading="lazy" decoding="async" />
           </div>
 
           <div className={`${styles.panel} ${styles.panelLocal}`}>

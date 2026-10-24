@@ -83,7 +83,7 @@ export default function MiCuentaPage() {
     try {
       const { data, error } = await supabase
         .from("productos")
-        .select("id, imagen_url")
+        .select("id, imagen_url, imagen_miniatura_url")
         .in("id", idsAPedir);
 
       if (!montado.current) return;
@@ -94,7 +94,7 @@ export default function MiCuentaPage() {
 
         if (!error) {
           for (const row of data ?? []) {
-            next[row.id] = row.imagen_url ?? null;
+            next[row.id] = row.imagen_miniatura_url ?? row.imagen_url ?? null;
           }
         }
 

@@ -7,7 +7,7 @@ import { useSucursales } from "../../hooks/useSucursales";
 import type { ConfiguracionTienda, PanelCategoriaCompleto } from "@shared";
 import { formatPrecio, supabase } from "@shared";
 import { parseRedSocial, RedSocialIcon } from "../../utils/redesSociales";
-import logo from "../../assets/logo.png";
+import logo from "../../assets/logo.webp";
 import styles from "./HeaderTop.module.css";
 
 interface Props {
@@ -276,7 +276,7 @@ export default function HeaderTop({
     const timer = setTimeout(async () => {
       const { data } = await supabase
         .from("productos")
-        .select("id, nombre, imagen_url, precio_base, tiene_variantes")
+        .select("id, nombre, imagen_url, imagen_miniatura_url, precio_base, tiene_variantes")
         .in("estado", ["disponible", "sin_stock"])
         .ilike("nombre", `%${busqueda.trim()}%`)
         .limit(4);
@@ -322,6 +322,8 @@ export default function HeaderTop({
 
       const completo = data.map((p) => ({
         ...p,
+        // Resultados chicos: miniatura si existe, si no la grande
+        imagen_url: p.imagen_miniatura_url ?? p.imagen_url,
         precioMinimo:
           conPrecioMinimo.find((c) => c.id === p.id)?.precioMinimo ?? null,
       }));
@@ -451,7 +453,7 @@ export default function HeaderTop({
         }}
       >
         {r.imagen_url ? (
-          <img src={r.imagen_url} alt={r.nombre} className={styles.resultImg} />
+          <img src={r.imagen_url} alt={r.nombre} className={styles.resultImg} width={400} height={400} loading="lazy" decoding="async" />
         ) : (
           <div className={styles.resultImg} />
         )}
@@ -501,6 +503,8 @@ export default function HeaderTop({
           src={logo}
           alt={config?.nombre_tienda ?? "Grow"}
           className={styles.logoImg}
+          width={506}
+          height={160}
         />
       </Link>
 
