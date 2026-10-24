@@ -130,14 +130,14 @@ export default function DashboardPage() {
       <div className={styles.columnas}>
         <section className={styles.bloque}>
           <div className={styles.bloqueHeader}>
-            <h2 className={styles.bloqueTitulo}>Últimos pedidos</h2>
+            <h2 className={styles.bloqueTitulo}>Últimas reservas</h2>
             <div className={styles.bloqueAcciones}>
               <button className={styles.boton} onClick={cargar}>↻ Actualizar</button>
               <Link to="/pedidos" className={styles.boton}>Ver todos</Link>
             </div>
           </div>
           {ultimos.length === 0 ? (
-            <p className={styles.vacio}>No hay pedidos todavía.</p>
+            <p className={styles.vacio}>No hay reservas todavía.</p>
           ) : (
             <div className={styles.lista}>
               {ultimos.map(p => (
@@ -159,12 +159,12 @@ export default function DashboardPage() {
         <div className={styles.columnaDerecha}>
           <section className={styles.bloque}>
             <div className={styles.bloqueHeader}>
-              <h2 className={styles.bloqueTitulo}>Pedidos de los últimos 7 días</h2>
+              <h2 className={styles.bloqueTitulo}>Reservas de los últimos 7 días</h2>
               <span className={styles.totalSemana}>{totalSemana} en total</span>
             </div>
             <div className={styles.grafico} role="img" aria-label={semana.map(d => `${d.etiqueta}: ${d.cantidad}`).join(', ')}>
               {semana.map((d, i) => (
-                <div key={i} className={styles.dia} title={`${d.etiqueta}: ${d.cantidad} pedido${d.cantidad !== 1 ? 's' : ''}`}>
+                <div key={i} className={styles.dia} title={`${d.etiqueta}: ${d.cantidad} reserva${d.cantidad !== 1 ? 's' : ''}`}>
                   <span className={styles.diaValor}>{d.cantidad}</span>
                   <div className={styles.diaPista}>
                     {d.cantidad > 0 && (

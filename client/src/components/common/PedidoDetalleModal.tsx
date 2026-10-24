@@ -72,7 +72,7 @@ export default function PedidoDetalleModal({
       >
         <header className={styles.header}>
           <div>
-            <p className={styles.subtitulo}>Pedido</p>
+            <p className={styles.subtitulo}>Reserva</p>
             <h2 id="pedido-detalle-titulo" className={styles.titulo}>
               {new Date(pedido.creado_en).toLocaleDateString()}
             </h2>
@@ -90,7 +90,7 @@ export default function PedidoDetalleModal({
 
         <div className={styles.contenido}>
           {items.length === 0 ? (
-            <p className={styles.vacio}>Este pedido no tiene items para mostrar.</p>
+            <p className={styles.vacio}>Esta reserva no tiene productos para mostrar.</p>
           ) : (
             <ul className={styles.lista}>
               {items.map(item => {

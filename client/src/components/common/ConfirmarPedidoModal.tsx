@@ -57,7 +57,7 @@ export default function ConfirmarPedidoModal({
         <header className={styles.header}>
           <div>
             <p className={styles.kicker}>Antes de continuar</p>
-            <h2 id="confirmar-pedido-titulo" className={styles.titulo}>Confirmá tu pedido</h2>
+            <h2 id="confirmar-pedido-titulo" className={styles.titulo}>Confirmá tu reserva</h2>
           </div>
           {!enviando && (
             <button type="button" className={styles.cerrar} onClick={onCancelar} aria-label="Cerrar modal">
@@ -99,7 +99,7 @@ export default function ConfirmarPedidoModal({
             Cancelar
           </button>
           <button type="button" className={styles.botonPrimario} onClick={onConfirmar} disabled={enviando}>
-            {enviando ? 'Enviando…' : 'Confirmar pedido'}
+            {enviando ? 'Enviando…' : 'Confirmar reserva'}
           </button>
         </footer>
       </section>

@@ -300,7 +300,7 @@ export default function MiCuentaPage() {
         <div className={styles.content}>
           <h1 className={styles.title}>Mi cuenta</h1>
           <p className={styles.text}>
-            Mantené tu perfil al día y revisá tu historial de pedidos.
+            Mantené tu perfil al día y revisá tu historial de reservas.
           </p>
 
           <div className={styles.columnas}>
@@ -437,7 +437,7 @@ export default function MiCuentaPage() {
             </section>
 
             <section className={styles.seccion}>
-              <h2 className={styles.seccionTitulo}>Historial de pedidos</h2>
+              <h2 className={styles.seccionTitulo}>Historial de reservas</h2>
               {cargandoPedidos ? (
                 <div className={styles.loadingBox}>Cargando…</div>
               ) : errorPedidos ? (
@@ -445,7 +445,7 @@ export default function MiCuentaPage() {
               ) : pedidos.length === 0 ? (
                 <div className={styles.emptyBox}>
                   <p className={styles.emptyTexto}>
-                    Todavía no hiciste ningún pedido.
+                    Todavía no hiciste ninguna reserva.
                   </p>
                   <Link to="/productos" className={styles.emptyLink}>
                     Ver productos

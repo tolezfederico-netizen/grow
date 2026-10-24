@@ -57,7 +57,7 @@ export default function LoginPage() {
       <main className={styles.page}>
         <div className={styles.card}>
           <h1 className={styles.title}>Iniciar sesión</h1>
-          <p className={styles.text}>Accedé para ver tu perfil y seguir comprando más rápido.</p>
+          <p className={styles.text}>Accedé para ver tu perfil y reservar más rápido.</p>
 
           <form className={styles.form} onSubmit={handleSubmit}>
             <div className={styles.inputWrapper}>

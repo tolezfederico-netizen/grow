@@ -20,7 +20,7 @@ export default function NotificarPedidoModal({
   const [whatsapp, setWhatsapp] = useState(true)
   const [email, setEmail] = useState(true)
 
-  const tituloEstado = estadoDestino === 'confirmado' ? 'Confirmado' : 'Listo para retirar'
+  const tituloEstado = estadoDestino === 'confirmado' ? 'Confirmada' : 'Lista para retirar'
 
   return (
     <div className={styles.overlay} onClick={onCancelar}>

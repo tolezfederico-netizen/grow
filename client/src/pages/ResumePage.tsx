@@ -142,7 +142,7 @@ export default function ResumePage() {
       setErrorGeneral(
         error?.code === "P0001"
           ? error.message
-          : "Error al crear el pedido. Intentá de nuevo.",
+          : "No pudimos registrar la reserva. Intentá de nuevo.",
       );
       setEnviando(false);
       return;
@@ -162,10 +162,10 @@ export default function ResumePage() {
       <div className={styles.wrapper}>
         <div className={styles.page}>
           <div className={styles.confirmacion}>
-            <h2>¡Pedido recibido!</h2>
+            <h2>¡Reserva recibida!</h2>
             <p>Te vamos a contactar a la brevedad para coordinar el retiro.</p>
             <Link to="/productos" className={styles.botonSeguirComprando}>
-              Seguir comprando
+              Seguir viendo productos
             </Link>
           </div>
         </div>
@@ -197,7 +197,7 @@ export default function ResumePage() {
               <circle cx="20" cy="21" r="1" />
               <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
             </svg>
-            <p className={styles.vacio}>El carrito de compras está vacío.</p>
+            <p className={styles.vacio}>Tu carrito está vacío.</p>
             <Link to="/productos" className={styles.botonVacio}>
               Ver productos
             </Link>
@@ -214,7 +214,7 @@ export default function ResumePage() {
   return (
     <div className={styles.wrapper}>
       <div className={styles.page}>
-        <h2 className={styles.titulo}>Resumen del pedido</h2>
+        <h2 className={styles.titulo}>Resumen de la reserva</h2>
 
         <div className={styles.layout}>
           <div>
@@ -240,7 +240,7 @@ export default function ResumePage() {
               <p className={styles.resumenCompactoTexto}>
                 {items.reduce((s, i) => s + i.cantidad, 0)} producto
                 {items.reduce((s, i) => s + i.cantidad, 0) !== 1 ? "s" : ""} en
-                tu pedido
+                tu reserva
               </p>
               <p className={styles.avisoRetiro}>
                 Solo retiro en nuestros locales — no realizamos envíos
@@ -266,7 +266,7 @@ export default function ResumePage() {
                 </svg>
               </span>
               Revisá bien tus datos de contacto: los usaremos para comunicarnos
-              con vos y avisarte sobre el estado de tu pedido.
+              con vos y avisarte sobre el estado de tu reserva.
             </p>
 
             <div className={styles.form}>
@@ -387,7 +387,7 @@ export default function ResumePage() {
               disabled={enviando}
               onClick={handleAbrirConfirmacion}
             >
-              {enviando ? "Enviando…" : "Confirmar pedido"}
+              {enviando ? "Enviando…" : "Confirmar reserva"}
             </button>
           </div>
         </div>

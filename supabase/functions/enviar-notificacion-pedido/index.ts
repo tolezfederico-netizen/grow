@@ -76,8 +76,8 @@ function armarHtmlEmail(datos: {
   total: number
 }): string {
   const saludo = datos.estado === 'confirmado'
-    ? 'Tu pedido fue confirmado'
-    : 'Tu pedido ya está listo para retirar'
+    ? 'Tu reserva fue confirmada'
+    : 'Tu reserva ya está lista para retirar'
 
   const cierre = datos.estado === 'confirmado'
     ? 'Te contactamos pronto para coordinar el retiro.'
@@ -114,7 +114,7 @@ function armarHtmlEmail(datos: {
 
         <p>${cierre}</p>
         <hr />
-        <p style="color: #6b7280; font-size: 0.875rem;">${escaparHtml(datos.nombreTienda)} — Gracias por tu compra</p>
+        <p style="color: #6b7280; font-size: 0.875rem;">${escaparHtml(datos.nombreTienda)} — Gracias por tu reserva</p>
       `
 }
 
@@ -213,7 +213,7 @@ Deno.serve(async req => {
     body: JSON.stringify({
       from: nombreTienda ? `${nombreTienda} <${RESEND_FROM}>` : RESEND_FROM,
       to: [pedido.cliente_email],
-      subject: `Pedido ${pedido.estado.replace(/_/g, ' ')} — #${pedido.id.slice(0, 8)}`,
+      subject: `${body.estado === 'confirmado' ? 'Reserva confirmada' : 'Reserva lista para retirar'} — #${pedido.id.slice(0, 8)}`,
       html: armarHtmlEmail({
         clienteNombre: pedido.cliente_nombre,
         nombreTienda,

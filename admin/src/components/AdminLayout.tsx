@@ -37,7 +37,7 @@ const SECCIONES: { ruta: string; texto: string; icono: React.ReactNode }[] = [
   },
   {
     ruta: "/pedidos",
-    texto: "Pedidos",
+    texto: "Reservas",
     icono: (
       <Icono>
         <path d="M6 2h12v20l-3-2-3 2-3-2-3 2z" />

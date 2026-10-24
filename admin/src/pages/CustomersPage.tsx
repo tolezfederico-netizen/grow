@@ -173,10 +173,10 @@ function DetalleCliente({ cliente, pedidos, onCerrar, onCopiar }: DetalleProps) 
           </div>
 
           <p className={styles.seccionTitulo}>
-            Pedidos ({pedidos.length})
+            Reservas ({pedidos.length})
           </p>
           {pedidos.length === 0 ? (
-            <p className={styles.vacioDetalle}>Todavía no hizo pedidos.</p>
+            <p className={styles.vacioDetalle}>Todavía no hizo reservas.</p>
           ) : (
             <div className={styles.pedidosLista}>
               {pedidos.map((p) => (
@@ -355,7 +355,7 @@ export default function CustomersPage() {
 
   const ordenes: { valor: OrdenClientes; texto: string }[] = [
     { valor: "recientes", texto: "Recientes" },
-    { valor: "pedidos", texto: "Más pedidos" },
+    { valor: "pedidos", texto: "Más reservas" },
     { valor: "nombre", texto: "Nombre A–Z" },
   ];
 
@@ -449,14 +449,14 @@ export default function CustomersPage() {
                   </span>
                   <span className={styles.cardPie}>
                     {ultimo
-                      ? `Último pedido ${haceCuanto(ultimo.creado_en)}`
+                      ? `Última reserva ${haceCuanto(ultimo.creado_en)}`
                       : `Registrado ${haceCuanto(cliente.creado_en)}`}
                   </span>
                 </span>
                 <span
                   className={`${styles.badgePedidos} ${suyos.length === 0 ? styles.badgeSinPedidos : ""}`}
                 >
-                  {suyos.length} pedido{suyos.length !== 1 ? "s" : ""}
+                  {suyos.length} reserva{suyos.length !== 1 ? "s" : ""}
                 </span>
               </button>
             );

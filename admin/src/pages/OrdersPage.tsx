@@ -244,8 +244,8 @@ export default function OrdersPage() {
     }
     if (nuevo === "cancelado") {
       const confirmado = await confirm(
-        "¿Cancelar este pedido? Esta acción no se puede deshacer desde acá.",
-        { titulo: "Cancelar pedido", textoConfirmar: "Cancelar pedido" },
+        "¿Cancelar esta reserva? Esta acción no se puede deshacer desde acá.",
+        { titulo: "Cancelar reserva", textoConfirmar: "Cancelar reserva" },
       );
       if (!confirmado) return;
     }
@@ -259,8 +259,8 @@ export default function OrdersPage() {
     }
     toast(
       nuevo === "completado"
-        ? "Pedido marcado como completado."
-        : "Pedido cancelado.",
+        ? "Reserva marcada como retirada."
+        : "Reserva cancelada.",
     );
     cargar();
   }
@@ -294,8 +294,8 @@ export default function OrdersPage() {
 
       const encabezado =
         estadoDestino === "confirmado"
-          ? `Hola ${pedido.cliente_nombre}, tu pedido fue confirmado ✅`
-          : `Hola ${pedido.cliente_nombre}, tu pedido ya está listo para retirar 📦`;
+          ? `Hola ${pedido.cliente_nombre}, tu reserva fue confirmada ✅`
+          : `Hola ${pedido.cliente_nombre}, tu reserva ya está lista para retirar 📦`;
 
       const cierre =
         estadoDestino === "confirmado"
@@ -328,9 +328,9 @@ export default function OrdersPage() {
       );
       if (fnErr) {
         const label =
-          estadoDestino === "confirmado" ? "confirmó" : "marcó como listo";
+          estadoDestino === "confirmado" ? "confirmó" : "marcó como lista";
         await notify(
-          `El pedido se ${label} pero el email no pudo enviarse: ${fnErr.message}`,
+          `La reserva se ${label} pero el email no pudo enviarse: ${fnErr.message}`,
           { titulo: "Error de notificación" },
         );
       }
@@ -338,18 +338,18 @@ export default function OrdersPage() {
 
     toast(
       estadoDestino === "confirmado"
-        ? "Pedido confirmado."
-        : "Pedido marcado como listo para retirar.",
+        ? "Reserva confirmada."
+        : "Reserva marcada como lista para retirar.",
     );
     cargar();
   }
 
   async function toggleEliminado(pedidoId: string, actual: boolean) {
     const mensaje = actual
-      ? "¿Restaurar este pedido? Volverá a aparecer en el listado normal."
-      : '¿Eliminar este pedido? Podés restaurarlo después activando "Mostrar eliminados".';
+      ? "¿Restaurar esta reserva? Volverá a aparecer en el listado normal."
+      : '¿Eliminar esta reserva? Podés restaurarla después activando "Mostrar eliminados".';
     const confirmado = await confirm(mensaje, {
-      titulo: actual ? "Restaurar pedido" : "Eliminar pedido",
+      titulo: actual ? "Restaurar reserva" : "Eliminar reserva",
       textoConfirmar: actual ? "Restaurar" : "Eliminar",
     });
     if (!confirmado) return;
@@ -361,7 +361,7 @@ export default function OrdersPage() {
       await notify(err.message, { titulo: "Error" });
       return;
     }
-    toast(actual ? "Pedido restaurado." : "Pedido eliminado.");
+    toast(actual ? "Reserva restaurada." : "Reserva eliminada.");
     cargar();
   }
 
@@ -395,7 +395,7 @@ export default function OrdersPage() {
             className={styles.selectOrden}
             value={orden}
             onChange={(e) => setOrden(e.target.value as OrdenPedidos)}
-            aria-label="Ordenar pedidos"
+            aria-label="Ordenar reservas"
           >
             <option value="recientes">Más recientes</option>
             <option value="antiguos">Más antiguos</option>
@@ -455,10 +455,10 @@ export default function OrdersPage() {
             <polyline points="22 12 16 12 14 15 10 15 8 12 2 12" />
             <path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z" />
           </svg>
-          <p className={styles.vacio}>No hay pedidos.</p>
+          <p className={styles.vacio}>No hay reservas.</p>
           {filtro !== "" && (
             <p className={styles.vacioSecundario}>
-              No hay pedidos con el estado «{formatEstadoPedido(filtro)}».
+              No hay reservas con el estado «{formatEstadoPedido(filtro)}».
               <button
                 className={styles.btnVerTodos}
                 onClick={() => setFiltro("")}
@@ -671,7 +671,7 @@ export default function OrdersPage() {
                               <polyline points="1 4 1 10 7 10" />
                               <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" />
                             </svg>
-                            Restaurar pedido
+                            Restaurar reserva
                           </>
                         ) : (
                           <>
@@ -691,7 +691,7 @@ export default function OrdersPage() {
                               <line x1="10" y1="11" x2="10" y2="17" />
                               <line x1="14" y1="11" x2="14" y2="17" />
                             </svg>
-                            Eliminar pedido
+                            Eliminar reserva
                           </>
                         )}
                       </button>
@@ -710,14 +710,14 @@ export default function OrdersPage() {
       <div className={styles.pieListado}>
         <p>
           {verAntiguos
-            ? "Se muestran todos los pedidos."
-            : `Se muestran los pedidos de los últimos ${DIAS_VISIBLES} días y los que siguen abiertos.`}
+            ? "Se muestran todas las reservas."
+            : `Se muestran las reservas de los últimos ${DIAS_VISIBLES} días y las que siguen abiertas.`}
         </p>
         <button
           className={styles.btnVerTodos}
           onClick={() => setVerAntiguos((v) => !v)}
         >
-          {verAntiguos ? "Ocultar pedidos antiguos" : "Ver pedidos más antiguos"}
+          {verAntiguos ? "Ocultar reservas antiguas" : "Ver reservas más antiguas"}
         </button>
       </div>
 

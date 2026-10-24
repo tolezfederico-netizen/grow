@@ -77,7 +77,7 @@ export default function RegisterPage() {
       <main className={styles.page}>
         <div className={styles.card}>
           <h1 className={styles.title}>Crear cuenta</h1>
-          <p className={styles.text}>Guardá tus datos para acelerar futuras compras.</p>
+          <p className={styles.text}>Guardá tus datos para reservar más rápido la próxima vez.</p>
 
           {exito ? (
             <div className={styles.exitoBox}>
