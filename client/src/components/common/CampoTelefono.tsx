@@ -1,3 +1,4 @@
+import { useId } from 'react'
 import { TELEFONO_AR_AYUDA } from '@shared'
 import styles from './CampoTelefono.module.css'
 
@@ -14,6 +15,9 @@ interface Props {
 }
 
 export default function CampoTelefono({ idArea, area, numero, onCambiarArea, onCambiarNumero, error }: Props) {
+  // La ayuda o el error quedan asociados a los dos campos para lectores de pantalla
+  const idMensaje = useId()
+
   return (
     <div>
       <div className={styles.fila}>
@@ -32,6 +36,8 @@ export default function CampoTelefono({ idArea, area, numero, onCambiarArea, onC
             inputMode="numeric"
             autoComplete="tel-area-code"
             maxLength={5}
+            aria-invalid={error ? true : undefined}
+            aria-describedby={idMensaje}
             value={area}
             onChange={e => onCambiarArea(e.target.value.replace(/\D/g, ''))}
           />
@@ -45,12 +51,18 @@ export default function CampoTelefono({ idArea, area, numero, onCambiarArea, onC
             inputMode="numeric"
             autoComplete="tel-local"
             maxLength={10}
+            aria-invalid={error ? true : undefined}
+            aria-describedby={idMensaje}
             value={numero}
             onChange={e => onCambiarNumero(e.target.value.replace(/\D/g, ''))}
           />
         </div>
       </div>
-      {error ? <p className={styles.error}>{error}</p> : <p className={styles.ayuda}>{TELEFONO_AR_AYUDA}</p>}
+      {error ? (
+        <p id={idMensaje} className={styles.error} role="alert">{error}</p>
+      ) : (
+        <p id={idMensaje} className={styles.ayuda}>{TELEFONO_AR_AYUDA}</p>
+      )}
     </div>
   )
 }

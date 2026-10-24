@@ -3,9 +3,11 @@
 --
 -- Para una instancia que YA tiene datos. Correr en el SQL Editor de Supabase.
 --
--- ORDEN IMPORTANTE: primero desplegar la tienda y el admin nuevos, después
--- correr esta migración. La tienda nueva manda 549… y la RPC vieja lo acepta;
--- al revés, la tienda vieja manda 10 dígitos y la RPC nueva los rechazaría.
+-- ORDEN: conviene correrla después de desplegar la tienda y el admin nuevos
+-- (el admin viejo antepone 54 a los teléfonos y armaría links de WhatsApp
+-- incorrectos con los ya normalizados). La RPC nueva acepta también los 10
+-- dígitos que manda la tienda vieja y los completa con 549, así que el orden
+-- no rompe reservas.
 --
 -- 1. Normaliza los teléfonos existentes a 549 + área + número (pedidos,
 --    clientes y configuracion_tienda). Los que no se pueden normalizar (por
@@ -89,14 +91,19 @@ DECLARE
   v_nombre_variante text;
   v_items_validados jsonb := '[]'::jsonb;
   v_nombre text := btrim(coalesce(p_cliente_nombre, ''));
-  v_telefono text := btrim(coalesce(p_cliente_telefono, ''));
+  v_telefono text := regexp_replace(coalesce(p_cliente_telefono, ''), '[^0-9]', '', 'g');
   v_email text := lower(btrim(coalesce(p_cliente_email, '')));
 BEGIN
   -- 1. Datos de contacto
   IF char_length(v_nombre) NOT BETWEEN 3 AND 120 THEN
     RAISE EXCEPTION 'Nombre inválido.';
   END IF;
-  -- Formato internacional argentino: 549 + código de área + número (13 dígitos)
+  -- Formato internacional argentino: 549 + código de área + número (13 dígitos).
+  -- Compatibilidad: una tienda anterior a la normalización manda área + número
+  -- (10 dígitos); se completa con 549 en lugar de rechazar la reserva.
+  IF v_telefono ~ '^[0-9]{10}$' AND v_telefono !~ '^(0|15)' THEN
+    v_telefono := '549' || v_telefono;
+  END IF;
   IF v_telefono !~ '^549[0-9]{10}$' THEN
     RAISE EXCEPTION 'Teléfono inválido: ingresá código de área sin 0 y número sin 15.';
   END IF;

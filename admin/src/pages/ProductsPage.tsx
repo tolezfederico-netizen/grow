@@ -6,6 +6,7 @@ import {
   mapearProductoVariante,
   rutaEnBucket,
   BUCKET_PRODUCTOS,
+  SUPABASE_URL,
 } from "@shared";
 import type { Categoria, ProductoCategoria, ProductoVariante } from "@shared";
 import ProductForm from "../components/ProductForm";
@@ -188,7 +189,7 @@ export default function ProductsPage() {
     // producto igual quedó eliminado; el archivo queda huérfano y se avisa en consola.
     const rutas = (borrados ?? [])
       .flatMap((p) => [p.imagen_url, p.imagen_miniatura_url])
-      .map((url) => rutaEnBucket(url, BUCKET_PRODUCTOS))
+      .map((url) => rutaEnBucket(url, BUCKET_PRODUCTOS, SUPABASE_URL))
       .filter((r): r is string => !!r);
     if (rutas.length > 0) {
       const { error: errImg } = await supabase.storage

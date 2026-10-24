@@ -27,4 +27,7 @@ if (!supabaseAnonKey) {
   );
 }
 
+/** URL del proyecto de Supabase de esta instancia (para validar URLs propias). */
+export const SUPABASE_URL: string = supabaseUrl;
+
 export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey);

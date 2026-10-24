@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useRef } from 'react'
 
 import { supabase, mapearProductoVariante } from '@shared'
 import type { ProductoVariante } from '@shared'
@@ -51,6 +51,10 @@ export default function ProductsPage() {
   const [total, setTotal] = useState(0)
   const [cargandoMas, setCargandoMas] = useState(false)
   const [filtroIds, setFiltroIds] = useState<string[] | undefined>(undefined)
+  // Cada carga del catálogo (cambio de filtro o búsqueda) incrementa este
+  // número; una respuesta que llega con un número viejo se descarta, así una
+  // página pedida con otro filtro no se mezcla con la lista nueva.
+  const consultaActual = useRef(0)
   const [busqueda, setBusqueda] = useState(searchParams.get('buscar') ?? '')
   const { addItem } = useCart()
 
@@ -59,6 +63,8 @@ export default function ProductsPage() {
   }, [categoriaId])
 
   const cargar = useCallback(async () => {
+    const consulta = ++consultaActual.current
+    const vigente = () => consulta === consultaActual.current
     setLoading(true)
     setError(null)
 
@@ -77,11 +83,13 @@ export default function ProductsPage() {
           .in('categoria_id', catIds)
         idsFiltro = [...new Set((rels ?? []).map(r => r.producto_id))]
         if (idsFiltro.length === 0) {
+          if (!vigente()) return
           setProductos([])
           setLoading(false)
           return
         }
       } else {
+        if (!vigente()) return
         setProductos([])
         setLoading(false)
         return
@@ -93,14 +101,17 @@ export default function ProductsPage() {
         .eq('categoria_id', categoriaActual)
       idsFiltro = (rels ?? []).map(r => r.producto_id)
       if (!idsFiltro || idsFiltro.length === 0) {
+        if (!vigente()) return
         setProductos([])
         setLoading(false)
         return
       }
     }
 
+    if (!vigente()) return
     setFiltroIds(idsFiltro)
     const pagina = await cargarPagina(0, idsFiltro)
+    if (!vigente()) return
     if ('error' in pagina) { setError(pagina.error); setLoading(false); return }
 
     setProductos(pagina.productos)
@@ -168,14 +179,21 @@ export default function ProductsPage() {
   }
 
   async function verMas() {
+    const consulta = consultaActual.current
     setCargandoMas(true)
     const pagina = await cargarPagina(productos.length, filtroIds)
+    setCargandoMas(false)
+    // Si mientras tanto cambió el filtro, esta página ya no corresponde
+    if (consulta !== consultaActual.current) return
     if ('error' in pagina) setError(pagina.error)
     else {
-      setProductos(prev => [...prev, ...pagina.productos])
+      // Sin duplicados por si el catálogo cambió entre una página y otra
+      setProductos(prev => {
+        const vistos = new Set(prev.map(p => p.id))
+        return [...prev, ...pagina.productos.filter(p => !vistos.has(p.id))]
+      })
       setTotal(pagina.total)
     }
-    setCargandoMas(false)
   }
 
   useEffect(() => { cargar() }, [cargar])

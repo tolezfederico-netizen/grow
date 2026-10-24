@@ -1,5 +1,5 @@
 import { useState, useEffect, type FormEvent } from 'react'
-import { supabase, BUCKET_PRODUCTOS, IMAGEN_PRODUCTO, IMAGEN_PRODUCTO_CACHE_SEGUNDOS, rutaEnBucket } from '@shared'
+import { supabase, SUPABASE_URL, BUCKET_PRODUCTOS, IMAGEN_PRODUCTO, IMAGEN_PRODUCTO_CACHE_SEGUNDOS, rutaEnBucket } from '@shared'
 import type { Categoria } from '@shared'
 import { comprimirImagen } from '../utils/comprimirImagen'
 import styles from './ProductForm.module.css'
@@ -108,6 +108,11 @@ export default function ProductForm({ producto, categorias, categoriaIdsActuales
       return
     }
 
+    if (tieneVariantes && variantes.length === 0) {
+      setError('Agregá al menos una variante o desmarcá "Tiene variantes".')
+      return
+    }
+
     setSubiendo(true)
 
     try {
@@ -165,8 +170,8 @@ export default function ProductForm({ producto, categorias, categoriaIdsActuales
       // Imagen reemplazada: se borran las versiones anteriores del bucket
       if (archivo && producto) {
         await borrarArchivos([
-          rutaEnBucket(producto.imagen_url, BUCKET_PRODUCTOS),
-          rutaEnBucket(producto.imagen_miniatura_url, BUCKET_PRODUCTOS),
+          rutaEnBucket(producto.imagen_url, BUCKET_PRODUCTOS, SUPABASE_URL),
+          rutaEnBucket(producto.imagen_miniatura_url, BUCKET_PRODUCTOS, SUPABASE_URL),
         ])
       }
 

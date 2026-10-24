@@ -3,7 +3,7 @@
 export type * from './types'
 export { ESTADOS_PEDIDO } from './types'
 
-export { supabase } from './supabase/client'
+export { supabase, SUPABASE_URL } from './supabase/client'
 export type { Database } from './supabase/database.types'
 export {
   mapearProducto,

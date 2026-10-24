@@ -47,14 +47,19 @@ DECLARE
   v_nombre_variante text;
   v_items_validados jsonb := '[]'::jsonb;
   v_nombre text := btrim(coalesce(p_cliente_nombre, ''));
-  v_telefono text := btrim(coalesce(p_cliente_telefono, ''));
+  v_telefono text := regexp_replace(coalesce(p_cliente_telefono, ''), '[^0-9]', '', 'g');
   v_email text := lower(btrim(coalesce(p_cliente_email, '')));
 BEGIN
   -- 1. Datos de contacto
   IF char_length(v_nombre) NOT BETWEEN 3 AND 120 THEN
     RAISE EXCEPTION 'Nombre inválido.';
   END IF;
-  -- Formato internacional argentino: 549 + código de área + número (13 dígitos)
+  -- Formato internacional argentino: 549 + código de área + número (13 dígitos).
+  -- Compatibilidad: una tienda anterior a la normalización manda área + número
+  -- (10 dígitos); se completa con 549 en lugar de rechazar la reserva.
+  IF v_telefono ~ '^[0-9]{10}$' AND v_telefono !~ '^(0|15)' THEN
+    v_telefono := '549' || v_telefono;
+  END IF;
   IF v_telefono !~ '^549[0-9]{10}$' THEN
     RAISE EXCEPTION 'Teléfono inválido: ingresá código de área sin 0 y número sin 15.';
   END IF;
@@ -178,8 +183,10 @@ GRANT EXECUTE ON FUNCTION public.crear_pedido_completo(text, text, text, jsonb, 
 -- transacción: si algo falla no queda nada a medias.
 -- Las variantes se sincronizan por id: las que llegan con id se actualizan
 -- (conservan su id, así los carritos abiertos y el historial siguen valiendo),
--- las que llegan sin id se crean y las que ya no vienen se borran. Si el
--- producto no tiene variantes, las existentes no se tocan.
+-- las que llegan sin id se crean y las que ya no vienen se borran. Un producto
+-- con variantes necesita al menos una. Si el producto pasa a no tener
+-- variantes, se borran las que tenía (los pedidos conservan el nombre en
+-- pedido_items.nombre_variante).
 -- SECURITY INVOKER: corre con los permisos del admin, así que RLS sigue
 -- aplicando; el chequeo de is_admin() solo da un mensaje claro.
 --
@@ -221,6 +228,15 @@ BEGIN
   END IF;
   IF jsonb_typeof(v_variantes) <> 'array' THEN
     RAISE EXCEPTION 'Variantes inválidas.';
+  END IF;
+  IF v_tiene_variantes AND jsonb_array_length(v_variantes) = 0 THEN
+    RAISE EXCEPTION 'Agregá al menos una variante o desmarcá "Tiene variantes".';
+  END IF;
+  -- Un mismo id dos veces haría que la última versión pise a la anterior sin aviso
+  IF (SELECT count(e->>'id') <> count(DISTINCT e->>'id')
+      FROM jsonb_array_elements(v_variantes) AS e
+      WHERE NULLIF(e->>'id', '') IS NOT NULL) THEN
+    RAISE EXCEPTION 'Hay variantes repetidas.';
   END IF;
 
   -- 1. Producto
@@ -290,6 +306,9 @@ BEGIN
     DELETE FROM producto_variantes
     WHERE producto_id = v_id
       AND NOT (id = ANY (v_ids_conservados));
+  ELSE
+    -- Pasó a producto simple: sus variantes ya no se usan
+    DELETE FROM producto_variantes WHERE producto_id = v_id;
   END IF;
 
   -- 3. Categorías
