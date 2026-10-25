@@ -77,13 +77,20 @@ export default function ReviewsCarousel() {
     if (trackRef.current) {
       trackRef.current.style.userSelect = ''
     }
+  }, [])
+
+  // El modal se abre en el click y no en pointerup: en el celular el navegador
+  // dispara el click después de soltar el dedo y, si el modal ya estaba abierto,
+  // ese click caía sobre el fondo y lo cerraba al instante.
+  const handleClick = useCallback(() => {
     if (totalMovimientoRef.current < UMBRAL_CLICK_PX && reviewPresionadaRef.current) {
       setReviewSeleccionada(reviewPresionadaRef.current)
     }
     reviewPresionadaRef.current = null
   }, [])
 
-  const handlePointerLeave = useCallback(() => {
+  const handlePointerLeave = useCallback((e: React.PointerEvent) => {
+    if (e.type === 'pointercancel') reviewPresionadaRef.current = null
     draggingRef.current = false
     if (trackRef.current) {
       trackRef.current.style.userSelect = ''
@@ -100,6 +107,8 @@ export default function ReviewsCarousel() {
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
         onPointerLeave={handlePointerLeave}
+        onPointerCancel={handlePointerLeave}
+        onClick={handleClick}
       >
         {reviews.map(r => (
           <article

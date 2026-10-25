@@ -22,7 +22,9 @@ export function useModalAccesible<T extends HTMLElement>(activo: boolean, onCerr
     if (!activo) return
 
     elementoPrevioRef.current = document.activeElement as HTMLElement | null
-    contenedorRef.current?.focus()
+    // preventScroll: mover el foco no debe desplazar la página (en el celular
+    // la hacía saltar al abrir o cerrar un modal)
+    contenedorRef.current?.focus({ preventScroll: true })
 
     function obtenerFocuseables(): HTMLElement[] {
       if (!contenedorRef.current) return []
@@ -57,7 +59,7 @@ export function useModalAccesible<T extends HTMLElement>(activo: boolean, onCerr
     document.addEventListener('keydown', onKeyDown)
     return () => {
       document.removeEventListener('keydown', onKeyDown)
-      elementoPrevioRef.current?.focus()
+      elementoPrevioRef.current?.focus({ preventScroll: true })
     }
   }, [activo, onCerrar])
 
