@@ -7,3 +7,7 @@ Thumbs.db
 *.log
 .vscode/settings.json
 supabase/.temp
+# Pruebas de carga: datos copiados de una instancia y resultados locales
+pruebas-carga/semilla-catalogo.sql
+pruebas-carga/resultados/
+pruebas-carga/.env

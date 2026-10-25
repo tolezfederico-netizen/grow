@@ -1,4 +1,4 @@
-﻿-- =============================================================================
+-- =============================================================================
 -- Grow — Funciones RPC (Remote Procedure Calls)
 --
 -- Las funciones con SECURITY DEFINER se ejecutan con los permisos del

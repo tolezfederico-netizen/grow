@@ -1,4 +1,4 @@
-﻿-- =============================================================================
+-- =============================================================================
 -- Grow — Políticas RLS (Row Level Security)
 --
 -- Multi-tenancy por instancia separada: un solo usuario admin por base de datos.
