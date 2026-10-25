@@ -69,6 +69,8 @@ shared/
 supabase/
   functions/enviar-notificacion-pedido, config.toml
 .github/workflows/keep-alive.yml        # ping cada 3 días para que Supabase free no se pause
+pruebas-carga/carga.mjs                 # prueba de carga contra una instancia de PRUEBA (v13 §3.5);
+                                        # .env, semilla y resultados/ no se versionan
 ```
 
 Convenciones: utilidades que devuelven JSX van como `.tsx` dentro de `utils/`. Nombres de dominio en español (`pedido`, `sucursal`, `mapearX`, etc.).
@@ -85,7 +87,8 @@ Convenciones: utilidades que devuelven JSX van como `.tsx` dentro de `utils/`. N
 ## Reglas de trabajo con la base de datos
 
 - Producción ya tiene datos: aplicar **solo cambios incrementales** (`ALTER TABLE … ADD COLUMN IF NOT EXISTS`, `CREATE POLICY`…), nunca volver a correr el `CREATE TABLE` del schema.
-- Orden de inicialización de una instancia nueva: `schema.sql → rpc.sql → rls.sql`.
+- Orden de inicialización de una instancia nueva: `schema.sql → rpc.sql → rls.sql` (antes, activar `pg_cron`). Los `.sql` van en UTF-8 **sin BOM**: con BOM el SQL Editor de Supabase falla en la línea 1.
+- Pruebas de carga: nunca contra producción. Hay una instancia aparte (`grow-pruebas`) y el script `pruebas-carga/carga.mjs` se frena si apunta a la base de `client/.env.local`.
 - Toda columna nueva va acompañada, en el mismo cambio, de la regeneración de tipos: `supabase gen types typescript --linked > shared/src/supabase/database.types.ts` (y actualizar tipos y mappers en `shared/`). Ojo: en Windows la redirección puede generar el archivo en UTF-16; debe quedar en UTF-8.
 - Que una policy esté en `rls.sql` no garantiza que esté aplicada en producción (ya pasó con `pedido_items`). Ante datos que "no aparecen", sospechar de RLS y comparar contra `pg_policies`.
 - Variables `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY` en `.env.local` de cada app (no versionado); los `.env.example` solo llevan placeholders. En Cloudflare Pages y en Vercel se cargan por proyecto junto con `NODE_VERSION=22`; cambiarlas requiere redeploy.
@@ -96,7 +99,8 @@ Las decisiones de producto y el plan por fases están en [guia-auditoria-decisio
 
 - **Fase 1 desplegada y probada** (24/10/2026): push, migración de teléfonos y reservas reales en PC y celular. 1.11 hecha: Cloudflare Pages probado en `*.pages.dev` y Site URL de Supabase Auth apuntando ahí; Vercel queda activo en paralelo (v13 §12.1).
 - Fase 1 pendiente: 1.7 (email al dueño, necesita Resend con dominio), 1.12 (backups). Pregunta 5 de la sección 17 ("+18") sin responder.
-- Antes de vender: dominio propio en Resend → SMTP propio en Supabase, template de confirmación en español y secret `RESEND_FROM`; datos legales y teléfono del local por instancia.
+- Antes de vender: dominio propio en Resend → SMTP propio en Supabase, template de confirmación en español y secret `RESEND_FROM`; datos legales y teléfono del local por instancia; instancia de Supabase en una cuenta del cliente.
+- Plan de Supabase: la prueba de carga (24/10/2026, v13 §3.5) dio 0 errores y un techo de ~550 pedidos/s, así que se puede arrancar en Free. Mientras tanto: volcado semanal manual como backup (falta el script) hasta tener la 1.12, keep-alive sin fallas y revisión mensual del uso; pasar a Pro cuando el negocio dependa de la tienda (detalle en v13 §12.4).
 - Seguridad: auditoría 2026-10 en [docs/auditoria/](docs/auditoria/auditoria-seguridad-2026-10.md), aplicada y verificada en producción. Auditoría externa de la fase 1 en [informe-auditoria-codex-fase1.md](docs/auditoria/informe-auditoria-codex-fase1.md) (hallazgos corregidos o diferidos, ver v13 §12.3).
 - Hook compartido para `precioMinimo` (repetido en ProductsPage, FeaturedCarousel y la búsqueda de HeaderTop).
 - Admin responsive: falta una etapa mobile dedicada (las páginas ya se ven en 375px, pero sin revisión pensada para el celular). Logo del admin todavía en PNG de 720 KB.

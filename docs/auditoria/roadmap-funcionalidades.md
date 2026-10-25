@@ -23,7 +23,7 @@ El plan que se está ejecutando es el de la **sección 16 de [guia-auditoria-dec
 | 1.9 | Tienda liviana | Hecha | `07de6f0` |
 | 1.10 | Términos y política de privacidad | Hecha | `f370d7d`; textos revisados y aprobados por el dueño |
 | 1.11 | Migración a Cloudflare Pages | Hecha | `cd3ed92` (`_headers`); proyectos `grow-client` y `grow-admin` probados en `*.pages.dev` y Site URL de Supabase apuntando ahí. Vercel sigue activo en paralelo por decisión del dueño (v13 §12.1) |
-| 1.12 | Backups | **Pendiente** | Necesita R2, Drive y claves `age`; definir retención (pregunta 3) |
+| 1.12 | Backups | **Pendiente** | Necesita R2, Drive y claves `age`; definir retención (pregunta 3). Mientras tanto, volcado semanal manual en las instancias Free (falta dejarlo como script; v13 §12.4). Es lo que más pesa para decidir Free o Pro: la prueba de carga mostró que la capacidad no es el límite |
 | 1.13 | SQL al día | Hecha | `8928bc6`; verificado contra producción |
 
 Todo lo hecho está desplegado desde el 24/10/2026; el estado del despliegue y del hosting está en `docs/arquitectura/arquitectura-v13.md` §12.1.
@@ -66,11 +66,11 @@ Lo que mejora la conversión y la operación cuando ya hay pedidos reales.
 | 2.5 | Recuperar contraseña y mensajes de login en español (C6) | Medio | S | 1.6 (SMTP) | Página `/recuperar` |
 | 2.6 | Baja de cuenta y anonimización (L3) | Medio (legal) | M | RPC SECURITY DEFINER | Conservar pedidos sin datos personales |
 | 2.7 | Pago por transferencia con comprobante / pago en el local explícito ([pasarela-de-pago.md](pasarela-de-pago.md) §6) | Alto | M | Alias/CBU en configuración, bucket privado | Antes que Mercado Pago |
-| 2.8 | SEO básico: meta por ruta, Open Graph para compartir, `robots.txt`, `sitemap.xml` generado desde la base | Medio | M | Edge Function o función de Vercel para OG | Ver nota SEO abajo |
+| 2.8 | SEO básico: meta por ruta, Open Graph para compartir, `robots.txt`, `sitemap.xml` generado desde la base | Medio | M | Edge Function o Pages Function de Cloudflare para OG | Ver nota SEO abajo |
 | 2.9 | Reportes: ventas por período, ticket promedio, productos más vendidos, cancelaciones | Medio | M | Vista o RPC agregada | Resuelve también P6 en el Dashboard |
 | 2.10 | Búsqueda de pedidos por teléfono, email y número (P4) | Medio | S | — | |
 | 2.11 | Horarios por día y por sucursal (C9) | Medio | M | `jsonb` de horarios | |
-| 2.12 | Analytics sin cookies (Vercel Analytics, Plausible o similar) | Medio | S | Ajuste de CSP | Mencionarlo en la política de privacidad |
+| 2.12 | Analytics sin cookies (Cloudflare Web Analytics, Plausible o similar) | Medio | S | Ajuste de CSP | Mencionarlo en la política de privacidad |
 | 2.13 | Página de estado del pedido para invitados (`/pedido/:id` con token) | Medio | M | Columna `token_publico`, RPC de lectura | Base para la pasarela |
 | 2.14 | Edición masiva de precios (porcentaje por categoría) | Alto para el dueño | M | RPC admin | Contexto inflacionario |
 
@@ -94,7 +94,7 @@ Lo que mejora la conversión y la operación cuando ya hay pedidos reales.
 Sin SSR, Google indexa el contenido renderizado por JavaScript pero con menos garantías, y WhatsApp/Facebook **no ejecutan JavaScript**: al compartir una ficha se ve "Grow" sin foto. Opciones, de menor a mayor esfuerzo:
 
 1. `index.html` con título, descripción y Open Graph genéricos de la tienda (requiere generar el HTML por instancia en el build o servirlo dinámico).
-2. Una función de Vercel (o Edge Function) en `/producto/:id` que responda HTML con las meta del producto y cargue la SPA; los bots ven las meta y las personas la app.
+2. Una Pages Function de Cloudflare (o Edge Function) en `/producto/:id` que responda HTML con las meta del producto y cargue la SPA; los bots ven las meta y las personas la app.
 3. Prerender de las rutas públicas en el build.
 
 Para un growshop local pesa más la ficha de Google Business del local que el SEO del sitio; la opción 2 alcanza.

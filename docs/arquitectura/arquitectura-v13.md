@@ -104,6 +104,8 @@ Monorepo con npm workspaces (`client`, `admin`, `shared`) en un único repositor
     functions/enviar-notificacion-pedido/   index.ts, deno.json
     config.toml
   .github/workflows/keep-alive.yml
+  pruebas-carga/  carga.mjs (prueba de carga, §3.5); .env, semilla y resultados/
+                  quedan fuera de git
   docs/       arquitectura/, auditoria/, guías de estilo
   .codex/tmp_fix_orders.sql.ps1           (script histórico, ya ejecutado)
 ```
@@ -163,6 +165,17 @@ npm run typecheck        # los tres paquetes
 
 Supabase free pausa la base tras 7 días sin tráfico. `.github/workflows/keep-alive.yml` hace un `curl` de solo lectura a `/rest/v1/configuracion_tienda?select=nombre_tienda&limit=1` con la anon key cada 3 días a las 09:00 UTC (una consulta real a una tabla, para que cuente como actividad de la base) y falla si la respuesta no es 200. También se puede correr a mano. URL y anon key están como secrets del repositorio. La clave `on` va entre comillas (`"on":`) porque sin comillas YAML la interpreta como booleano. Si el proyecto pasa a un plan pago, se borra el workflow.
 
+## 3.5 Pruebas de carga
+
+- **Instancia de prueba**: `grow-pruebas`, en una cuenta de Supabase aparte (plan Free, São Paulo, la misma región que producción). Se armó como una instancia nueva: `pg_cron` activado, `schema.sql → rpc.sql → rls.sql` en el SQL Editor y una copia del catálogo de producción (categorías, productos, variantes, configuración, sucursales y paneles; sin reservas ni clientes) generada con `json_populate_recordset`. Las imágenes siguen apuntando al Storage de producción.
+- **Script**: `node pruebas-carga/carga.mjs --usuarios N --segundos S [--reservan 0.3] [--sin-pausas]`. Sin dependencias. Cada usuario simulado hace las mismas consultas que la tienda (capturadas del client): inicio (sucursales, configuración, paneles, destacados y sus variantes), una o dos páginas del catálogo, de una a tres fichas y, una parte, la reserva con `crear_pedido_completo` usando un teléfono distinto por reserva. Con pausas de 2 a 8 s simula personas; con `--sin-pausas`, estrés. Lee `SUPABASE_URL` y `ANON_KEY` de `pruebas-carga/.env` y se frena si la URL coincide con la de `client/.env.local` (producción). Guarda cada corrida en `pruebas-carga/resultados/`.
+- **Resultados (24/10/2026)**, desde una sola conexión en Argentina, unos 91.500 pedidos en total, **0 errores** (el panel de Supabase marcó 100 % de éxito):
+  - Realista: 10, 50, 100 y 200 usuarios simultáneos, mediana ~100 ms (la latencia de red hasta São Paulo) y p95 entre 125 y 245 ms; todas las reservas creadas.
+  - Estrés: el techo está en ~550–600 pedidos por segundo. Pasado ese punto las consultas hacen fila (50 usuarios sin pausa: p95 ~175 ms; 150: ~750 ms; 300: ~1,5 s) pero ninguna falla, tampoco las reservas.
+  - Lectura: un visitante genera ~0,4 pedidos por segundo, así que el techo equivale del orden de 1.000 personas navegando a la vez (estimación). La capacidad de la base sobra para un growshop incluso en el plan Free.
+- **No cubierto**: descarga de imágenes (el límite mensual de egress de Storage del plan Free se agotaría antes que la capacidad de la base), registro e inicio de sesión (límites de emails de Auth), tráfico distribuido desde varias redes. No se determinó si el techo de ~550/s es de Supabase o de la conexión de origen.
+- `grow-pruebas` quedó con ~2.300 reservas de prueba. En el plan Free se pausa sola tras 7 días sin uso; si se reactiva para otra prueba, el `.env` sigue sirviendo.
+
 # 4. Client (tienda pública)
 
 ## 4.1 Rutas
@@ -214,7 +227,7 @@ Los datos del header salen de `usePaneles`: los paneles activos (con items, cate
 ## 4.5 Home
 
 - **Banner** — "Retiro en nuestros locales": selector entre el local principal y las sucursales, mapa embebido de Google Maps por dirección (sin API key ni geocoding), horario, teléfono, email y la red social destacada.
-- **ReviewsCarousel** — carrusel arrastrable (Pointer Events) con modal accesible para leer la reseña completa. Datos fijos por decisión de producto: reseñas de ejemplo con nombres ficticios y textos sin referencias a ninguna tienda, horario, empleado ni medio de pago; avatares SVG generados por `AvatarIlustrado` (pelo, accesorios y fondo combinables) que no representan a personas reales.
+- **ReviewsCarousel** — carrusel arrastrable (Pointer Events) con modal accesible para leer la reseña completa. El modal se abre en el `click` del track (no en `pointerup`) y solo si el puntero se movió menos de 5 px: en el celular el click que sigue al toque caía sobre el fondo del modal recién abierto y lo cerraba. Datos fijos por decisión de producto: reseñas de ejemplo con nombres ficticios y textos sin referencias a ninguna tienda, horario, empleado ni medio de pago; avatares SVG generados por `AvatarIlustrado` (pelo, accesorios y fondo combinables) que no representan a personas reales.
 - **Footer** — logo, categorías (de los paneles), contacto con sucursales y redes.
 
 ## 4.6 Cuentas de cliente
@@ -233,7 +246,7 @@ Los datos del header salen de `usePaneles`: los paneles activos (con items, cate
 | `usePaneles` | Paneles activos completos + `configuracion_tienda` (vía `obtenerConfiguracionTienda`) | Header, Footer, ArticulosSidebar |
 | `useConfiguracionTienda` | `configuracion_tienda` con loading, error y `recargar` | HomePage, WhatsappFloatButton |
 | `useSucursales` | Sucursales ordenadas | HeaderTop, Banner, Footer |
-| `useModalAccesible` | Escape, foco atrapado y restaurado en modales | Modal de ReviewsCarousel (en el admin existe una copia propia) |
+| `useModalAccesible` | Escape, foco atrapado y restaurado en modales; mueve el foco con `preventScroll` para no desplazar la página al abrir o cerrar | Modal de ReviewsCarousel (en el admin existe una copia propia, todavía sin `preventScroll`) |
 | `useFooterVisible` | Indica si el footer entró en pantalla | Botones flotantes |
 | `redesSociales.tsx` | `parseRedSocial` (solo acepta URLs `https:`; WhatsApp se reduce a dígitos) y `RedSocialIcon` | HeaderTop, Banner, Footer |
 
@@ -398,6 +411,7 @@ La `service_role` key no se usa en ningún lado del proyecto.
 
 - **Producción tiene datos**: aplicar solo cambios incrementales (`ALTER TABLE … ADD COLUMN IF NOT EXISTS`, `CREATE OR REPLACE`, `DROP POLICY IF EXISTS` + `CREATE POLICY`). Nunca volver a correr un `CREATE TABLE` del schema. Una función se corre entera en una sola ejecución: los comentarios internos no son bloques aparte.
 - **Migraciones**: cada cambio de base para una instancia con datos va en `shared/migraciones/AAAA-MM-DD-nombre.sql` (idempotente, entre `BEGIN`/`COMMIT`, con su verificación al final), y además se incorpora a `schema.sql`, `rpc.sql` o `rls.sql` para que una instancia nueva nazca igual. El encabezado de cada script indica el orden respecto del deploy.
+- **Archivos SQL en UTF-8 sin BOM**: el SQL Editor de Supabase rechaza un archivo que empieza con BOM (`syntax error at or near ""` en la línea 1). Pasó con `rpc.sql` y `rls.sql` al armar `grow-pruebas`; ya están corregidos.
 - **Columna nueva**: en el mismo cambio, regenerar tipos con `supabase gen types typescript --linked > shared/src/supabase/database.types.ts` (en Windows, verificar que quede en UTF-8) y actualizar tipos y mappers.
 - **RLS**: que una policy esté en `rls.sql` no garantiza que esté en producción. Ante datos que "no aparecen", comparar contra `pg_policies` con `docs/auditoria/diagnostico.sql`.
 - **Cambios en la Edge Function**: requieren deploy explícito.
@@ -441,6 +455,8 @@ Hecho el 24/10/2026:
 
 - Dominio propio verificado en Resend → SMTP propio en Supabase (remitente con el nombre de la tienda y más envíos por hora), template de confirmación en español y secret `RESEND_FROM`.
 - Cargar por instancia los datos legales del titular (Configuración → Datos legales) y el teléfono de WhatsApp del local con código de área. En la demo, el teléfono del local quedó cargado con uno de prueba.
+- **Plan de Supabase por cliente** (conclusión de las pruebas de carga, §3.5): se puede arrancar en Free; el límite real no es la velocidad sino la operación. Mientras sea Free: (1) backups propios: hasta automatizar la 1.12, un volcado semanal manual (`supabase db dump`) guardado fuera de Supabase (falta dejarlo como script de un comando); (2) keep-alive configurado y sin fallas en el repositorio de cada instancia; (3) revisar una vez por mes el uso (egress de Storage, tamaño de la base, emails de Auth). Pasar a Pro (en el mismo proyecto, sin migrar datos; confirmar precio vigente) cuando el negocio dependa de la tienda, el uso se acerque al límite o se empiece a cobrar mantenimiento.
+- **Cuenta de Supabase del cliente**: crear cada instancia en una cuenta del propio negocio (como Cloudflare y Resend), no en la del desarrollador: el plan Free permite pocos proyectos activos por cuenta (confirmar el número vigente), la facturación de Pro le llega al cliente y los datos quedan a su nombre.
 
 ## 12.5 Deuda técnica
 
@@ -454,6 +470,9 @@ Hecho el 24/10/2026:
 - Sin suite de tests automatizados.
 - Sin invalidación en vivo: un cambio de configuración desde el admin se ve en la tienda al recargar.
 - `Grow_Arquitectura_v13.docx` no refleja los cambios de la fase 1: regenerarlo a partir de este Markdown.
+- La copia de `useModalAccesible` del admin no tiene el `preventScroll` de la tienda; aplicarlo si aparece el mismo salto en los modales del admin en el celular.
+- En producción quedan dos reservas de prueba con borrado lógico (`eliminado = true`): `#8E79E3FD` y `#924635FA`. Borrarlas del todo si se quiere la base limpia (sus items se borran en cascada).
+- Los emojis de los mensajes de WhatsApp del admin se ven como "�" en WhatsApp de escritorio y bien en el celular: es de WhatsApp, no se corrige.
 
 # Anexo A. Evolución resumida
 
@@ -468,6 +487,6 @@ Hecho el 24/10/2026:
 | v11 | Exportación a Excel, primer deploy (GitHub + dos proyectos de Vercel) |
 | v12 | Keep-alive con GitHub Actions |
 | Oct. 2026 | Rediseño neo-brutalista de client y admin; barra fija del carrito, botón para subir, 404; auditoría de seguridad (precios y usuario resueltos en la base, RLS de `sucursales`, privilegios, Storage, Edge Function solo para admins, headers en Vercel, Auth endurecido, rutas solo para invitados, pedidos eliminados ocultos al cliente) |
-| Oct. 2026, fase 1 | Reseñas de ejemplo genéricas con avatares SVG; "Datos protegidos" en lugar de "Compra Protegida"; lenguaje de reserva y etiquetas de estado; `guardar_producto` y snapshot `nombre_variante`; Términos de reserva, política de privacidad y datos legales del proveedor; SQL de `shared/` al día con producción y keep-alive que consulta una tabla; imágenes WebP en dos tamaños con caché larga y borrado de huérfanas; tienda liviana (paginación, columnas justas, lazy loading, caché compartida de hooks, logo WebP); teléfonos `549` en dos campos; reserva enviada por WhatsApp del comprador con número de reserva; ajustes de la auditoría externa; despliegue y migración del hosting a Cloudflare Pages |
+| Oct. 2026, fase 1 | Reseñas de ejemplo genéricas con avatares SVG; "Datos protegidos" en lugar de "Compra Protegida"; lenguaje de reserva y etiquetas de estado; `guardar_producto` y snapshot `nombre_variante`; Términos de reserva, política de privacidad y datos legales del proveedor; SQL de `shared/` al día con producción y keep-alive que consulta una tabla; imágenes WebP en dos tamaños con caché larga y borrado de huérfanas; tienda liviana (paginación, columnas justas, lazy loading, caché compartida de hooks, logo WebP); teléfonos `549` en dos campos; reserva enviada por WhatsApp del comprador con número de reserva; ajustes de la auditoría externa; despliegue y migración del hosting a Cloudflare Pages; arreglo del modal de reseñas en el celular; pruebas de carga contra una instancia de prueba |
 
 Pendientes de versiones anteriores que hoy están resueltos y por eso no figuran en la sección 12: conectar `CategoryCard`/`es_card` (lo usa `CategoryDropdown`), migrar los `alert()` (no queda ninguno), `pedidos.usuario_id` duplicado en `schema.sql`, columnas de Categorías calculadas con JavaScript (hoy es grilla CSS), auditoría de `pg_policies` y verificación de la Edge Function como admin.
