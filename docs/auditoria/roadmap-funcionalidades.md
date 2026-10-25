@@ -16,17 +16,17 @@ El plan que se está ejecutando es el de la **sección 16 de [guia-auditoria-dec
 | 1.2 | "Datos protegidos" | Hecha | `3828b0d` |
 | 1.3 | Lenguaje de reserva | Hecha | `d6ea189` (etiquetas recomendadas en la pregunta 1 de la sección 17) |
 | 1.4 | Variantes sin borrado + snapshot del nombre | Hecha | `a8d6f8a`, ajustes en `5753526`; migraciones aplicadas |
-| 1.5 | Teléfonos normalizados | Hecha, **migración pendiente** | `438c463`, ajuste en `5753526`; correr `shared/migraciones/2026-10-23-telefonos-normalizados.sql` después del push (dos campos, pregunta 2) |
-| 1.6 | Reserva con WhatsApp del comprador | Hecha | `438c463`; falta probar en un navegador común y en el celular que WhatsApp se abra solo |
+| 1.5 | Teléfonos normalizados | Hecha | `438c463`, ajuste en `5753526`; migración `2026-10-23-telefonos-normalizados.sql` aplicada el 24/10 (dos campos, pregunta 2) |
+| 1.6 | Reserva con WhatsApp del comprador | Hecha | `438c463`; probada en PC y celular el 24/10 |
 | 1.7 | Email automático al dueño | **Pendiente** | Necesita dominio verificado en Resend |
 | 1.8 | Pipeline de imágenes | Hecha | `7872ddf`; miniaturas de los 62 productos existentes generadas |
 | 1.9 | Tienda liviana | Hecha | `07de6f0` |
-| 1.10 | Términos y política de privacidad | Hecha, **textos en borrador** | `f370d7d`; el dueño revisa y redacta el texto definitivo |
-| 1.11 | Migración a Cloudflare Pages | **Pendiente** | Necesita la cuenta de Cloudflare del dueño |
+| 1.10 | Términos y política de privacidad | Hecha | `f370d7d`; textos revisados y aprobados por el dueño |
+| 1.11 | Migración a Cloudflare Pages | Hecha | `cd3ed92` (`_headers`); proyectos `grow-client` y `grow-admin` probados en `*.pages.dev` y Site URL de Supabase apuntando ahí. Vercel sigue activo en paralelo por decisión del dueño (v13 §12.1) |
 | 1.12 | Backups | **Pendiente** | Necesita R2, Drive y claves `age`; definir retención (pregunta 3) |
 | 1.13 | SQL al día | Hecha | `8928bc6`; verificado contra producción |
 
-Ninguno de estos commits está desplegado todavía: ver los pasos en `docs/arquitectura/arquitectura-v13.md` §12.1.
+Todo lo hecho está desplegado desde el 24/10/2026; el estado del despliegue y del hosting está en `docs/arquitectura/arquitectura-v13.md` §12.1.
 
 Preguntas abiertas de la sección 17: respondidas la 1 (etiquetas) y la 2 (teléfono en dos campos); pendientes la 3, 4, 5 ("+18"), 6, 7 y 8.
 

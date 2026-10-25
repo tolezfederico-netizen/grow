@@ -24,7 +24,7 @@ npm run dev:client
 npm run dev:admin
 ```
 
-Cada aplicación es independiente y se despliega por separado en Vercel. No existe ninguna dependencia entre `client` y `admin` a nivel de componentes o enrutamiento.
+Cada aplicación es independiente y se despliega por separado en Cloudflare Pages. No existe ninguna dependencia entre `client` y `admin` a nivel de componentes o enrutamiento.
 
 ## Filosofía
 

@@ -29,7 +29,7 @@ Client y admin terminados (el admin, salvo una etapa mobile dedicada). Estilo ne
 - Supabase: Postgres + Auth + RLS + RPC + pg_cron + Edge Function en Deno (`supabase/functions/enviar-notificacion-pedido`, emails vía Resend).
 - `@shared/*` → `shared/src/*`, alias resuelto por Vite (sin build intermedio). Las Edge Functions (Deno) **no** pueden importar `@shared`.
 - Admin usa `exceljs` para exportar clientes (no SheetJS: no soporta estilos de celda gratis).
-- Deploy: dos proyectos de Vercel sobre el mismo repo (Root Directory `client/` y `admin/`), cada uno con `vercel.json` de rewrite SPA a `index.html`. Decidido migrar a Cloudflare Pages (tarea 1.11, pendiente).
+- Deploy: dos proyectos de Cloudflare Pages sobre el mismo repo (`grow-client` y `grow-admin`, `*.pages.dev`), build desde la raíz con `npm run build:client` / `build:admin`, salida `client/dist` / `admin/dist`, y build watch paths por proyecto. Headers de seguridad en `client/public/_headers` y `admin/public/_headers`; la SPA no necesita `_redirects` (sin `404.html`, Pages sirve `index.html`). Vercel sigue activo en paralelo por decisión del dueño, con sus `vercel.json` (v13 §3.3): si cambian los headers o las variables, cambiarlos en los dos lugares.
 - Sin tests automatizados en ningún paquete.
 
 ## Comandos (desde la raíz)
@@ -88,14 +88,14 @@ Convenciones: utilidades que devuelven JSX van como `.tsx` dentro de `utils/`. N
 - Orden de inicialización de una instancia nueva: `schema.sql → rpc.sql → rls.sql`.
 - Toda columna nueva va acompañada, en el mismo cambio, de la regeneración de tipos: `supabase gen types typescript --linked > shared/src/supabase/database.types.ts` (y actualizar tipos y mappers en `shared/`). Ojo: en Windows la redirección puede generar el archivo en UTF-16; debe quedar en UTF-8.
 - Que una policy esté en `rls.sql` no garantiza que esté aplicada en producción (ya pasó con `pedido_items`). Ante datos que "no aparecen", sospechar de RLS y comparar contra `pg_policies`.
-- Variables `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY` en `.env.local` de cada app (no versionado); los `.env.example` solo llevan placeholders. En Vercel, cambiar variables requiere redeploy.
+- Variables `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY` en `.env.local` de cada app (no versionado); los `.env.example` solo llevan placeholders. En Cloudflare Pages y en Vercel se cargan por proyecto junto con `NODE_VERSION=22`; cambiarlas requiere redeploy.
 
 ## Plan de trabajo y pendientes (detalle en la sección 12 de v13)
 
 Las decisiones de producto y el plan por fases están en [guia-auditoria-decisiones-2026-10.pdf](docs/auditoria/guia-auditoria-decisiones-2026-10.pdf) (secciones 5, 15, 16 y 17); el estado de cada tarea, en [roadmap-funcionalidades.md](docs/auditoria/roadmap-funcionalidades.md). No volver a discutir las decisiones de la sección 5 salvo que aparezca un hecho nuevo.
 
-- **Fase 1 hecha pero sin desplegar** (al 24/10/2026): commits en `main` sin push. Falta revisar los textos legales, push, confirmar los deploys y recién después correr `shared/migraciones/2026-10-23-telefonos-normalizados.sql`. Pasos completos en v13 §12.1.
-- Fase 1 pendiente: 1.7 (email al dueño, necesita Resend con dominio), 1.11 (Cloudflare Pages), 1.12 (backups). Pregunta 5 de la sección 17 ("+18") sin responder.
+- **Fase 1 desplegada y probada** (24/10/2026): push, migración de teléfonos y reservas reales en PC y celular. 1.11 hecha: Cloudflare Pages probado en `*.pages.dev` y Site URL de Supabase Auth apuntando ahí; Vercel queda activo en paralelo (v13 §12.1).
+- Fase 1 pendiente: 1.7 (email al dueño, necesita Resend con dominio), 1.12 (backups). Pregunta 5 de la sección 17 ("+18") sin responder.
 - Antes de vender: dominio propio en Resend → SMTP propio en Supabase, template de confirmación en español y secret `RESEND_FROM`; datos legales y teléfono del local por instancia.
 - Seguridad: auditoría 2026-10 en [docs/auditoria/](docs/auditoria/auditoria-seguridad-2026-10.md), aplicada y verificada en producción. Auditoría externa de la fase 1 en [informe-auditoria-codex-fase1.md](docs/auditoria/informe-auditoria-codex-fase1.md) (hallazgos corregidos o diferidos, ver v13 §12.3).
 - Hook compartido para `precioMinimo` (repetido en ProductsPage, FeaturedCarousel y la búsqueda de HeaderTop).

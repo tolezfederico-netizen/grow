@@ -48,7 +48,7 @@ Cada negocio tiene su propia instancia de Supabase (y su propia cuenta de Resend
 ## 1.4 Aislamiento client/admin
 
 - Dos aplicaciones independientes, sin links ni imports cruzados entre ellas.
-- Se despliegan por separado (dos proyectos de Vercel, dos dominios). Un incidente en una no afecta a la otra.
+- Se despliegan por separado (dos proyectos de Cloudflare Pages, dos dominios). Un incidente en una no afecta a la otra.
 - Si algo de UI hace falta en ambas, se duplica a propósito (por ejemplo `useModalAccesible.ts`).
 - `shared/` es una capa de dominio agnóstica de framework: tipos, cliente de Supabase, mappers y utilidades puras. Nada de React ni hooks.
 
@@ -77,8 +77,8 @@ Monorepo con npm workspaces (`client`, `admin`, `shared`) en un único repositor
                   TerminosCondicionesPage, PoliticaPrivacidadPage, NotFoundPage
       utils/      redesSociales.tsx
       assets/     logo.webp
-    public/       favicon.ico
-    vercel.json
+    public/       favicon.ico, _headers
+    vercel.json           (Vercel, activo en paralelo)
   admin/                  backoffice (Vite, puerto 5174)
     src/
       components/ AdminLayout, ProtectedRoute, ConfirmDialog, NotificarPedidoModal,
@@ -90,7 +90,8 @@ Monorepo con npm workspaces (`client`, `admin`, `shared`) en un único repositor
                   CategoriesPage, PanelsPage, CustomersPage, SettingsPage
       utils/      iconoEstado.tsx
       assets/     logo.png
-    vercel.json
+    public/       iconadmin.ico, _headers
+    vercel.json           (Vercel, activo en paralelo)
   shared/
     schema.sql · rpc.sql · rls.sql        (los SQL viven acá, no en supabase/)
     src/
@@ -124,7 +125,7 @@ Convenciones:
 | Backend | Supabase: Postgres, Auth, RLS, RPC, Storage, pg_cron, Edge Functions (Deno) |
 | Emails | Resend (vía Edge Function) |
 | Exportación | `exceljs` en el admin (SheetJS gratuito no soporta estilos de celda) |
-| Hosting | Vercel (dos proyectos) |
+| Hosting | Cloudflare Pages (dos proyectos); Vercel activo en paralelo |
 | Mantenimiento | GitHub Actions (keep-alive) |
 
 `@shared/*` apunta a `shared/src/*` mediante un alias de Vite en cada `vite.config.ts`; no hay build intermedio de `shared`. Las Edge Functions corren en Deno y no pueden importar `@shared`.
@@ -144,11 +145,16 @@ npm run build:admin
 npm run typecheck        # los tres paquetes
 ```
 
-## 3.3 Vercel
+## 3.3 Hosting: Cloudflare Pages
 
-- Dos proyectos sobre el mismo repositorio, con Root Directory `client/` y `admin/`. Build `npm run build`, salida `dist`. Vercel instala desde la raíz respetando los workspaces y el `package-lock.json` único.
-- Variables `VITE_SUPABASE_URL` y `VITE_SUPABASE_ANON_KEY` cargadas en el dashboard de cada proyecto. Se inyectan en el build: cambiarlas requiere redeploy.
-- Cada `vercel.json` tiene el rewrite SPA (`/(.*)` → `/index.html`) y headers de seguridad:
+- Dos proyectos de Pages (Git integration con GitHub) sobre el mismo repositorio: `grow-client` (`grow-client.pages.dev`) y `grow-admin` (`grow-admin.pages.dev`). Production branch `main`, framework preset **None**, Root directory vacío (la raíz, para que npm resuelva los workspaces con el `package-lock.json` único). Build `npm run build:client` / `npm run build:admin`, salida `client/dist` / `admin/dist`.
+- Variables `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY` y `NODE_VERSION=22` en cada proyecto. Las `VITE_*` se inyectan en el build: cambiarlas requiere redeploy.
+- Build watch paths: `client/*, shared/*, package.json, package-lock.json` en la tienda y `admin/*, shared/*, package.json, package-lock.json` en el admin; un cambio solo en `docs/` no reconstruye nada.
+- SPA: sin `404.html` en la salida, Pages sirve `index.html` para cualquier ruta que no sea un archivo; no hace falta `_redirects`.
+- Ojo al crear un proyecto nuevo: **Create application** abre por defecto el flujo de Workers (con "Deploy command: `npx wrangler deploy`"). Hay que entrar por la opción de Pages, cuya pantalla se llama "Set up builds and deployments".
+- Auth de Supabase: la Site URL es la de Cloudflare y `https://grow-client.pages.dev/**` está en Redirect URLs, junto con la de Vercel y `http://localhost:5173/**` (el registro usa `emailRedirectTo` con el origen actual).
+- Vercel (dos proyectos con Root Directory `client/` y `admin/`) sigue activo en paralelo por decisión del dueño; cada `vercel.json` repite el rewrite SPA y los mismos headers. Un cambio de headers o de variables se hace en los dos hostings.
+- Headers de seguridad en `client/public/_headers` y `admin/public/_headers` (Vite los copia a `dist`), idénticos a los de cada `vercel.json`:
   - `Content-Security-Policy`: scripts solo propios; estilos propios y Google Fonts; imágenes propias, `data:`, `blob:` y `*.supabase.co`; conexiones a `*.supabase.co` (https y wss); `frame-ancestors 'none'`; el client además permite frames de Google Maps. Si una instancia usa un dominio propio de Supabase, hay que agregarlo.
   - `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`, `Permissions-Policy` (sin cámara, micrófono, ubicación ni pagos).
   - Solo el admin: `X-Robots-Tag: noindex, nofollow`.
@@ -380,7 +386,7 @@ El detalle completo está en `docs/guia-de-estilo.md` y `docs/guia-de-estilo-adm
 
 | Dónde | Variable | Notas |
 |---|---|---|
-| `client/.env.local`, `admin/.env.local` y Vercel | `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY` | No versionadas; los `.env.example` solo tienen placeholders |
+| `client/.env.local`, `admin/.env.local` y cada proyecto de Cloudflare Pages y de Vercel | `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY` | No versionadas; los `.env.example` solo tienen placeholders |
 | Secrets de Supabase (Edge Functions) | `RESEND_API_KEY` | `supabase secrets set RESEND_API_KEY=...` |
 | | `RESEND_FROM` (opcional) | Remitente con dominio verificado |
 | | `SUPABASE_URL`, `SUPABASE_ANON_KEY` | Automáticas en el runtime |
@@ -395,7 +401,7 @@ La `service_role` key no se usa en ningún lado del proyecto.
 - **Columna nueva**: en el mismo cambio, regenerar tipos con `supabase gen types typescript --linked > shared/src/supabase/database.types.ts` (en Windows, verificar que quede en UTF-8) y actualizar tipos y mappers.
 - **RLS**: que una policy esté en `rls.sql` no garantiza que esté en producción. Ante datos que "no aparecen", comparar contra `pg_policies` con `docs/auditoria/diagnostico.sql`.
 - **Cambios en la Edge Function**: requieren deploy explícito.
-- **Variables de Vercel**: cambiarlas requiere redeploy.
+- **Variables del hosting** (Cloudflare Pages y Vercel): cambiarlas requiere redeploy en los dos.
 - **Verificación**: `npm run typecheck`, build de la app tocada y prueba en el navegador.
 - **Trabajo con agentes de código**: tras corregir un error de build o de referencia, revisar el código resultante y no solo el resumen del agente. En zonas con bloques muy parecidos (constantes de íconos, por ejemplo) pedir el cambio con el fragmento exacto de antes y después.
 
@@ -403,21 +409,22 @@ La `service_role` key no se usa en ningún lado del proyecto.
 
 Estado al 24/10/2026.
 
-## 12.1 Despliegue de la fase 1 (en curso)
+## 12.1 Despliegue de la fase 1 y migración a Cloudflare Pages
 
-El código de la fase 1 está commiteado en `main` pero **no pusheado**: Vercel sigue sirviendo la tienda y el admin anteriores. La base de producción ya tiene aplicadas las migraciones `2026-10-23-variantes-snapshot`, `2026-10-23-datos-proveedor`, `2026-10-23-imagen-miniatura` y `2026-10-24-guardar-producto-ajustes`, y la Edge Function ya está desplegada con los cambios de la fase. Falta, en este orden:
+Hecho el 24/10/2026:
 
-1. Revisar los textos legales (`TerminosCondicionesPage`, `PoliticaPrivacidadPage`): son un borrador según la sección 15 de la guía; el texto definitivo lo redacta el dueño del proyecto.
-2. Commitear la documentación (este archivo, `CLAUDE.md` y `docs/auditoria/`).
-3. Push a `main` y confirmar que terminaron los deploys de client y admin en Vercel.
-4. Correr `shared/migraciones/2026-10-23-telefonos-normalizados.sql` (antes, opcionalmente, la vista previa `2026-10-23-telefonos-vista-previa.sql`) y su consulta de verificación. Dos reservas de prueba viejas quedan con teléfono no normalizable (`11649865` y `sesdfsdf`): corregirlas a mano o eliminarlas.
-5. Probar una reserva desde un navegador común y desde el celular: que WhatsApp se abra solo al confirmar (el panel de navegador usado en el desarrollo no abre pestañas nuevas, así que no se pudo comprobar). Cancelarla y eliminarla después.
+- Textos legales revisados por el dueño; push de la fase 1 y deploys de client y admin en Vercel.
+- Migración `2026-10-23-telefonos-normalizados.sql` aplicada (antes, la vista previa); la verificación dio 0 teléfonos fuera de formato. Las dos reservas de prueba con teléfono no normalizable se eliminaron.
+- Reservas reales probadas en PC y celular: WhatsApp se abre con el mensaje, el teléfono queda `549…`, la variante se guarda, y el aviso al cliente desde el admin arma el link sin `54` duplicado. Los emojis de ese aviso se ven como "�" en WhatsApp de escritorio y bien en el celular (es de WhatsApp, no de la app).
+- Cloudflare Pages (1.11): proyectos `grow-client` y `grow-admin` creados (§3.3) y probados en `*.pages.dev` (headers, rutas de la SPA, reserva con WhatsApp, login del admin y subida de imagen).
 
-Mientras el admin publicado sea el anterior, no editar productos con variantes desde él: borra y recrea las variantes y lee el nombre de la variante de la relación viva (el dato no se pierde, queda en `pedido_items.nombre_variante`, pero esa versión no lo muestra).
+- Site URL de Supabase Auth cambiada a la URL de Cloudflare.
+- Vercel queda activo en paralelo por decisión del dueño (sin fecha de baja). Si algún día se da de baja: borrar los dos proyectos, los dos `vercel.json` y la URL de Vercel de las Redirect URLs.
+- Dominio propio (cuando haya): agregarlo primero en **Custom domains** del proyecto de Pages (un CNAME creado antes da error 522); un dominio raíz necesita los DNS en Cloudflare, un subdominio alcanza con un CNAME a `<proyecto>.pages.dev`. Después, actualizar Site URL y Redirect URLs de Supabase.
 
 ## 12.2 Plan de trabajo (guía, sección 16)
 
-- Fase 1 pendiente: **1.7** email automático al dueño (necesita dominio verificado en Resend), **1.11** migración a Cloudflare Pages (necesita la cuenta de Cloudflare del dueño), **1.12** backups cifrados (necesita R2, Drive, claves `age` y definir la retención, pregunta 3).
+- Fase 1 pendiente: **1.7** email automático al dueño (necesita dominio verificado en Resend), **1.12** backups cifrados (necesita R2, Drive, claves `age` y definir la retención, pregunta 3).
 - Preguntas abiertas de la sección 17 sin responder: **5** (casilla "+18" en la reserva), 3 (retención de backups), 4 (backups en caso de mora), 6 (apagar la sección de reseñas desde el admin), 7 (canal de avisos de backup) y 8 (depósito en la DNDA). Respondidas: 1 (etiquetas de reserva) y 2 (teléfono en dos campos).
 - Fases 2 y 3: sin empezar. Detalle y estado de cada tarea en `docs/auditoria/roadmap-funcionalidades.md`.
 
@@ -461,6 +468,6 @@ Mientras el admin publicado sea el anterior, no editar productos con variantes d
 | v11 | Exportación a Excel, primer deploy (GitHub + dos proyectos de Vercel) |
 | v12 | Keep-alive con GitHub Actions |
 | Oct. 2026 | Rediseño neo-brutalista de client y admin; barra fija del carrito, botón para subir, 404; auditoría de seguridad (precios y usuario resueltos en la base, RLS de `sucursales`, privilegios, Storage, Edge Function solo para admins, headers en Vercel, Auth endurecido, rutas solo para invitados, pedidos eliminados ocultos al cliente) |
-| Oct. 2026, fase 1 | Reseñas de ejemplo genéricas con avatares SVG; "Datos protegidos" en lugar de "Compra Protegida"; lenguaje de reserva y etiquetas de estado; `guardar_producto` y snapshot `nombre_variante`; Términos de reserva, política de privacidad y datos legales del proveedor; SQL de `shared/` al día con producción y keep-alive que consulta una tabla; imágenes WebP en dos tamaños con caché larga y borrado de huérfanas; tienda liviana (paginación, columnas justas, lazy loading, caché compartida de hooks, logo WebP); teléfonos `549` en dos campos; reserva enviada por WhatsApp del comprador con número de reserva; ajustes de la auditoría externa |
+| Oct. 2026, fase 1 | Reseñas de ejemplo genéricas con avatares SVG; "Datos protegidos" en lugar de "Compra Protegida"; lenguaje de reserva y etiquetas de estado; `guardar_producto` y snapshot `nombre_variante`; Términos de reserva, política de privacidad y datos legales del proveedor; SQL de `shared/` al día con producción y keep-alive que consulta una tabla; imágenes WebP en dos tamaños con caché larga y borrado de huérfanas; tienda liviana (paginación, columnas justas, lazy loading, caché compartida de hooks, logo WebP); teléfonos `549` en dos campos; reserva enviada por WhatsApp del comprador con número de reserva; ajustes de la auditoría externa; despliegue y migración del hosting a Cloudflare Pages |
 
 Pendientes de versiones anteriores que hoy están resueltos y por eso no figuran en la sección 12: conectar `CategoryCard`/`es_card` (lo usa `CategoryDropdown`), migrar los `alert()` (no queda ninguno), `pedidos.usuario_id` duplicado en `schema.sql`, columnas de Categorías calculadas con JavaScript (hoy es grilla CSS), auditoría de `pg_policies` y verificación de la Edge Function como admin.
