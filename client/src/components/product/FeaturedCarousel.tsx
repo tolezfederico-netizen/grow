@@ -44,13 +44,17 @@ export default function FeaturedCarousel() {
     return () => window.removeEventListener('resize', onResize)
   }, [])
 
+  // Con menos destacados que lugares visibles no hay carrusel: se muestran quietos.
+  // Antes se clonaban igual y el track se corría un ancho completo, dejando la fila en blanco
+  const esEstatico = productos.length <= visibles
+
   useEffect(() => {
-    if (productos.length > 0) {
+    if (productos.length > 0 && !esEstatico) {
       setIndice(visibles)
     } else {
       setIndice(0)
     }
-  }, [productos.length, visibles])
+  }, [productos.length, visibles, esEstatico])
 
   useEffect(() => {
     let cancel = false
@@ -105,13 +109,14 @@ export default function FeaturedCarousel() {
 
   const slides = useMemo(() => {
     if (productos.length === 0) return [] as ProductoData[]
+    if (esEstatico) return productos
     const inicio = productos.slice(-visibles)
     const fin = productos.slice(0, visibles)
     return [...inicio, ...productos, ...fin]
-  }, [productos, visibles])
+  }, [productos, visibles, esEstatico])
 
   useEffect(() => {
-    if (slides.length === 0 || productos.length === 0) return
+    if (slides.length === 0 || productos.length === 0 || esEstatico) return
     if (indice >= productos.length + visibles) {
       const nuevo = visibles + (indice - (productos.length + visibles))
       const id = setTimeout(() => {
@@ -128,7 +133,7 @@ export default function FeaturedCarousel() {
       }, 300)
       return () => clearTimeout(id)
     }
-  }, [indice, visibles, productos.length, slides.length])
+  }, [indice, visibles, productos.length, slides.length, esEstatico])
 
   useLayoutEffect(() => {
     if (!sinTransicion || !trackRef.current) return
@@ -160,7 +165,7 @@ export default function FeaturedCarousel() {
         <div className={styles.viewport}>
           <div
             ref={trackRef}
-            className={styles.track}
+            className={`${styles.track}${esEstatico ? ` ${styles.trackEstatico}` : ''}`}
             style={{ transform: `translateX(-${indice * (100 / visibles)}%)` }}
           >
             {slides.map((p, i) => (

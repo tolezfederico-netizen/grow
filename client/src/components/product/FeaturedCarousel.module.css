@@ -36,6 +36,11 @@
   transition: transform 0.3s ease;
 }
 
+/* Pocos destacados (no llenan la fila): quietos y centrados */
+.trackEstatico {
+  justify-content: center;
+}
+
 .slide {
   box-sizing: border-box;
   padding: 0 0.45rem;
