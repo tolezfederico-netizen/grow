@@ -247,7 +247,7 @@ export function mapearPanelCategoria(row: {
   id: string
   titulo: string
   descripcion: string | null
-  orden: number | null
+  orden: number
   estado: string
   creado_en: string
 }): PanelCategoria {

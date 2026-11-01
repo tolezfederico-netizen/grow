@@ -78,7 +78,7 @@ Monorepo con npm workspaces (`client`, `admin`, `shared`) en un único repositor
       utils/      redesSociales.tsx
       assets/     logo.webp
     public/       favicon.ico, _headers
-    vercel.json           (Vercel, activo en paralelo)
+    vercel.json           (Vercel, sin uso; ver §12.1)
   admin/                  backoffice (Vite, puerto 5174)
     src/
       components/ AdminLayout, ProtectedRoute, ConfirmDialog, NotificarPedidoModal,
@@ -91,7 +91,7 @@ Monorepo con npm workspaces (`client`, `admin`, `shared`) en un único repositor
       utils/      iconoEstado.tsx
       assets/     logo.png
     public/       iconadmin.ico, _headers
-    vercel.json           (Vercel, activo en paralelo)
+    vercel.json           (Vercel, sin uso; ver §12.1)
   shared/
     schema.sql · rpc.sql · rls.sql        (los SQL viven acá, no en supabase/)
     src/
@@ -127,7 +127,7 @@ Convenciones:
 | Backend | Supabase: Postgres, Auth, RLS, RPC, Storage, pg_cron, Edge Functions (Deno) |
 | Emails | Resend (vía Edge Function) |
 | Exportación | `exceljs` en el admin (SheetJS gratuito no soporta estilos de celda) |
-| Hosting | Cloudflare Pages (dos proyectos); Vercel activo en paralelo |
+| Hosting | Cloudflare Pages (dos proyectos) |
 | Mantenimiento | GitHub Actions (keep-alive) |
 
 `@shared/*` apunta a `shared/src/*` mediante un alias de Vite en cada `vite.config.ts`; no hay build intermedio de `shared`. Las Edge Functions corren en Deno y no pueden importar `@shared`.
@@ -155,8 +155,8 @@ npm run typecheck        # los tres paquetes
 - SPA: sin `404.html` en la salida, Pages sirve `index.html` para cualquier ruta que no sea un archivo; no hace falta `_redirects`.
 - Ojo al crear un proyecto nuevo: **Create application** abre por defecto el flujo de Workers (con "Deploy command: `npx wrangler deploy`"). Hay que entrar por la opción de Pages, cuya pantalla se llama "Set up builds and deployments".
 - Auth de Supabase: la Site URL es la de Cloudflare y `https://grow-client.pages.dev/**` está en Redirect URLs, junto con la de Vercel y `http://localhost:5173/**` (el registro usa `emailRedirectTo` con el origen actual).
-- Vercel (dos proyectos con Root Directory `client/` y `admin/`) sigue activo en paralelo por decisión del dueño; cada `vercel.json` repite el rewrite SPA y los mismos headers. Un cambio de headers o de variables se hace en los dos hostings.
-- Headers de seguridad en `client/public/_headers` y `admin/public/_headers` (Vite los copia a `dist`), idénticos a los de cada `vercel.json`:
+- Vercel (dos proyectos con Root Directory `client/` y `admin/`) dejó de usarse el 01/11/2026; lo que falta para darlo de baja está en §12.1. Headers y variables se cambian solo en Cloudflare.
+- Headers de seguridad en `client/public/_headers` y `admin/public/_headers` (Vite los copia a `dist`):
   - `Content-Security-Policy`: scripts solo propios; estilos propios y Google Fonts; imágenes propias, `data:`, `blob:` y `*.supabase.co`; conexiones a `*.supabase.co` (https y wss); `frame-ancestors 'none'`; el client además permite frames de Google Maps. Si una instancia usa un dominio propio de Supabase, hay que agregarlo.
   - `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`, `Permissions-Policy` (sin cámara, micrófono, ubicación ni pagos).
   - Solo el admin: `X-Robots-Tag: noindex, nofollow`.
@@ -400,7 +400,7 @@ El detalle completo está en `docs/guia-de-estilo.md` y `docs/guia-de-estilo-adm
 
 | Dónde | Variable | Notas |
 |---|---|---|
-| `client/.env.local`, `admin/.env.local` y cada proyecto de Cloudflare Pages y de Vercel | `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY` | No versionadas; los `.env.example` solo tienen placeholders |
+| `client/.env.local`, `admin/.env.local` y cada proyecto de Cloudflare Pages | `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY` | No versionadas; los `.env.example` solo tienen placeholders |
 | Secrets de Supabase (Edge Functions) | `RESEND_API_KEY` | `supabase secrets set RESEND_API_KEY=...` |
 | | `RESEND_FROM` (opcional) | Remitente con dominio verificado |
 | | `SUPABASE_URL`, `SUPABASE_ANON_KEY` | Automáticas en el runtime |
@@ -416,7 +416,7 @@ La `service_role` key no se usa en ningún lado del proyecto.
 - **Columna nueva**: en el mismo cambio, regenerar tipos con `supabase gen types typescript --linked > shared/src/supabase/database.types.ts` (en Windows, verificar que quede en UTF-8) y actualizar tipos y mappers.
 - **RLS**: que una policy esté en `rls.sql` no garantiza que esté en producción. Ante datos que "no aparecen", comparar contra `pg_policies` con `docs/auditoria/diagnostico.sql`.
 - **Cambios en la Edge Function**: requieren deploy explícito.
-- **Variables del hosting** (Cloudflare Pages y Vercel): cambiarlas requiere redeploy en los dos.
+- **Variables del hosting** (Cloudflare Pages): cambiarlas requiere redeploy.
 - **Verificación**: `npm run typecheck`, build de la app tocada y prueba en el navegador.
 - **Trabajo con agentes de código**: tras corregir un error de build o de referencia, revisar el código resultante y no solo el resumen del agente. En zonas con bloques muy parecidos (constantes de íconos, por ejemplo) pedir el cambio con el fragmento exacto de antes y después.
 
@@ -434,7 +434,7 @@ Hecho el 24/10/2026:
 - Cloudflare Pages (1.11): proyectos `grow-client` y `grow-admin` creados (§3.3) y probados en `*.pages.dev` (headers, rutas de la SPA, reserva con WhatsApp, login del admin y subida de imagen).
 
 - Site URL de Supabase Auth cambiada a la URL de Cloudflare.
-- Vercel queda activo en paralelo por decisión del dueño (sin fecha de baja). Si algún día se da de baja: borrar los dos proyectos, los dos `vercel.json` y la URL de Vercel de las Redirect URLs.
+- Vercel dejó de usarse el 01/11/2026. Para terminar de darlo de baja: borrar los dos proyectos (siguen con el código que tenían y, si es anterior al menú simple, sin menú desde la limpieza de `es_card`), los dos `vercel.json` y la URL de Vercel de las Redirect URLs.
 - Dominio propio (cuando haya): agregarlo primero en **Custom domains** del proyecto de Pages (un CNAME creado antes da error 522); un dominio raíz necesita los DNS en Cloudflare, un subdominio alcanza con un CNAME a `<proyecto>.pages.dev`. Después, actualizar Site URL y Redirect URLs de Supabase.
 
 ## 12.2 Plan de trabajo (guía, sección 16)

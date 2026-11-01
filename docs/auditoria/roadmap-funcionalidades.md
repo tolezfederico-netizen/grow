@@ -22,7 +22,7 @@ El plan que se está ejecutando es el de la **sección 16 de [guia-auditoria-dec
 | 1.8 | Pipeline de imágenes | Hecha | `7872ddf`; miniaturas de los 62 productos existentes generadas |
 | 1.9 | Tienda liviana | Hecha | `07de6f0` |
 | 1.10 | Términos y política de privacidad | Hecha | `f370d7d`; textos revisados y aprobados por el dueño |
-| 1.11 | Migración a Cloudflare Pages | Hecha | `cd3ed92` (`_headers`); proyectos `grow-client` y `grow-admin` probados en `*.pages.dev` y Site URL de Supabase apuntando ahí. Vercel sigue activo en paralelo por decisión del dueño (v13 §12.1) |
+| 1.11 | Migración a Cloudflare Pages | Hecha | `cd3ed92` (`_headers`); proyectos `grow-client` y `grow-admin` probados en `*.pages.dev` y Site URL de Supabase apuntando ahí. Vercel dejó de usarse el 01/11/2026 (v13 §12.1) |
 | 1.12 | Backups | **Pendiente** | Necesita R2, Drive y claves `age`; definir retención (pregunta 3). Mientras tanto, volcado semanal manual en las instancias Free (falta dejarlo como script; v13 §12.4). Es lo que más pesa para decidir Free o Pro: la prueba de carga mostró que la capacidad no es el límite |
 | 1.13 | SQL al día | Hecha | `8928bc6`; verificado contra producción |
 
@@ -86,7 +86,7 @@ Lo que mejora la conversión y la operación cuando ya hay pedidos reales.
 | 3.6 | Reseñas reales (tabla moderada por el admin o Google Place) | Medio | M | 1.1 | |
 | 3.7 | Idempotencia del checkout (clave de intento) (C4) | Bajo | S | — | |
 | 3.8 | Optimizaciones: logo comprimido, `exceljs` lazy, imágenes con tamaño (A5) | Bajo | S | — | |
-| 3.9 | Simplificar paneles (modo "solo categorías") | Bajo | M | — | Hecha el 31/10/2026 (`c3b95c4`): una sola lista ordenada por sección e imagen automática. `2026-10-31-menu-simple.sql` aplicada; falta `2026-10-31-menu-simple-limpieza.sql`, cuando todo lo publicado tenga este código |
+| 3.9 | Simplificar paneles (modo "solo categorías") | Bajo | M | — | Hecha el 31/10/2026 (`c3b95c4`): una sola lista ordenada por sección e imagen automática. `2026-10-31-menu-simple.sql` y `2026-10-31-menu-simple-limpieza.sql` aplicadas |
 | 3.10 | Etapa mobile del admin | Medio | M | — | Ya pendiente en v13 |
 
 ## Nota sobre SEO en una SPA de Vite

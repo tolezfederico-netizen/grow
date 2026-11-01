@@ -12,7 +12,7 @@ interface PanelRow {
   id: string;
   titulo: string;
   descripcion: string | null;
-  orden: number | null;
+  orden: number;
   estado: string;
   creado_en: string;
 }
@@ -294,7 +294,7 @@ export default function PanelsPage() {
   const itemsSel = items.filter((i) => i.panel_id === selPanelId);
   const activas = paneles.filter((p) => p.estado === "activo").length;
   const siguienteOrden =
-    paneles.reduce((max, p) => Math.max(max, p.orden ?? 0), 0) + 1;
+    paneles.reduce((max, p) => Math.max(max, p.orden), 0) + 1;
 
   // Orden | Sección | Estado | Categorías | Acciones (+ selección)
   const colsBase =

@@ -4,7 +4,7 @@ export interface PanelCategoria {
   id: string
   titulo: string
   descripcion: string | null
-  orden: number | null
+  orden: number
   estado: EstadoPanel
   creado_en: string
 }

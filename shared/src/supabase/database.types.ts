@@ -156,7 +156,7 @@ export type Database = {
           descripcion: string | null
           estado: string
           id: string
-          orden: number | null
+          orden: number
           titulo: string
         }
         Insert: {
@@ -164,7 +164,7 @@ export type Database = {
           descripcion?: string | null
           estado?: string
           id?: string
-          orden?: number | null
+          orden: number
           titulo: string
         }
         Update: {
@@ -172,7 +172,7 @@ export type Database = {
           descripcion?: string | null
           estado?: string
           id?: string
-          orden?: number | null
+          orden?: number
           titulo?: string
         }
         Relationships: []
@@ -180,7 +180,6 @@ export type Database = {
       paneles_categoria_items: {
         Row: {
           categoria_id: string
-          es_card: boolean
           id: string
           nombre_visible: string | null
           orden: number
@@ -188,7 +187,6 @@ export type Database = {
         }
         Insert: {
           categoria_id: string
-          es_card?: boolean
           id?: string
           nombre_visible?: string | null
           orden?: number
@@ -196,7 +194,6 @@ export type Database = {
         }
         Update: {
           categoria_id?: string
-          es_card?: boolean
           id?: string
           nombre_visible?: string | null
           orden?: number
@@ -505,8 +502,8 @@ export type Database = {
         Args: { p_categoria_ids: string[] }
         Returns: {
           categoria_id: string
-          imagen_miniatura_url: string | null
-          imagen_url: string | null
+          imagen_miniatura_url: string
+          imagen_url: string
           producto_id: string
         }[]
       }
