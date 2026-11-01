@@ -1,5 +1,5 @@
-/* Categorías del panel abierto: se despliega debajo de su fila, dentro de la
-   misma tabla (sin viñeta propia), sobre el gris del panel abierto */
+/* Categorías de la sección abierta: se despliega debajo de su fila, dentro de la
+   misma tabla (sin viñeta propia), sobre el gris de la sección abierta */
 .editor {
   min-width: 0;
   padding: 0.75rem 0.9rem 0.9rem 3.75rem;
@@ -15,10 +15,6 @@
   background: var(--color-background);
 }
 
-.editor .preview {
-  background: var(--color-background);
-}
-
 @media (max-width: 768px) {
   .editor {
     padding-left: 0.9rem;
@@ -31,14 +27,7 @@
   justify-content: space-between;
   align-items: center;
   gap: 0.5rem;
-  margin-bottom: 0.75rem;
-}
-
-.headerRight {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.5rem;
+  margin-bottom: 0.5rem;
 }
 
 .titulo {
@@ -52,26 +41,25 @@
   overflow-wrap: break-word;
 }
 
-.contador {
-  display: inline-flex;
-  align-items: center;
-  padding: 0.22rem 0.45rem;
+/* Explicación de cómo funciona la lista: recuadro claro para que no pase de largo */
+.ayuda {
+  margin: 0 0 0.7rem;
+  padding: 0.5rem 0.65rem;
   border: var(--brutal-border-thin);
   border-radius: 6px;
-  background: var(--color-background-muted);
-  font-size: 0.7rem;
-  font-weight: 700;
-  white-space: nowrap;
+  background: color-mix(in srgb, var(--color-primary) 22%, var(--color-background));
+  color: var(--color-secondary);
+  font-size: 0.8rem;
+  font-weight: 500;
+  line-height: 1.4;
 }
 
-.contadorLleno {
-  background: var(--estado-pendiente-fondo);
-  color: var(--estado-pendiente-texto);
+.ayuda strong {
+  font-weight: 700;
 }
 
 /* Botones: principal amarillo, secundario blanco; sin hover */
 .btnNuevo,
-.btnPreview,
 .btnAccion {
   border: var(--brutal-border);
   border-radius: 6px;
@@ -83,14 +71,10 @@
   cursor: pointer;
 }
 
-.btnNuevo,
-.btnPreview {
-  padding: 0.32rem 0.7rem;
-  font-size: 0.76rem;
-}
-
 .btnNuevo {
+  padding: 0.32rem 0.7rem;
   background: var(--color-primary);
+  font-size: 0.76rem;
 }
 
 .btnAccion {
@@ -98,12 +82,12 @@
   font-size: 0.72rem;
 }
 
-.acciones .btnAccion + .btnAccion {
-  margin-left: 0.4rem;
+.btnQuitar {
   color: var(--color-error);
 }
 
 .vacio {
+  margin: 0;
   font-size: 0.8rem;
   color: var(--color-texto-suave);
 }
@@ -117,82 +101,92 @@
   font-size: 0.8rem;
 }
 
-.tabla th,
 .tabla td {
   padding: 0.5rem 0.5rem;
   text-align: left;
   vertical-align: middle;
 }
 
-.tabla th {
-  border-bottom: var(--brutal-border);
-  font-family: var(--font-display);
-  font-size: 0.64rem;
-  font-weight: 400;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-}
-
 .tabla tbody tr + tr td {
   border-top: var(--brutal-border-thin);
 }
 
-.tabla th:nth-child(1),
+/* Anchos en colgroup: con table-layout fixed mandaría la primera fila, que es un
+   rótulo a lo ancho, y las columnas quedarían en tercios */
+.colNombre {
+  width: 12rem;
+}
+
+.colAcciones {
+  width: 14.5rem;
+}
+
 .tabla td:nth-child(1) {
-  width: 40%;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   font-weight: 600;
 }
 
-.tabla th:nth-child(2),
-.tabla td:nth-child(2) {
-  width: 15%;
+/* Rótulo de cada grupo: indica qué lugar de la tienda ocupan las filas de abajo */
+.tabla .divisor td {
+  padding: 0.35rem 0.5rem;
+  background: var(--color-background-muted);
+  font-family: var(--font-display);
+  font-size: 0.62rem;
+  font-weight: 400;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  white-space: normal;
 }
 
-.tabla th:nth-child(3),
-.tabla td:nth-child(3) {
-  width: 20%;
+/* Imagen real sin recortar, sobre blanco */
+.imagenes {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
 }
 
-.tabla th:nth-child(4),
-.tabla td:nth-child(4) {
-  width: 25%;
+.miniatura {
+  flex-shrink: 0;
+  width: 2.4rem;
+  height: 2.4rem;
+  padding: 0.1rem;
+  object-fit: contain;
+  border: var(--brutal-border-thin);
+  border-radius: 6px;
+  background: var(--color-background);
 }
 
-.auto {
-  font-size: 0.75rem;
-  font-style: italic;
-  color: var(--color-texto-suave);
+.origenImagen {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--color-secondary);
 }
 
-/* Tipo de categoría: etiqueta informativa, sin sombra */
-.badgeCard,
-.badgeLista {
+.badgePausada {
   display: inline-block;
   padding: 0.22rem 0.45rem;
   border: var(--brutal-border-thin);
   border-radius: 6px;
-  font-family: var(--font-display);
-  font-size: 0.6rem;
-  line-height: 1;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-}
-
-.badgeCard {
-  background: var(--color-primary);
-}
-
-.badgeLista {
-  border-style: dashed;
-  background: var(--color-background-muted);
-  color: var(--color-texto-suave);
+  background: var(--estado-pendiente-fondo);
+  color: var(--estado-pendiente-texto);
+  font-size: 0.66rem;
+  font-weight: 700;
+  line-height: 1.2;
 }
 
 .acciones {
   white-space: nowrap;
+  text-align: right;
+}
+
+.tabla td.acciones {
+  text-align: right;
+}
+
+.acciones .btnAccion + .btnAccion {
+  margin-left: 0.4rem;
 }
 
 .dragHandle {
@@ -215,107 +209,12 @@
   box-shadow: inset 0 3px 0 var(--color-primary);
 }
 
-/* ---- Vista previa de las cards ---- */
-
-.preview {
-  margin-bottom: 0.85rem;
-  padding: 0.75rem;
-  border: var(--brutal-border-thin);
-  border-style: dashed;
-  border-radius: var(--brutal-radius);
-}
-
-.previewVacio {
-  margin: 0;
-  font-size: 0.78rem;
-  color: var(--color-texto-suave);
-}
-
-.previewGrid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-}
-
-.previewCard {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.35rem;
-  width: 7rem;
-}
-
-.previewOrden {
-  position: absolute;
-  top: -0.4rem;
-  left: -0.4rem;
-  z-index: 1;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 1.25rem;
-  height: 1.25rem;
-  border: var(--brutal-border-thin);
-  border-radius: 50%;
-  background: var(--color-primary);
-  color: var(--color-secondary);
-  font-family: var(--font-display);
-  font-size: 0.6rem;
-}
-
-/* Imagen real sin recortar, sobre blanco */
-.previewImg {
-  width: 100%;
-  height: 5rem;
-  padding: 0.25rem;
-  object-fit: contain;
-  border: var(--brutal-border);
-  border-radius: 6px;
-  background: var(--color-background);
-}
-
-.previewImgPlaceholder {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 5rem;
-  padding: 0.25rem;
-  border: var(--brutal-border);
-  border-style: dashed;
-  border-radius: 6px;
-  background: var(--color-background-muted);
-  font-size: 0.68rem;
-  text-align: center;
-  color: var(--color-texto-suave);
-}
-
-.previewNombre {
-  font-size: 0.72rem;
-  font-weight: 700;
-  text-align: center;
-  overflow-wrap: break-word;
-}
-
 @media (max-width: 480px) {
-  .tabla th:nth-child(2),
-  .tabla td:nth-child(2) {
-    display: none;
+  .colNombre {
+    width: 36%;
   }
 
-  .tabla th:nth-child(1),
-  .tabla td:nth-child(1) {
-    width: 40%;
-  }
-
-  .tabla th:nth-child(3),
-  .tabla td:nth-child(3) {
-    width: 28%;
-  }
-
-  .tabla th:nth-child(4),
-  .tabla td:nth-child(4) {
+  .colAcciones {
     width: 32%;
   }
 
@@ -325,9 +224,16 @@
 
   .acciones .btnAccion {
     display: block;
+    max-width: 100%;
+    margin-left: auto;
+    white-space: normal;
   }
 
   .acciones .btnAccion + .btnAccion {
-    margin: 0.3rem 0 0;
+    margin: 0.3rem 0 0 auto;
+  }
+
+  .origenImagen {
+    display: none;
   }
 }

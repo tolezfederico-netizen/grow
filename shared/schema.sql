@@ -202,22 +202,23 @@ CREATE TABLE paneles_categoria (
   id          uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
   titulo      text        NOT NULL,
   descripcion text,
-  orden       integer,                          -- nullable: NULL = "sin asignar", se posiciona automáticamente
+  orden       integer     NOT NULL,
   estado      text        NOT NULL DEFAULT 'activo',
   creado_en   timestamptz NOT NULL DEFAULT now(),
 
   CONSTRAINT paneles_categoria_estado_check
     CHECK (estado IN ('activo', 'pausado')),
 
-  -- UNIQUE permite múltiples filas con NULL (Postgres no las considera duplicadas),
-  -- pero bloquea dos paneles con el mismo número de orden fijo.
+  CONSTRAINT paneles_categoria_titulo_largo_check
+    CHECK (char_length(titulo) <= 16),
+
   CONSTRAINT paneles_categoria_orden_unique UNIQUE (orden)
 );
 
-COMMENT ON COLUMN paneles_categoria.titulo IS 'Título mostrado en el panel desplegable del header';
+COMMENT ON COLUMN paneles_categoria.titulo IS 'Nombre de la sección en la barra de la tienda (hasta 16 caracteres)';
 COMMENT ON COLUMN paneles_categoria.descripcion IS 'Subtítulo opcional debajo del título';
-COMMENT ON COLUMN paneles_categoria.orden IS 'Posición manual 1..N en la navbar (menor = primero). NULL = sin asignar: el frontend lo posiciona automáticamente en un hueco libre, respetando los paneles con orden fijo.';
-COMMENT ON COLUMN paneles_categoria.estado IS 'activo | pausado';
+COMMENT ON COLUMN paneles_categoria.orden IS 'Posición en la barra de la tienda (menor = primero); se cambia arrastrando en el admin';
+COMMENT ON COLUMN paneles_categoria.estado IS 'activo | pausado (máximo 5 activos)';
 
 
 -- ── 9. paneles_categoria_items ───────────────────────────────────────────────
@@ -231,7 +232,7 @@ CREATE TABLE paneles_categoria_items (
 );
 
 COMMENT ON COLUMN paneles_categoria_items.nombre_visible IS 'Override opcional del nombre de la categoría en la card. Si es null, el frontend debe usar categorias.nombre';
-COMMENT ON COLUMN paneles_categoria_items.orden IS 'Orden dentro del panel (menor = primero)';
+COMMENT ON COLUMN paneles_categoria_items.orden IS 'Orden dentro de la sección (menor = primero); las primeras 4 categorías activas van al desplegable';
 
 CREATE INDEX idx_paneles_categoria_items_panel ON paneles_categoria_items (panel_id);
 COMMENT ON INDEX idx_paneles_categoria_items_panel IS 'Cubre el lookup de items por panel en el header del client';
@@ -242,13 +243,13 @@ COMMENT ON INDEX idx_paneles_categoria_items_panel IS 'Cubre el lookup de items 
 CREATE TABLE paneles_categoria_items_productos (
   id          uuid    PRIMARY KEY DEFAULT gen_random_uuid(),
   item_id     uuid    NOT NULL REFERENCES paneles_categoria_items(id) ON DELETE CASCADE,
-  producto_id uuid    NOT NULL REFERENCES productos(id)               ON DELETE RESTRICT,
+  producto_id uuid    NOT NULL REFERENCES productos(id)               ON DELETE CASCADE,
   orden       integer NOT NULL DEFAULT 0
 );
 
-COMMENT ON COLUMN paneles_categoria_items_productos.orden IS 'Orden de la imagen dentro de la card (menor = primera)';
+COMMENT ON COLUMN paneles_categoria_items_productos.orden IS 'Orden de la imagen elegida (menor = primera). Sin filas, la tienda usa imagenes_categorias_menu';
 COMMENT ON CONSTRAINT paneles_categoria_items_productos_item_id_fkey ON paneles_categoria_items_productos IS 'CASCADE: si se borra el item, se borran sus productos asociados';
-COMMENT ON CONSTRAINT paneles_categoria_items_productos_producto_id_fkey ON paneles_categoria_items_productos IS 'RESTRICT: preservar la referencia, el admin debe desvincular manualmente';
+COMMENT ON CONSTRAINT paneles_categoria_items_productos_producto_id_fkey ON paneles_categoria_items_productos IS 'CASCADE: si se borra el producto, la categoría vuelve a la imagen automática';
 
 CREATE INDEX idx_paneles_categoria_items_productos_item ON paneles_categoria_items_productos (item_id);
 COMMENT ON INDEX idx_paneles_categoria_items_productos_item IS 'Cubre el lookup de productos asociados a un item de panel';
@@ -389,61 +390,26 @@ ALTER TABLE configuracion_tienda ADD COLUMN IF NOT EXISTS red_social_destacada t
 COMMENT ON COLUMN configuracion_tienda.red_social_destacada IS 'Clave de redes_sociales que se muestra en el Banner del client. Nullable — si es NULL o apunta a una clave que ya no existe en redes_sociales, el Banner no muestra ninguna red social.';
 
 
--- ── 8a. paneles_categoria.orden → nullable + UNIQUE ("sin asignar") ──────────
---
--- Habilita el estado "sin asignar" (NULL) y prohíbe que dos paneles compartan
--- el mismo número de orden. Antes de aplicar el UNIQUE, resuelve automáticamente
--- cualquier duplicado preexistente: para cada valor de orden repetido, conserva
--- el panel más antiguo (por creado_en) con ese número y pasa el resto a NULL.
+-- ── 8a. Máximo 5 secciones activas (las pausadas no cuentan) ─────────────────
 
-ALTER TABLE paneles_categoria ALTER COLUMN orden DROP DEFAULT;
-ALTER TABLE paneles_categoria ALTER COLUMN orden DROP NOT NULL;
-
-WITH duplicados AS (
-  SELECT id,
-         ROW_NUMBER() OVER (PARTITION BY orden ORDER BY creado_en ASC) AS rn
-  FROM paneles_categoria
-  WHERE orden IS NOT NULL
-)
-UPDATE paneles_categoria pc
-SET orden = NULL
-FROM duplicados d
-WHERE pc.id = d.id AND d.rn > 1;
-
-DO $$
+CREATE OR REPLACE FUNCTION fn_validar_max_paneles_activos() RETURNS TRIGGER AS $$
 BEGIN
-  IF NOT EXISTS (
-    SELECT 1 FROM pg_constraint WHERE conname = 'paneles_categoria_orden_unique'
-  ) THEN
-    ALTER TABLE paneles_categoria
-      ADD CONSTRAINT paneles_categoria_orden_unique UNIQUE (orden);
-  END IF;
-END $$;
-
-
--- ── 9a. es_card + límite de cards visuales + UNIQUE por panel ────────────────
-
-ALTER TABLE paneles_categoria_items ADD COLUMN IF NOT EXISTS es_card boolean NOT NULL DEFAULT false;
-
-CREATE OR REPLACE FUNCTION fn_validar_max_items_panel() RETURNS TRIGGER AS $$
-BEGIN
-  IF TG_OP = 'INSERT' AND NEW.es_card = true THEN
-    IF (SELECT COUNT(*) FROM paneles_categoria_items WHERE panel_id = NEW.panel_id AND es_card = true) >= 4 THEN
-      RAISE EXCEPTION 'Un panel no puede tener más de 4 categorías marcadas como card visual';
-    END IF;
-  ELSIF TG_OP = 'UPDATE' AND NEW.es_card = true AND (OLD.es_card IS DISTINCT FROM true) THEN
-    IF (SELECT COUNT(*) FROM paneles_categoria_items WHERE panel_id = NEW.panel_id AND es_card = true AND id <> NEW.id) >= 4 THEN
-      RAISE EXCEPTION 'Un panel no puede tener más de 4 categorías marcadas como card visual';
+  IF NEW.estado = 'activo' AND (TG_OP = 'INSERT' OR OLD.estado IS DISTINCT FROM 'activo') THEN
+    IF (SELECT COUNT(*) FROM paneles_categoria WHERE estado = 'activo' AND id <> NEW.id) >= 5 THEN
+      RAISE EXCEPTION 'Ya hay 5 secciones activas en el menú. Pausá una antes de activar otra.';
     END IF;
   END IF;
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 
-DROP TRIGGER IF EXISTS trg_validar_max_items_panel ON paneles_categoria_items;
-CREATE TRIGGER trg_validar_max_items_panel
-  BEFORE INSERT OR UPDATE ON paneles_categoria_items
-  FOR EACH ROW EXECUTE FUNCTION fn_validar_max_items_panel();
+DROP TRIGGER IF EXISTS trg_validar_max_paneles_activos ON paneles_categoria;
+CREATE TRIGGER trg_validar_max_paneles_activos
+  BEFORE INSERT OR UPDATE ON paneles_categoria
+  FOR EACH ROW EXECUTE FUNCTION fn_validar_max_paneles_activos();
+
+
+-- ── 9a. Una categoría no se repite dentro de la misma sección ────────────────
 
 DO $$
 BEGIN
@@ -606,20 +572,17 @@ ALTER TABLE clientes ENABLE ROW LEVEL SECURITY;
 --    CHECK quedó alineado con la validación del frontend en
 --    shared/src/utils/validarEmail.ts.
 --
--- 10. paneles_categoria.orden → de NOT NULL DEFAULT 0 a nullable + UNIQUE
---     Motivo: el valor 0 no comunicaba "sin asignar" y permitía duplicados,
---     lo que rompía el criterio de posicionamiento manual en la navbar del
---     client. NULL ahora representa "sin asignar" (se posiciona automático);
---     UNIQUE impide dos paneles con el mismo número fijo, sin afectar a los
---     NULL (Postgres no los trata como duplicados entre sí).
+-- 10. paneles_categoria.orden → NOT NULL + UNIQUE
+--     Motivo: el menú tiene un único orden, el que el dueño arrastra en el
+--     admin. Antes un NULL repartía el panel al azar, y el dueño no podía saber
+--     en qué lugar iba a quedar (ver migraciones/2026-10-31-menu-simple.sql).
 --
 -- 11. productos.destacado → boolean + trigger de límite (máx. 10)
 --     Motivo: el admin elige manualmente qué productos aparecen en el carrusel
 --     de destacados del Home del client. El límite de 10 evita que el carrusel
 --     se vuelva inmanejable; se valida a nivel de base de datos (no solo en la
---     UI) con el mismo patrón ya usado para es_card en paneles_categoria_items,
---     contando globalmente sobre toda la tabla (no hay agrupación por padre,
---     a diferencia de es_card que se cuenta por panel_id).
+--     UI), contando globalmente sobre toda la tabla. El tope de 5 secciones
+--     activas en paneles_categoria sigue el mismo patrón.
 --
 -- 12. sucursales → tabla aparte, no columna en configuracion_tienda
 --     Motivo: a diferencia de email_contacto (un único valor escalar), las

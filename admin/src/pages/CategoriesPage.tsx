@@ -6,6 +6,19 @@ import { useConfirm } from '../context/ConfirmContext'
 import ErrorState from '../components/ErrorState'
 import styles from './CategoriesPage.module.css'
 
+interface SeccionRow {
+  id: string
+  titulo: string
+  estado: string
+}
+
+interface ItemMenuRow {
+  id: string
+  panel_id: string
+  categoria_id: string
+  orden: number
+}
+
 export default function CategoriesPage() {
   const [categorias, setCategorias] = useState<Categoria[]>([])
   const [loading, setLoading] = useState(true)
@@ -21,17 +34,24 @@ export default function CategoriesPage() {
   const [nombreNuevaCategoria, setNombreNuevaCategoria] = useState('')
   const [creandoSubiendo, setCreandoSubiendo] = useState(false)
   const [errorCrear, setErrorCrear] = useState<string | null>(null)
+  const [secciones, setSecciones] = useState<SeccionRow[]>([])
+  const [itemsMenu, setItemsMenu] = useState<ItemMenuRow[]>([])
+  const [seccionForm, setSeccionForm] = useState('')
   const { confirm, notify, toast } = useConfirm()
 
   const cargar = useCallback(async () => {
     setLoading(true)
     setError(null)
-    const [resCategorias, resRelaciones] = await Promise.all([
+    const [resCategorias, resRelaciones, resSecciones, resItems] = await Promise.all([
       supabase.from('categorias').select('*').order('nombre'),
       supabase.from('producto_categorias').select('categoria_id'),
+      supabase.from('paneles_categoria').select('id, titulo, estado').order('orden'),
+      supabase.from('paneles_categoria_items').select('id, panel_id, categoria_id, orden'),
     ])
-    const err = resCategorias.error ?? resRelaciones.error
+    const err = resCategorias.error ?? resRelaciones.error ?? resSecciones.error ?? resItems.error
     if (err) { setError(err.message); setLoading(false); return }
+    setSecciones(resSecciones.data ?? [])
+    setItemsMenu(resItems.data ?? [])
     // Cantidad de productos asignados a cada categoría
     const conteo: Record<string, number> = {}
     ;(resRelaciones.data ?? []).forEach(r => { conteo[r.categoria_id] = (conteo[r.categoria_id] ?? 0) + 1 })
@@ -42,8 +62,31 @@ export default function CategoriesPage() {
 
   useEffect(() => { cargar() }, [cargar])
 
+  function itemDeCategoria(categoriaId: string) {
+    return itemsMenu.find(i => i.categoria_id === categoriaId)
+  }
+
+  // Pone la categoría en la sección elegida (al final de su lista) o la saca del
+  // menú. Al mover un item, conserva la imagen que se le haya elegido.
+  async function guardarSeccion(categoriaId: string, seccionId: string) {
+    const actual = itemDeCategoria(categoriaId)
+    if ((actual?.panel_id ?? '') === seccionId) return null
+    if (!seccionId) {
+      const { error: err } = await supabase.from('paneles_categoria_items').delete().eq('id', actual!.id)
+      return err
+    }
+    const orden = itemsMenu
+      .filter(i => i.panel_id === seccionId)
+      .reduce((max, i) => Math.max(max, i.orden), -1) + 1
+    const { error: err } = actual
+      ? await supabase.from('paneles_categoria_items').update({ panel_id: seccionId, orden }).eq('id', actual.id)
+      : await supabase.from('paneles_categoria_items').insert({ panel_id: seccionId, categoria_id: categoriaId, orden })
+    return err
+  }
+
   function abrirCrear() {
     setNombreNuevaCategoria('')
+    setSeccionForm('')
     setErrorCrear(null)
     setCreandoCategoria(true)
   }
@@ -54,24 +97,29 @@ export default function CategoriesPage() {
     if (!nombre) { setErrorCrear('El nombre no puede estar vacío.'); return }
     setCreandoSubiendo(true)
     setErrorCrear(null)
-    const { error: err } = await supabase.from('categorias').insert({ nombre })
+    const { data: nueva, error: err } = await supabase.from('categorias').insert({ nombre }).select('id').single()
     if (err) { setErrorCrear(err.message); setCreandoSubiendo(false); return }
+    const errSeccion = await guardarSeccion(nueva.id, seccionForm)
     setCreandoCategoria(false)
     setCreandoSubiendo(false)
     cargar()
+    if (errSeccion) await notify(`La categoría se creó, pero no se pudo agregar al menú: ${errSeccion.message}`, { titulo: 'Error' })
   }
 
   function iniciarEdicion(c: Categoria) {
     setEditando(c)
     setNombreEdit(c.nombre)
+    setSeccionForm(itemDeCategoria(c.id)?.panel_id ?? '')
   }
 
   async function guardarEdicion() {
     if (!editando || !nombreEdit.trim()) return
     const { error: err } = await supabase.from('categorias').update({ nombre: nombreEdit.trim() }).eq('id', editando.id)
     if (err) { await notify(err.message, { titulo: 'Error' }); return }
+    const errSeccion = await guardarSeccion(editando.id, seccionForm)
     setEditando(null)
     cargar()
+    if (errSeccion) await notify(`El nombre se guardó, pero no se pudo cambiar la sección: ${errSeccion.message}`, { titulo: 'Error' })
   }
 
   async function toggleEstado(c: Categoria) {
@@ -146,7 +194,7 @@ export default function CategoriesPage() {
     const { error: err } = await supabase.from('categorias').delete().in('id', seleccionados)
     if (err) {
       if ((err.code === '23503' || err.message.includes('foreign key')) && err.message.includes('paneles_categoria_items')) {
-        await notify('Una o más categorías seleccionadas están siendo usadas en un panel de navegación y no pueden eliminarse. Quitalas del panel primero desde Paneles.', { titulo: 'No se puede eliminar' })
+        await notify('Una o más categorías seleccionadas están en el menú de la tienda y no pueden eliminarse. Editalas y elegí «Sin sección» primero.', { titulo: 'No se puede eliminar' })
       } else {
         await notify(err.message, { titulo: 'Error' })
       }
@@ -218,6 +266,18 @@ export default function CategoriesPage() {
     setSeleccionados([])
     setModoAccion(prev => (prev === modo ? null : modo))
   }
+
+  const campoSeccion = (
+    <label className={styles.modalCampo}>
+      <span className={styles.modalLabel}>Sección del menú</span>
+      <select className={styles.modalInput} value={seccionForm} onChange={e => setSeccionForm(e.target.value)}>
+        <option value="">Sin sección (no aparece en el menú)</option>
+        {secciones.map(s => (
+          <option key={s.id} value={s.id}>{s.titulo}{s.estado === 'pausado' ? ' (pausada)' : ''}</option>
+        ))}
+      </select>
+    </label>
+  )
 
   if (loading) return <LoadingState />
   if (error) return <ErrorState mensaje={error} onReintentar={cargar} />
@@ -309,6 +369,8 @@ export default function CategoriesPage() {
             {categoriasFiltradas.map(c => {
               const cantidad = productosPorCategoria[c.id] ?? 0
               const seleccionada = seleccionados.includes(c.id)
+              const seccion = secciones.find(s => s.id === itemDeCategoria(c.id)?.panel_id)
+              const fueraDelMenu = c.estado === 'activa' && seccion?.estado !== 'activo'
               return (
                 <div
                   key={c.id}
@@ -336,6 +398,11 @@ export default function CategoriesPage() {
                     <span className={styles.nombreTexto}>{c.nombre}</span>
                     <span className={`${styles.cantidadProductos} ${cantidad === 0 ? styles.sinProductos : ''}`}>
                       {cantidad === 0 ? 'Sin productos' : `${cantidad} producto${cantidad !== 1 ? 's' : ''}`}
+                    </span>
+                    <span className={`${styles.cantidadProductos} ${fueraDelMenu ? styles.sinProductos : ''}`}>
+                      {fueraDelMenu
+                        ? (seccion ? `No aparece en el menú: «${seccion.titulo}» está pausada` : 'No aparece en el menú')
+                        : seccion && `Menú: ${seccion.titulo}`}
                     </span>
                   </div>
                   {c.estado === 'pausada' && <span className={styles.badgePausada}>Pausada</span>}
@@ -375,6 +442,7 @@ export default function CategoriesPage() {
                 autoFocus
                 required
               />
+              {campoSeccion}
               <div className={styles.modalAcciones}>
                 <button type="button" className={styles.btnCancelarModal} onClick={() => setEditando(null)}>Cancelar</button>
                 <button type="submit" className={styles.btnGuardarModal} disabled={!nombreEdit.trim()}>
@@ -402,7 +470,8 @@ export default function CategoriesPage() {
                 autoFocus
                 required
               />
-              {errorCrear && <p className={styles.error}>{errorCrear}</p>}
+              {campoSeccion}
+              {errorCrear &&<p className={styles.error}>{errorCrear}</p>}
               <div className={styles.modalAcciones}>
                 <button type="button" className={styles.btnCancelarModal} onClick={() => setCreandoCategoria(false)}>Cancelar</button>
                 <button type="submit" className={styles.btnGuardarModal} disabled={creandoSubiendo}>

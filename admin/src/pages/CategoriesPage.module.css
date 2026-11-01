@@ -467,6 +467,26 @@
   outline: none;
 }
 
+select.modalInput {
+  background: var(--color-background);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.modalCampo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.modalLabel {
+  font-family: var(--font-display);
+  font-size: 0.68rem;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
 .modalInput::placeholder {
   color: var(--color-secondary);
   opacity: 0.5;

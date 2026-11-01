@@ -18,6 +18,15 @@ export const ESTADOS_PANEL: readonly EstadoPanel[] = [
   'pausado',
 ] as const
 
+/** Secciones activas en la barra de la tienda (también lo valida un trigger). */
+export const MAX_SECCIONES_ACTIVAS = 5
+
+/** Largo máximo del título de una sección (también lo valida un CHECK). */
+export const MAX_TITULO_SECCION = 16
+
+/** Las primeras categorías activas de una sección son las que van al desplegable. */
+export const CATEGORIAS_EN_DESPLEGABLE = 4
+
 /**
  * Claves de red social sugeridas para el formulario de configuración.
  * No es una restricción de base de datos — `configuracion_tienda.redes_sociales`

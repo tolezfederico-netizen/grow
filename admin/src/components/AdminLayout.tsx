@@ -69,7 +69,7 @@ const SECCIONES: { ruta: string; texto: string; icono: React.ReactNode }[] = [
   },
   {
     ruta: "/paneles",
-    texto: "Paneles",
+    texto: "Menú",
     icono: (
       <Icono>
         <rect x="3" y="3" width="18" height="18" rx="2" />

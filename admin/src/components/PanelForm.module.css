@@ -108,15 +108,10 @@ textarea.input {
   text-transform: uppercase;
 }
 
-.inputOrden {
-  max-width: 7rem;
-  font-family: var(--font-display);
-}
-
 .ayuda {
-  font-size: 0.7rem;
+  font-size: 0.76rem;
   font-weight: 500;
-  color: var(--color-texto-suave);
+  color: var(--color-secondary);
 }
 
 .filaCampos {

@@ -48,7 +48,7 @@ const RAMPA_MS = Math.min(15000, SEGUNDOS * 250) // los usuarios entran escalona
 const HEADERS = { apikey: KEY, Authorization: `Bearer ${KEY}`, 'Content-Type': 'application/json' }
 const COLS_LISTA = 'id,nombre,descripcion,imagen_url,imagen_miniatura_url,tiene_variantes,precio_base,estado'
 const COLS_PANELES =
-  'id,titulo,descripcion,orden,estado,creado_en,paneles_categoria_items(id,panel_id,categoria_id,nombre_visible,orden,es_card,categorias(nombre),paneles_categoria_items_productos(producto_id,orden,productos(imagen_url,imagen_miniatura_url)))'
+  'id,titulo,descripcion,orden,estado,creado_en,paneles_categoria_items(id,panel_id,categoria_id,nombre_visible,orden,categorias(nombre),paneles_categoria_items_productos(producto_id,orden,productos(imagen_url,imagen_miniatura_url)))'
 
 // ── Métricas ─────────────────────────────────────────────────────────────────
 const metricas = new Map() // nombre → { tiempos: [], errores: 0, detalleErrores: Map }

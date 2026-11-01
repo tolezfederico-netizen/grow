@@ -328,6 +328,49 @@ REVOKE ALL ON FUNCTION public.guardar_producto(jsonb, jsonb, uuid[], uuid) FROM 
 GRANT EXECUTE ON FUNCTION public.guardar_producto(jsonb, jsonb, uuid[], uuid) TO authenticated;
 
 
+-- ── imagenes_categorias_menu ───────────────────────────────────────────────
+-- Imagen automática de las categorías del menú: hasta 2 productos disponibles
+-- con imagen por categoría, primero los destacados y después los más nuevos.
+-- La usan la tienda y la pantalla Menú del admin cuando el dueño no eligió
+-- productos a mano. SECURITY INVOKER: respeta las policies de quien la llama.
+-- ──────────────────────────────────────────────────────────────────────────
+
+CREATE OR REPLACE FUNCTION public.imagenes_categorias_menu(p_categoria_ids uuid[])
+RETURNS TABLE (
+  categoria_id uuid,
+  producto_id uuid,
+  imagen_url text,
+  imagen_miniatura_url text
+)
+LANGUAGE sql
+STABLE
+SECURITY INVOKER
+SET search_path = public
+AS $$
+  SELECT elegidos.categoria_id, elegidos.producto_id, elegidos.imagen_url, elegidos.imagen_miniatura_url
+  FROM (
+    SELECT pc.categoria_id,
+           p.id AS producto_id,
+           p.imagen_url,
+           p.imagen_miniatura_url,
+           ROW_NUMBER() OVER (
+             PARTITION BY pc.categoria_id
+             ORDER BY p.destacado DESC, p.creado_en DESC, p.id
+           ) AS posicion
+    FROM producto_categorias pc
+    JOIN productos p ON p.id = pc.producto_id
+    WHERE pc.categoria_id = ANY (p_categoria_ids)
+      AND p.estado = 'disponible'
+      AND p.imagen_url IS NOT NULL
+  ) AS elegidos
+  WHERE elegidos.posicion <= 2
+  ORDER BY elegidos.categoria_id, elegidos.posicion;
+$$;
+
+REVOKE ALL ON FUNCTION public.imagenes_categorias_menu(uuid[]) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.imagenes_categorias_menu(uuid[]) TO anon, authenticated;
+
+
 -- ── limpiar_mensaje_alerta_vencido (pg_cron) ──────────────────────────────
 -- Borra mensaje_alerta cuando vence mensaje_alerta_expira_en. La ejecuta un
 -- job de pg_cron cada minuto (corre como postgres); nadie más la necesita.

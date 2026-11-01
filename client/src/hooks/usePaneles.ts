@@ -1,45 +1,37 @@
 import { useEffect, useState } from 'react'
 import { supabase, mapearPanelCategoria, mapearPanelCategoriaItem } from '@shared'
+import { CATEGORIAS_EN_DESPLEGABLE } from '@shared'
 import type { PanelCategoriaCompleto, ConfiguracionTienda } from '@shared'
 import { obtenerConfiguracionTienda } from './useConfiguracionTienda'
 
-function ordenarPaneles(paneles: PanelCategoriaCompleto[]): PanelCategoriaCompleto[] {
-  const conOrden = paneles.filter(p => p.orden !== null).sort((a, b) => (a.orden as number) - (b.orden as number))
-  const sinOrden = paneles.filter(p => p.orden === null)
-  const sinOrdenMezclados = [...sinOrden]
-  for (let i = sinOrdenMezclados.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1))
-    ;[sinOrdenMezclados[i], sinOrdenMezclados[j]] = [sinOrdenMezclados[j], sinOrdenMezclados[i]]
+/**
+ * Las categorías del desplegable sin una imagen elegida (o cuyo producto ya no
+ * se ve) usan la automática. Si la consulta falla, la tarjeta queda sin imagen:
+ * el menú sigue funcionando igual.
+ */
+async function completarImagenes(paneles: PanelCategoriaCompleto[]): Promise<void> {
+  const sinImagen = paneles
+    .flatMap(p => p.items.slice(0, CATEGORIAS_EN_DESPLEGABLE))
+    .filter(item => !item.productos.some(p => p.imagen_url))
+  if (sinImagen.length === 0) return
+
+  const { data, error } = await supabase.rpc('imagenes_categorias_menu', {
+    p_categoria_ids: sinImagen.map(item => item.categoria_id),
+  })
+  if (error) return
+
+  for (const item of sinImagen) {
+    item.productos = (data ?? [])
+      .filter(fila => fila.categoria_id === item.categoria_id)
+      .map(fila => ({
+        producto_id: fila.producto_id,
+        imagen_url: fila.imagen_miniatura_url ?? fila.imagen_url,
+      }))
   }
-
-  const total = paneles.length
-  const resultado: (PanelCategoriaCompleto | null)[] = new Array(total).fill(null)
-
-  for (const p of conOrden) {
-    const idx = (p.orden as number) - 1
-    if (idx >= 0 && idx < total && resultado[idx] === null) {
-      resultado[idx] = p
-    }
-  }
-
-  const colocados = new Set(resultado.filter(Boolean).map(p => (p as PanelCategoriaCompleto).id))
-  const noColocados = conOrden.filter(p => !colocados.has(p.id))
-  const relleno = [...noColocados, ...sinOrdenMezclados]
-
-  let cursor = 0
-  for (let i = 0; i < total; i++) {
-    if (resultado[i] === null && cursor < relleno.length) {
-      resultado[i] = relleno[cursor]
-      cursor++
-    }
-  }
-
-  return resultado.filter(Boolean) as PanelCategoriaCompleto[]
 }
 
 // Caché compartida por Header, Footer y ArticulosSidebar: una sola consulta
-// por pestaña y el mismo orden (los paneles sin orden fijo se reparten al azar
-// una única vez). Si falla, se descarta para que el próximo intento reconsulte.
+// por pestaña. Si falla, se descarta para que el próximo intento reconsulte.
 let pedido: Promise<PanelCategoriaCompleto[]> | null = null
 
 function obtenerPaneles(): Promise<PanelCategoriaCompleto[]> {
@@ -50,7 +42,7 @@ function obtenerPaneles(): Promise<PanelCategoriaCompleto[]> {
         .select(`
           id, titulo, descripcion, orden, estado, creado_en,
           paneles_categoria_items(
-            id, panel_id, categoria_id, nombre_visible, orden, es_card,
+            id, panel_id, categoria_id, nombre_visible, orden,
             categorias(nombre),
             paneles_categoria_items_productos(
               producto_id, orden,
@@ -74,35 +66,42 @@ function obtenerPaneles(): Promise<PanelCategoriaCompleto[]> {
             estado: p.estado,
             creado_en: p.creado_en,
           }),
-          items: rawItems.map(item => {
-            const i = item as Record<string, unknown>
-            const rawProductos: unknown[] = (i.paneles_categoria_items_productos as unknown[]) ?? []
-            const cat = i.categorias as { nombre?: string } | null
-            return {
-              ...mapearPanelCategoriaItem({
-                id: i.id as string,
-                panel_id: i.panel_id as string,
-                categoria_id: i.categoria_id as string,
-                nombre_visible: (i.nombre_visible as string) ?? null,
-                orden: i.orden as number,
-                es_card: i.es_card as boolean,
-              }),
-              categoria_nombre: cat?.nombre ?? '',
-              productos: rawProductos.map(ip => {
-                const p = ip as Record<string, unknown>
-                const prod = p.productos as { imagen_url?: string | null; imagen_miniatura_url?: string | null } | null
-                return {
-                  producto_id: p.producto_id as string,
-                  // Las cards del menú son chicas: miniatura si existe, si no la grande
-                  imagen_url: prod?.imagen_miniatura_url ?? prod?.imagen_url ?? null,
-                }
-              }),
-            }
-          }),
+          // Una categoría pausada no llega (RLS): no ocupa lugar en el menú
+          items: rawItems
+            .filter(item => !!(item as Record<string, unknown>).categorias)
+            .map(item => {
+              const i = item as Record<string, unknown>
+              const rawProductos = ((i.paneles_categoria_items_productos as unknown[]) ?? []) as Record<string, unknown>[]
+              const cat = i.categorias as { nombre?: string } | null
+              return {
+                ...mapearPanelCategoriaItem({
+                  id: i.id as string,
+                  panel_id: i.panel_id as string,
+                  categoria_id: i.categoria_id as string,
+                  nombre_visible: (i.nombre_visible as string) ?? null,
+                  orden: i.orden as number,
+                }),
+                categoria_nombre: cat?.nombre ?? '',
+                productos: [...rawProductos]
+                  .sort((a, b) => (a.orden as number) - (b.orden as number))
+                  .map(p => {
+                    const prod = p.productos as { imagen_url?: string | null; imagen_miniatura_url?: string | null } | null
+                    return {
+                      producto_id: p.producto_id as string,
+                      // Las cards del menú son chicas: miniatura si existe, si no la grande
+                      imagen_url: prod?.imagen_miniatura_url ?? prod?.imagen_url ?? null,
+                    }
+                  }),
+              }
+            })
+            .sort((a, b) => a.orden - b.orden),
         }
       })
 
-      return ordenarPaneles(completos)
+      // Una sección sin categorías no tiene nada que mostrar en la tienda
+      const paneles = completos.filter(p => p.items.length > 0)
+      await completarImagenes(paneles)
+      return paneles
     })()
     pedido.catch(() => { pedido = null })
   }
@@ -125,7 +124,7 @@ export function usePaneles() {
 
     obtenerPaneles()
       .then(p => { if (!cancel) { setPaneles(p); setLoading(false) } })
-      .catch(err => { if (!cancel) { setError(err instanceof Error ? err.message : 'Error al cargar los paneles'); setLoading(false) } })
+      .catch(err => { if (!cancel) { setError(err instanceof Error ? err.message : 'Error al cargar el menú'); setLoading(false) } })
 
     return () => { cancel = true }
   }, [])

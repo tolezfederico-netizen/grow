@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react'
-import { supabase } from '@shared'
+import { supabase, MAX_TITULO_SECCION } from '@shared'
 import styles from './PanelForm.module.css'
 
 interface Props {
@@ -7,17 +7,17 @@ interface Props {
     id: string
     titulo: string
     descripcion: string | null
-    orden: number | null
     estado: string
   }
+  /** Una sección nueva va al final de la lista */
+  siguienteOrden: number
   onClose: () => void
   onSave: () => void
 }
 
-export default function PanelForm({ panel, onClose, onSave }: Props) {
+export default function PanelForm({ panel, siguienteOrden, onClose, onSave }: Props) {
   const [titulo, setTitulo] = useState(panel?.titulo ?? '')
   const [descripcion, setDescripcion] = useState(panel?.descripcion ?? '')
-  const [orden, setOrden] = useState(panel?.orden?.toString() ?? '')
   const [subiendo, setSubiendo] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -26,41 +26,15 @@ export default function PanelForm({ panel, onClose, onSave }: Props) {
     setSubiendo(true)
     setError(null)
 
-    const tituloFinal = titulo.trim()
-    const descripcionFinal = descripcion.trim() || null
-    const ordenFinal = orden.trim() === '' ? null : Number(orden)
+    const datos = { titulo: titulo.trim(), descripcion: descripcion.trim() || null }
+    const { error: err } = panel
+      ? await supabase.from('paneles_categoria').update(datos).eq('id', panel.id)
+      : await supabase.from('paneles_categoria').insert({ ...datos, orden: siguienteOrden, estado: 'activo' })
 
-    if (panel) {
-      const { error: err } = await supabase.from('paneles_categoria').update({
-        titulo: tituloFinal,
-        descripcion: descripcionFinal,
-        orden: ordenFinal,
-      }).eq('id', panel.id)
-      if (err) {
-        if (err.code === '23505') {
-          setError(`Ya existe un panel con el orden ${orden}. Quitale ese número al otro panel antes de asignarlo acá.`)
-        } else {
-          setError(err.message)
-        }
-        setSubiendo(false)
-        return
-      }
-    } else {
-      const { error: err } = await supabase.from('paneles_categoria').insert({
-        titulo: tituloFinal,
-        descripcion: descripcionFinal,
-        orden: ordenFinal,
-        estado: 'activo',
-      })
-      if (err) {
-        if (err.code === '23505') {
-          setError(`Ya existe un panel con el orden ${orden}. Quitale ese número al otro panel antes de asignarlo acá.`)
-        } else {
-          setError(err.message)
-        }
-        setSubiendo(false)
-        return
-      }
+    if (err) {
+      setError(err.message)
+      setSubiendo(false)
+      return
     }
 
     onSave()
@@ -70,22 +44,19 @@ export default function PanelForm({ panel, onClose, onSave }: Props) {
     <div className={styles.overlay}>
       <div className={styles.modal}>
         <div className={styles.header}>
-          <h2>{panel ? 'Editar panel' : 'Nuevo panel'}</h2>
+          <h2>{panel ? 'Editar sección' : 'Nueva sección'}</h2>
           <button type="button" className={styles.btnCerrar} onClick={onClose} aria-label="Cerrar">✕</button>
         </div>
         <form onSubmit={handleSubmit} className={styles.form}>
           <label className={styles.campo}>
             <span className={styles.campoLabel}>Título</span>
-            <input className={styles.input} placeholder="Título" value={titulo} onChange={e => setTitulo(e.target.value)} required />
+            <input className={styles.input} placeholder="Título" value={titulo} maxLength={MAX_TITULO_SECCION} onChange={e => setTitulo(e.target.value)} required />
+            <span className={styles.ayuda}>Es el nombre que se ve en la barra de la tienda ({titulo.length}/{MAX_TITULO_SECCION} caracteres).</span>
           </label>
           <label className={styles.campo}>
             <span className={styles.campoLabel}>Descripción</span>
             <textarea className={styles.input} placeholder="Descripción (opcional)" value={descripcion} onChange={e => setDescripcion(e.target.value)} rows={2} />
-          </label>
-          <label className={styles.campo}>
-            <span className={styles.campoLabel}>Orden</span>
-            <input className={`${styles.input} ${styles.inputOrden}`} type="number" min="1" placeholder="Sin asignar" value={orden} onChange={e => setOrden(e.target.value)} />
-            <span className={styles.ayuda}>Opcional. Vacío = el panel queda sin orden asignado.</span>
+            <span className={styles.ayuda}>Se muestra al abrir la sección en el menú.</span>
           </label>
 
           {error && <p className={styles.error}>{error}</p>}

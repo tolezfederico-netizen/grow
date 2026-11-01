@@ -202,10 +202,10 @@ Supabase free pausa la base tras 7 días sin tráfico. `.github/workflows/keep-a
 
 1. **AlertaBanner** — mensaje de `configuracion_tienda.mensaje_alerta` que se desplaza de derecha a izquierda en loop (CSS puro, `translateX(calc(-100vw - 100%))`). No se renderiza si no hay mensaje o si `mensaje_alerta_expira_en` ya pasó.
 2. **HeaderTop** — logo, buscador con resultados en vivo (debounce de 300 ms, hasta 4 productos con su precio mínimo; Enter lleva a `/productos?buscar=`), botón **Info** (local principal, sucursales, horario, teléfono y redes), botón de cuenta y carrito. En mobile se convierte en menú hamburguesa (drawer) y buscador desplegable. El botón de cuenta muestra el nombre leído de `clientes.nombre` (o "Mi Cuenta"); su menú ofrece login/registro o Mi cuenta/cerrar sesión.
-3. **HeaderNav** — un botón por panel de navegación activo, más "Términos y Condiciones" y "Ayuda" (WhatsApp y email, solo si están cargados). Hover en desktop, click en touch.
-4. **CategoryDropdown** — al abrir un panel muestra su título, descripción y las categorías marcadas como card (`es_card`) mediante `CategoryCard`, con imágenes de productos elegidos en el admin.
+3. **HeaderNav** — un botón por sección activa del menú (panel, en las tablas), más "Términos y Condiciones" y "Ayuda" (WhatsApp y email, solo si están cargados). Hover en desktop, click en touch.
+4. **CategoryDropdown** — al abrir una sección muestra su título, descripción, un enlace "Ver todo" a `/productos/panel/:id` y sus primeras 4 categorías (`CATEGORIAS_EN_DESPLEGABLE`) mediante `CategoryCard`. La imagen de cada una es la elegida en el admin; si no hay o el producto ya no se ve, la automática de la RPC `imagenes_categorias_menu`.
 
-Los datos del header salen de `usePaneles`: los paneles activos (con items, categorías y miniaturas) y `configuracion_tienda`, ambos de la caché compartida (4.7). Los paneles con `orden` fijo ocupan su posición; los que tienen `orden` nulo se reparten al azar en los huecos, una sola vez por pestaña, así Header y Footer muestran el mismo orden.
+Los datos del header salen de `usePaneles`: las secciones activas con al menos una categoría activa (items, categorías y miniaturas) y `configuracion_tienda`, ambos de la caché compartida (4.7). Secciones, categorías e imágenes se muestran según su `orden`; ya no hay reparto al azar.
 
 ## 4.3 Catálogo y ficha
 
@@ -273,7 +273,7 @@ Los datos del header salen de `usePaneles`: los paneles activos (con items, cate
 | Reservas | `/pedidos` | Ver 5.4 (la ruta conserva el nombre técnico) |
 | Productos | `/productos` | Listado con búsqueda, filtro por categoría y por completitud (si tiene descripción y especificaciones); crear/editar en modal de dos columnas (`ProductForm`, con variantes y subida de imagen a Storage: el navegador la comprime a WebP en dos versiones, grande de 1000 px y miniatura de 400 px, con caché de un año, y al reemplazarla o eliminar el producto se borran los archivos anteriores; producto, variantes y categorías se guardan juntos con la RPC `guardar_producto`, que conserva el id de las variantes editadas); destacar (tope 10); acciones múltiples: eliminar, pausar, marcar sin stock. No deja eliminar productos usados como imagen de un panel |
 | Categorías | `/categorias` | Grilla CSS con cantidad de productos; crear/editar en modal; pausar (pausa los productos que quedan sin ninguna categoría activa); eliminar (desvincula de los productos) |
-| Paneles | `/paneles` | Paneles de navegación con orden fijo o automático, pausar, editor en línea de items (`PanelItemsEditor`, `PanelItemForm`): categoría, nombre visible, si es card (máximo 4 por panel) y productos cuyas imágenes se muestran (`ProductoImagenSelector`) |
+| Menú | `/paneles` | Secciones del menú (paneles en el código): máximo 5 activas, títulos de hasta 16 caracteres, orden arrastrando, pausar. Editor en línea (`PanelItemsEditor`, `PanelItemForm`): una lista de categorías que se ordena arrastrando; las primeras 4 van al desplegable y las demás solo a la barra lateral. La imagen es automática, salvo que se elijan productos (`ProductoImagenSelector`). La sección de una categoría también se elige desde Categorías, que avisa si no aparece en el menú |
 | Clientes | `/clientes` | Tarjetas con detalle, búsqueda, copiar email/teléfono, WhatsApp, exportación a Excel con encabezado en los colores de marca (todos los clientes cargados, no solo los filtrados) |
 | Configuración | `/configuracion` | Secciones: información del local, sucursales, redes sociales (solo URLs `https://`) con red destacada, mensaje de alerta con vencimiento opcional y vista previa, y datos legales del titular (razón social, CUIT, domicilio legal; opcionales) |
 
@@ -310,9 +310,9 @@ Los datos del header salen de `usePaneles`: los paneles activos (con items, cate
 | `pedido_items` | Snapshot de nombre del producto, nombre de la variante (`nombre_variante`) y precio unitario; `producto_id`/`variante_id` pasan a NULL si se borra el producto o la variante |
 | `configuracion_tienda` | Fila única (columna `singleton`): nombre, dirección, teléfono, email (CHECK de formato), horarios, `redes_sociales` (jsonb), red destacada, `mensaje_alerta`, `mensaje_alerta_expira_en`, datos legales del proveedor (`razon_social`, `cuit` de 11 dígitos, `domicilio_legal`; vacíos en la demo) |
 | `sucursales` | Locales adicionales: nombre, dirección, orden |
-| `paneles_categoria` | Paneles de navegación: título, descripción, `orden` (único, NULL = automático), estado |
-| `paneles_categoria_items` | Categorías de un panel: nombre visible, orden, `es_card` (máx. 4 por panel); categoría única por panel |
-| `paneles_categoria_items_productos` | Productos cuyas imágenes ilustran cada card (`RESTRICT` al borrar el producto) |
+| `paneles_categoria` | Secciones del menú: título (hasta 16 caracteres), descripción, `orden` (único), estado (máx. 5 activas por trigger) |
+| `paneles_categoria_items` | Categorías de una sección: nombre visible y orden (las primeras 4 activas van al desplegable); categoría única por sección, y el admin la deja en una sola |
+| `paneles_categoria_items_productos` | Productos elegidos a mano como imagen de una categoría (`CASCADE` al borrar el producto); sin filas, se usa la imagen automática |
 | `admins` | Allowlist de administradores (1:1 con `auth.users`) |
 | `clientes` | Perfil de clientes (1:1 con `auth.users`) |
 
@@ -334,7 +334,8 @@ Los datos del header salen de `usePaneles`: los paneles activos (con items, cate
 | `handle_new_cliente()` | Trigger sobre `auth.users` | Crea la fila de `clientes` desde la metadata del registro |
 | `limpiar_mensaje_alerta_vencido()` | SECURITY DEFINER, sin acceso por API | La corre pg_cron cada minuto; borra el mensaje vencido |
 | `validar_transicion_pedido()` | Trigger | Matriz de estados (7.4) |
-| `fn_validar_max_destacados()`, `fn_validar_max_items_panel()` | Triggers | Topes de 10 destacados y 4 cards por panel |
+| `imagenes_categorias_menu(uuid[])` | SECURITY INVOKER, anon y authenticated | Imagen automática del menú: hasta 2 productos disponibles con imagen por categoría, primero destacados y después los más nuevos |
+| `fn_validar_max_destacados()`, `fn_validar_max_paneles_activos()` | Triggers | Topes de 10 destacados y 5 secciones activas |
 | `actualizar_timestamp_pedidos()` | Trigger | Mantiene `actualizado_en` |
 
 ## 7.4 Estados de pedido

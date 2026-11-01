@@ -1,11 +1,5 @@
-import { Fragment, useEffect, useState, useCallback } from "react";
-import {
-  supabase,
-  mapearPanelCategoria,
-  mapearPanelCategoriaItem,
-  mapearPanelCategoriaItemProducto,
-  mapearCategoria,
-} from "@shared";
+import { Fragment, useEffect, useRef, useState, useCallback } from "react";
+import { supabase, mapearCategoria, MAX_SECCIONES_ACTIVAS } from "@shared";
 import type { Categoria, ProductoCategoria } from "@shared";
 import PanelForm from "../components/PanelForm";
 import PanelItemsEditor from "../components/PanelItemsEditor";
@@ -45,9 +39,13 @@ export default function PanelsPage() {
   const [categorias, setCategorias] = useState<Categoria[]>([]);
   const [relaciones, setRelaciones] = useState<ProductoCategoria[]>([]);
   const [productos, setProductos] = useState<
-    { id: string; nombre: string; imagen_url: string | null }[]
+    { id: string; nombre: string; imagen_url: string | null; estado: string }[]
   >([]);
+  const [imagenesAutomaticas, setImagenesAutomaticas] = useState<
+    Record<string, string[]>
+  >({});
   const [selPanelId, setSelPanelId] = useState<string | null>(null);
+  const abrioPrimera = useRef(false);
   const [editando, setEditando] = useState<PanelRow | null>(null);
   const [creando, setCreando] = useState(false);
   const [modoAccion, setModoAccion] = useState<"eliminar" | "pausar" | null>(
@@ -74,7 +72,7 @@ export default function PanelsPage() {
         .order("orden"),
       supabase.from("categorias").select("*"),
       supabase.from("producto_categorias").select("*"),
-      supabase.from("productos").select("id, nombre, imagen_url"),
+      supabase.from("productos").select("id, nombre, imagen_url, estado"),
     ]);
     if (rP.error) {
       setError(rP.error.message);
@@ -106,6 +104,22 @@ export default function PanelsPage() {
       setLoading(false);
       return;
     }
+    // Las mismas imágenes automáticas que usa la tienda. Si falla, las
+    // categorías se muestran sin imagen y el resto de la pantalla sigue andando.
+    const rAuto = await supabase.rpc("imagenes_categorias_menu", {
+      p_categoria_ids: rI.data.map((i) => i.categoria_id),
+    });
+    const automaticas: Record<string, string[]> = {};
+    (rAuto.data ?? []).forEach((fila) => {
+      const url = fila.imagen_miniatura_url ?? fila.imagen_url;
+      if (url) (automaticas[fila.categoria_id] ??= []).push(url);
+    });
+    setImagenesAutomaticas(automaticas);
+    // Solo la primera carga: si después el usuario cierra todas, quedan cerradas
+    if (!abrioPrimera.current) {
+      abrioPrimera.current = true;
+      setSelPanelId(rP.data[0]?.id ?? null);
+    }
     setPaneles(rP.data);
     setItems(rI.data);
     setItemProductos(rIP.data);
@@ -119,14 +133,29 @@ export default function PanelsPage() {
     cargar();
   }, [cargar]);
 
+  // Avisa antes de abrir un formulario que después no se podría guardar
+  async function hayLugarParaActivar() {
+    if (activas < MAX_SECCIONES_ACTIVAS) return true;
+    await notify(
+      `Ya hay ${MAX_SECCIONES_ACTIVAS} secciones activas: es el máximo para que la barra de la tienda se vea bien. Pausá una antes de activar otra.`,
+      { titulo: "Menú completo" },
+    );
+    return false;
+  }
+
+  async function abrirNueva() {
+    if (await hayLugarParaActivar()) setCreando(true);
+  }
+
   async function toggleEstado(p: PanelRow) {
+    if (p.estado !== "activo" && !(await hayLugarParaActivar())) return;
     const nuevo = p.estado === "activo" ? "pausado" : "activo";
     const mensaje =
       p.estado === "activo"
-        ? `¿Pausar el panel «${p.titulo}»? Dejará de mostrarse en el sitio.`
-        : `¿Reactivar el panel «${p.titulo}»? Volverá a mostrarse en el sitio.`;
+        ? `¿Pausar la sección «${p.titulo}»? Dejará de mostrarse en el sitio.`
+        : `¿Reactivar la sección «${p.titulo}»? Volverá a mostrarse en el sitio.`;
     const confirmado = await confirm(mensaje, {
-      titulo: p.estado === "activo" ? "Pausar panel" : "Reactivar panel",
+      titulo: p.estado === "activo" ? "Pausar sección" : "Reactivar sección",
       textoConfirmar: p.estado === "activo" ? "Pausar" : "Reactivar",
     });
     if (!confirmado) return;
@@ -138,7 +167,7 @@ export default function PanelsPage() {
       await notify(err.message, { titulo: "Error" });
       return;
     }
-    toast(p.estado === "activo" ? "Panel pausado." : "Panel reactivado.");
+    toast(p.estado === "activo" ? "Sección pausada." : "Sección reactivada.");
     cargar();
   }
 
@@ -151,8 +180,8 @@ export default function PanelsPage() {
   async function eliminarSeleccionados() {
     const cantidad = seleccionados.length;
     const confirmado = await confirm(
-      `¿Eliminar ${cantidad} panel(es)? Se eliminarán también sus cards asociadas.`,
-      { titulo: "Eliminar paneles", textoConfirmar: "Eliminar" },
+      `¿Eliminar ${cantidad} sección(es)? Sus categorías y productos no se borran, pero dejan de aparecer en el menú hasta que las agregues a otra sección.`,
+      { titulo: "Eliminar secciones", textoConfirmar: "Eliminar" },
     );
     if (!confirmado) return;
     const { error: err } = await supabase
@@ -163,7 +192,7 @@ export default function PanelsPage() {
       await notify(err.message, { titulo: "Error" });
       return;
     }
-    toast(`${cantidad} panel(es) eliminado(s).`);
+    toast(`${cantidad} sección(es) eliminada(s).`);
     setSeleccionados([]);
     setModoAccion(null);
     cargar();
@@ -172,8 +201,8 @@ export default function PanelsPage() {
   async function pausarSeleccionados() {
     const cantidad = seleccionados.length;
     const confirmado = await confirm(
-      `¿Pausar ${cantidad} panel(es)? Dejarán de mostrarse en el sitio.`,
-      { titulo: "Pausar paneles", textoConfirmar: "Pausar" },
+      `¿Pausar ${cantidad} sección(es)? Dejarán de mostrarse en el sitio.`,
+      { titulo: "Pausar secciones", textoConfirmar: "Pausar" },
     );
     if (!confirmado) return;
     const { error: err } = await supabase
@@ -184,7 +213,7 @@ export default function PanelsPage() {
       await notify(err.message, { titulo: "Error" });
       return;
     }
-    toast(`${cantidad} panel(es) pausado(s).`);
+    toast(`${cantidad} sección(es) pausada(s).`);
     setSeleccionados([]);
     setModoAccion(null);
     cargar();
@@ -263,8 +292,11 @@ export default function PanelsPage() {
 
   const panelSel = paneles.find((p) => p.id === selPanelId) ?? null;
   const itemsSel = items.filter((i) => i.panel_id === selPanelId);
+  const activas = paneles.filter((p) => p.estado === "activo").length;
+  const siguienteOrden =
+    paneles.reduce((max, p) => Math.max(max, p.orden ?? 0), 0) + 1;
 
-  // Orden | Panel | Estado | Categorías | Acciones (+ selección)
+  // Orden | Sección | Estado | Categorías | Acciones (+ selección)
   const colsBase =
     "2.4rem minmax(10rem, 1fr) minmax(5rem, 7rem) minmax(5rem, 7rem) minmax(7rem, 10rem)";
   const colsConCheckbox =
@@ -285,12 +317,15 @@ export default function PanelsPage() {
         <input
           className={styles.inputBusquedaPanel}
           type="text"
-          placeholder="Buscar panel..."
+          placeholder="Buscar sección..."
           value={busqueda}
           onChange={(e) => setBusqueda(e.target.value)}
         />
-        <button className={styles.btnNuevo} onClick={() => setCreando(true)}>
-          + Nuevo panel
+        <span className={styles.contadorActivas}>
+          {activas}/{MAX_SECCIONES_ACTIVAS} activas
+        </span>
+        <button className={styles.btnNuevo} onClick={abrirNueva}>
+          + Nueva sección
         </button>
         <div className={styles.modos}>
           <button
@@ -321,7 +356,7 @@ export default function PanelsPage() {
           {seleccionados.length > 0 ? (
             <>
               <span className={styles.seleccionadosInfo}>
-                {seleccionados.length} panel(es) seleccionado(s)
+                {seleccionados.length} sección(es) seleccionada(s)
               </span>
               <button
                 className={`${styles.btnConfirmarAccion} ${modoAccion === "eliminar" ? styles.btnConfirmarEliminar : styles.btnConfirmarPausar}`}
@@ -332,12 +367,12 @@ export default function PanelsPage() {
                 }
               >
                 {modoAccion === "eliminar" ? "Eliminar" : "Pausar"}{" "}
-                {seleccionados.length} panel(es)
+                {seleccionados.length} sección(es)
               </button>
             </>
           ) : (
             <span className={styles.seleccionadosInfo}>
-              Marcá los paneles en la columna de la derecha.
+              Marcá las secciones en la columna de la derecha.
             </span>
           )}
         </div>
@@ -347,18 +382,17 @@ export default function PanelsPage() {
         <div className={styles.estadoVacioPaneles}>
           {paneles.length === 0 ? (
             <>
-              <p className={styles.vacio}>Todavía no creaste ningún panel.</p>
-              <button
-                className={styles.btnNuevo}
-                onClick={() => setCreando(true)}
-              >
-                + Nuevo panel
+              <p className={styles.vacio}>
+                Todavía no creaste ninguna sección del menú.
+              </p>
+              <button className={styles.btnNuevo} onClick={abrirNueva}>
+                + Nueva sección
               </button>
             </>
           ) : (
             <>
               <p className={styles.vacio}>
-                No se encontraron paneles con ese nombre.
+                No se encontraron secciones con ese nombre.
               </p>
               <button
                 className={styles.btnSeleccion}
@@ -373,7 +407,7 @@ export default function PanelsPage() {
         <div className={styles.tabla}>
           <div className={styles.filaHeader} style={colsVar}>
             <span>#</span>
-            <span>Panel</span>
+            <span>Sección</span>
             <span>Estado</span>
             <span>Categorías</span>
             <span></span>
@@ -390,13 +424,13 @@ export default function PanelsPage() {
               onDragOver={(e) => handleDragOver(e, p.id)}
               onDrop={() => handleDrop(p.id)}
               onDragEnd={handleDragEnd}
+              onClick={(e) => {
+                // Los botones y la casilla de la fila hacen lo suyo, no abren la sección
+                if ((e.target as HTMLElement).closest("button, label")) return;
+                setSelPanelId(selPanelId === p.id ? null : p.id);
+              }}
             >
-              <span
-                className={`${styles.orden} ${p.orden === null ? styles.ordenSinAsignar : ""}`}
-                title={p.orden === null ? "Orden sin asignar" : `Orden ${p.orden}`}
-              >
-                {p.orden ?? "–"}
-              </span>
+              <span className={styles.orden}>{paneles.indexOf(p) + 1}</span>
               <div className={styles.celdaTitulo}>
                 {puedeArrastrar && (
                   <span
@@ -491,6 +525,8 @@ export default function PanelsPage() {
             {selPanelId === p.id && panelSel && (
               <PanelItemsEditor
                 panel={panelSel}
+                paneles={paneles}
+                imagenesAutomaticas={imagenesAutomaticas}
                 items={itemsSel}
                 todosLosItems={items}
                 itemProductos={itemProductos}
@@ -508,6 +544,7 @@ export default function PanelsPage() {
       {(editando || creando) && (
         <PanelForm
           panel={editando ?? undefined}
+          siguienteOrden={siguienteOrden}
           onClose={() => {
             setEditando(null);
             setCreando(false);

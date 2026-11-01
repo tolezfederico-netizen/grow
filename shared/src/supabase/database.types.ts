@@ -501,6 +501,15 @@ export type Database = {
         }
         Returns: string
       }
+      imagenes_categorias_menu: {
+        Args: { p_categoria_ids: string[] }
+        Returns: {
+          categoria_id: string
+          imagen_miniatura_url: string | null
+          imagen_url: string | null
+          producto_id: string
+        }[]
+      }
       is_admin: { Args: never; Returns: boolean }
       limpiar_mensaje_alerta_vencido: { Args: never; Returns: undefined }
     }

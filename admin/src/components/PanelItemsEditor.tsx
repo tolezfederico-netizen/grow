@@ -1,24 +1,20 @@
-import { useState, type DragEvent } from 'react'
-import { supabase } from '@shared'
+import { Fragment, useState, type DragEvent } from 'react'
+import { supabase, CATEGORIAS_EN_DESPLEGABLE } from '@shared'
 import type { Categoria, ProductoCategoria } from '@shared'
-import PanelItemForm from './PanelItemForm'
+import { AgregarCategoriaForm, ImagenCategoriaForm } from './PanelItemForm'
 import { useConfirm } from '../context/ConfirmContext'
 import styles from './PanelItemsEditor.module.css'
 
 interface PanelRow {
   id: string
   titulo: string
-  orden: number | null
-  estado: string
 }
 
 interface PanelItemRow {
   id: string
   panel_id: string
   categoria_id: string
-  nombre_visible: string | null
   orden: number
-  es_card?: boolean
 }
 
 interface ItemProductoRow {
@@ -28,56 +24,71 @@ interface ItemProductoRow {
   orden: number
 }
 
+interface ProductoRow {
+  id: string
+  nombre: string
+  imagen_url: string | null
+  estado: string
+}
+
 interface Props {
   panel: PanelRow
+  paneles: PanelRow[]
   items: PanelItemRow[]
   todosLosItems: PanelItemRow[]
   itemProductos: ItemProductoRow[]
   categorias: Categoria[]
   relaciones: ProductoCategoria[]
-  productos: { id: string; nombre: string; imagen_url: string | null }[]
+  productos: ProductoRow[]
+  /** Imagen que la tienda usa en cada categoría sin una elegida a mano */
+  imagenesAutomaticas: Record<string, string[]>
   onReload: () => void
 }
 
-export default function PanelItemsEditor({ panel, items, todosLosItems, itemProductos, categorias, relaciones, productos, onReload }: Props) {
-  const [editandoItem, setEditandoItem] = useState<PanelItemRow | null>(null)
-  const [creandoItem, setCreandoItem] = useState(false)
+export default function PanelItemsEditor({ panel, paneles, items, todosLosItems, itemProductos, categorias, relaciones, productos, imagenesAutomaticas, onReload }: Props) {
+  const [imagenDe, setImagenDe] = useState<PanelItemRow | null>(null)
+  const [agregando, setAgregando] = useState(false)
   const [draggedItemId, setDraggedItemId] = useState<string | null>(null)
   const [dragOverItemId, setDragOverItemId] = useState<string | null>(null)
-  const [mostrarPreview, setMostrarPreview] = useState(false)
   const { confirm, notify } = useConfirm()
 
+  const productosElegibles = productos.filter(p => p.imagen_url && p.estado !== 'pausado')
+
+  function categoria(catId: string) {
+    return categorias.find(c => c.id === catId)
+  }
+
   function nombreCategoria(catId: string) {
-    return categorias.find(c => c.id === catId)?.nombre ?? catId
+    return categoria(catId)?.nombre ?? catId
   }
 
-  function imagenesCount(itemId: string) {
-    return itemProductos.filter(ip => ip.item_id === itemId).length
+  // Misma regla que la tienda: lo elegido a mano si se puede mostrar; si no, lo automático
+  function imagenes(item: PanelItemRow): { urls: string[]; elegida: boolean } {
+    const elegidas = itemProductos
+      .filter(ip => ip.item_id === item.id)
+      .sort((a, b) => a.orden - b.orden)
+      .map(ip => productosElegibles.find(p => p.id === ip.producto_id)?.imagen_url)
+      .filter((url): url is string => !!url)
+      .slice(0, 2)
+    if (elegidas.length > 0) return { urls: elegidas, elegida: true }
+    return { urls: imagenesAutomaticas[item.categoria_id] ?? [], elegida: false }
   }
 
-  const cardsCount = items.filter(i => i.es_card).length
+  // Una categoría pausada no se ve en la tienda, así que no ocupa lugar en el desplegable
+  const activos = items.filter(i => categoria(i.categoria_id)?.estado !== 'pausada')
+  const enDesplegable = new Set(activos.slice(0, CATEGORIAS_EN_DESPLEGABLE).map(i => i.id))
+  const primeroEnLateral = activos[CATEGORIAS_EN_DESPLEGABLE]?.id
 
-  const cardsOrdenadas = items
-    .filter(i => i.es_card)
-    .sort((a, b) => a.orden - b.orden)
-    .map(item => {
-      const primeraImagen = itemProductos
-        .filter(ip => ip.item_id === item.id)
-        .sort((a, b) => a.orden - b.orden)[0]
-      const producto = primeraImagen ? productos.find(p => p.id === primeraImagen.producto_id) : undefined
-      return {
-        id: item.id,
-        nombre: nombreCategoria(item.categoria_id),
-        imagenUrl: producto?.imagen_url ?? null,
-      }
-    })
+  const seccionDeCategoria: Record<string, string> = {}
+  todosLosItems.forEach(i => {
+    seccionDeCategoria[i.categoria_id] = paneles.find(p => p.id === i.panel_id)?.titulo ?? ''
+  })
 
-  async function eliminarItem(item: PanelItemRow) {
-    const imgCount = imagenesCount(item.id)
-    const msg = imgCount > 0
-      ? `¿Eliminar esta categoría? También se desvincularán sus ${imgCount} imágenes.`
-      : '¿Eliminar esta categoría del panel?'
-    const confirmado = await confirm(msg, { titulo: 'Eliminar categoría del panel', textoConfirmar: 'Eliminar' })
+  async function quitarItem(item: PanelItemRow) {
+    const confirmado = await confirm(
+      `¿Quitar «${nombreCategoria(item.categoria_id)}» de esta sección? La categoría y sus productos no se borran, pero deja de aparecer en el menú.`,
+      { titulo: 'Quitar categoría', textoConfirmar: 'Quitar' },
+    )
     if (!confirmado) return
     const { error: err } = await supabase.from('paneles_categoria_items').delete().eq('id', item.id)
     if (err) { await notify(err.message, { titulo: 'Error' }); return }
@@ -112,19 +123,11 @@ export default function PanelItemsEditor({ panel, items, todosLosItems, itemProd
     setDraggedItemId(null)
     setDragOverItemId(null)
 
-    const updatesTemp = orden.map((it, i) =>
-      supabase.from('paneles_categoria_items').update({ orden: -(i + 1) }).eq('id', it.id)
+    const resultados = await Promise.all(
+      orden.map((it, i) => supabase.from('paneles_categoria_items').update({ orden: i }).eq('id', it.id)),
     )
-    const resultadosTemp = await Promise.all(updatesTemp)
-    const conErrorTemp = resultadosTemp.find(r => r.error)
-    if (conErrorTemp?.error) { await notify(conErrorTemp.error.message, { titulo: 'Error al reordenar' }); return }
-
-    const updatesFinal = orden.map((it, i) =>
-      supabase.from('paneles_categoria_items').update({ orden: i }).eq('id', it.id)
-    )
-    const resultadosFinal = await Promise.all(updatesFinal)
-    const conErrorFinal = resultadosFinal.find(r => r.error)
-    if (conErrorFinal?.error) { await notify(conErrorFinal.error.message, { titulo: 'Error al reordenar' }); return }
+    const conError = resultados.find(r => r.error)
+    if (conError?.error) { await notify(conError.error.message, { titulo: 'Error al reordenar' }); return }
     onReload()
   }
 
@@ -137,88 +140,100 @@ export default function PanelItemsEditor({ panel, items, todosLosItems, itemProd
     <div className={styles.editor}>
       <div className={styles.header}>
         <h3 className={styles.titulo}>Categorías de: {panel.titulo}</h3>
-        <div className={styles.headerRight}>
-          <span className={`${styles.contador} ${cardsCount >= 4 ? styles.contadorLleno : ''}`}>{cardsCount}/4 marcadas como card visual</span>
-          <button className={styles.btnPreview} onClick={() => setMostrarPreview(v => !v)}>
-            {mostrarPreview ? 'Ocultar vista previa' : 'Vista previa'}
-          </button>
-          <button className={styles.btnNuevo} onClick={() => setCreandoItem(true)}>+ Agregar categoría</button>
-        </div>
+        <button className={styles.btnNuevo} onClick={() => setAgregando(true)}>+ Agregar categoría</button>
       </div>
 
-      {mostrarPreview && (
-        <div className={styles.preview}>
-          {cardsOrdenadas.length === 0 ? (
-            <p className={styles.previewVacio}>Este panel no tiene categorías marcadas como card visual todavía.</p>
-          ) : (
-            <div className={styles.previewGrid}>
-              {cardsOrdenadas.map((c, i) => (
-                <div key={c.id} className={styles.previewCard}>
-                  <span className={styles.previewOrden}>{i + 1}</span>
-                  {c.imagenUrl ? (
-                    <img src={c.imagenUrl} alt={c.nombre} className={styles.previewImg} />
-                  ) : (
-                    <div className={styles.previewImgPlaceholder}>Sin imagen</div>
-                  )}
-                  <span className={styles.previewNombre}>{c.nombre}</span>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
-
       {items.length === 0 ? (
-        <p className={styles.vacio}>Este panel no tiene categorías todavía.</p>
+        <p className={styles.vacio}>Esta sección no tiene categorías todavía: hasta que le agregues una, no aparece en la tienda.</p>
       ) : (
-        <table className={styles.tabla}>
-          <thead>
-            <tr><th>Categoría</th><th>Orden</th><th>Card visual</th><th></th></tr>
-          </thead>
-          <tbody>
-            {items.map(item => (
-              <tr
-                key={item.id}
-                draggable
-                onDragStart={() => handleDragStartItem(item.id)}
-                onDragOver={e => handleDragOverItem(e, item.id)}
-                onDrop={() => handleDropItem(item.id)}
-                onDragEnd={handleDragEndItem}
-                className={`${dragOverItemId === item.id ? styles.dragOver : ''} ${draggedItemId === item.id ? styles.arrastrando : ''}`}
-              >
-                <td>
-                  <span className={styles.dragHandle} aria-hidden="true" title="Arrastrar para reordenar">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-                      <circle cx="9" cy="6" r="1.5" /><circle cx="15" cy="6" r="1.5" />
-                      <circle cx="9" cy="12" r="1.5" /><circle cx="15" cy="12" r="1.5" />
-                      <circle cx="9" cy="18" r="1.5" /><circle cx="15" cy="18" r="1.5" />
-                    </svg>
-                  </span>
-                  {nombreCategoria(item.categoria_id)}
-                </td>
-                <td>{item.orden}</td>
-                <td>{item.es_card ? <span className={styles.badgeCard}>Card</span> : <span className={styles.badgeLista}>Solo listado</span>}</td>
-                <td className={styles.acciones}>
-                  <button className={styles.btnAccion} onClick={() => setEditandoItem(item)}>Editar</button>
-                  <button className={styles.btnAccion} onClick={() => eliminarItem(item)}>Eliminar</button>
-                </td>
+        <>
+          <p className={styles.ayuda}>
+            <strong>Arrastrá las categorías para ordenarlas.</strong> Las primeras {CATEGORIAS_EN_DESPLEGABLE} se ven con imagen al abrir la sección en el menú.
+          </p>
+          <table className={styles.tabla}>
+            <colgroup>
+              <col className={styles.colNombre} />
+              <col />
+              <col className={styles.colAcciones} />
+            </colgroup>
+            <tbody>
+              <tr className={styles.divisor}>
+                <td colSpan={3}>Se ven en el menú desplegable</td>
               </tr>
-            ))}
-          </tbody>
-        </table>
+              {items.map(item => {
+                const pausada = categoria(item.categoria_id)?.estado === 'pausada'
+                const destacada = enDesplegable.has(item.id)
+                const { urls, elegida } = imagenes(item)
+                return (
+                  <Fragment key={item.id}>
+                    {item.id === primeroEnLateral && (
+                      <tr className={styles.divisor}>
+                        <td colSpan={3}>Solo en la barra lateral de productos</td>
+                      </tr>
+                    )}
+                    <tr
+                      draggable
+                      onDragStart={() => handleDragStartItem(item.id)}
+                      onDragOver={e => handleDragOverItem(e, item.id)}
+                      onDrop={() => handleDropItem(item.id)}
+                      onDragEnd={handleDragEndItem}
+                      className={`${dragOverItemId === item.id ? styles.dragOver : ''} ${draggedItemId === item.id ? styles.arrastrando : ''}`}
+                    >
+                      <td>
+                        <span className={styles.dragHandle} aria-hidden="true" title="Arrastrar para reordenar">
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                            <circle cx="9" cy="6" r="1.5" /><circle cx="15" cy="6" r="1.5" />
+                            <circle cx="9" cy="12" r="1.5" /><circle cx="15" cy="12" r="1.5" />
+                            <circle cx="9" cy="18" r="1.5" /><circle cx="15" cy="18" r="1.5" />
+                          </svg>
+                        </span>
+                        {nombreCategoria(item.categoria_id)}
+                      </td>
+                      <td>
+                        {pausada && <span className={styles.badgePausada}>Pausada: no se ve en la tienda</span>}
+                        {destacada && (
+                          <div className={styles.imagenes}>
+                            {urls.map(url => <img key={url} src={url} alt="" className={styles.miniatura} />)}
+                            <span className={styles.origenImagen}>
+                              {urls.length === 0 ? 'Sin imagen' : elegida ? 'Elegida' : 'Automática'}
+                            </span>
+                          </div>
+                        )}
+                      </td>
+                      <td className={styles.acciones}>
+                        {destacada && <button className={styles.btnAccion} onClick={() => setImagenDe(item)}>Cambiar imagen</button>}
+                        <button className={`${styles.btnAccion} ${styles.btnQuitar}`} onClick={() => quitarItem(item)}>Quitar</button>
+                      </td>
+                    </tr>
+                  </Fragment>
+                )
+              })}
+            </tbody>
+          </table>
+        </>
       )}
 
-      {(editandoItem || creandoItem) && (
-        <PanelItemForm
-          item={editandoItem ?? undefined}
+      {agregando && (
+        <AgregarCategoriaForm
           panelId={panel.id}
+          panelTitulo={panel.titulo}
           categorias={categorias}
+          seccionDeCategoria={seccionDeCategoria}
+          siguienteOrden={items.reduce((max, i) => Math.max(max, i.orden), -1) + 1}
+          onClose={() => setAgregando(false)}
+          onSave={() => { setAgregando(false); onReload() }}
+        />
+      )}
+
+      {imagenDe && (
+        <ImagenCategoriaForm
+          itemId={imagenDe.id}
+          categoriaId={imagenDe.categoria_id}
+          categoriaNombre={nombreCategoria(imagenDe.categoria_id)}
           relaciones={relaciones}
-          productos={productos}
-          itemsExistentes={todosLosItems}
-          cardsActualesCount={cardsCount}
-          onClose={() => { setEditandoItem(null); setCreandoItem(false) }}
-          onSave={() => { setEditandoItem(null); setCreandoItem(false); onReload() }}
+          productos={productosElegibles}
+          onClose={() => setImagenDe(null)}
+          onSave={() => { setImagenDe(null); onReload() }}
         />
       )}
     </div>

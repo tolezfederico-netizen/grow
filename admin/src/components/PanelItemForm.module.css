@@ -98,28 +98,6 @@ select.input {
   cursor: pointer;
 }
 
-.checkRow {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.5rem;
-  font-size: 0.8rem;
-  font-weight: 600;
-  line-height: 1.4;
-  overflow-wrap: break-word;
-  cursor: pointer;
-}
-
-.checkRow input {
-  margin-top: 0.1rem;
-}
-
-.avisoLimite {
-  margin: 0;
-  font-size: 0.72rem;
-  color: var(--color-texto-suave);
-  overflow-wrap: break-word;
-}
-
 /* Campo con etiqueta arriba, como en el modal de producto */
 .campo {
   display: flex;
@@ -136,21 +114,10 @@ select.input {
   text-transform: uppercase;
 }
 
-.inputOrden {
-  max-width: 7rem;
-  font-family: var(--font-display);
-}
-
 .ayuda {
-  font-size: 0.7rem;
+  font-size: 0.76rem;
   font-weight: 500;
-  color: var(--color-texto-suave);
-}
-
-.filaCampos {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 0.75rem;
+  color: var(--color-secondary);
 }
 
 .error {
@@ -184,6 +151,10 @@ select.input {
 
 .btnGuardar {
   background: var(--color-primary);
+}
+
+.btnAutomatica {
+  margin-right: auto;
 }
 
 .btnGuardar:disabled {

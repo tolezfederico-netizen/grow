@@ -23,7 +23,7 @@ export default function ArticulosSidebar({ busqueda, setBusqueda, categoriaActiv
     if (panelActivo) setPanelExpandido(panelActivo)
   }, [panelActivo])
 
-  if (loading) return <div className={styles.sidebar}><LoadingState mensaje="Cargando paneles…" /></div>
+  if (loading) return <div className={styles.sidebar}><LoadingState mensaje="Cargando menú…" /></div>
   if (error) return <div className={styles.sidebar}><ErrorState mensaje={error} /></div>
 
   const itemsCount = items.reduce((s, i) => s + i.cantidad, 0)
@@ -74,19 +74,15 @@ export default function ArticulosSidebar({ busqueda, setBusqueda, categoriaActiv
               </button>
               {expandido && (
                 <div className={styles.panelBody}>
-                  {p.items.length === 0 ? (
-                    <p className={styles.sinCats}>Sin categorías</p>
-                  ) : (
-                    p.items.map(item => (
-                      <button
-                        key={item.id}
-                        className={`${styles.catItem} ${categoriaActiva === item.categoria_id ? styles.activo : ''}`}
-                        onClick={() => navigate(`/productos/${item.categoria_id}`)}
-                      >
-                        {item.nombre_visible ?? item.categoria_nombre}
-                      </button>
-                    ))
-                  )}
+                  {p.items.map(item => (
+                    <button
+                      key={item.id}
+                      className={`${styles.catItem} ${categoriaActiva === item.categoria_id ? styles.activo : ''}`}
+                      onClick={() => navigate(`/productos/${item.categoria_id}`)}
+                    >
+                      {item.nombre_visible ?? item.categoria_nombre}
+                    </button>
+                  ))}
                 </div>
               )}
             </div>

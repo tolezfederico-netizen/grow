@@ -100,7 +100,7 @@ export default function Header({ variant = "full" }: HeaderProps) {
 
           {panel && (
             <div className={styles.dropdown}>
-              <CategoryDropdown panel={panel} />
+              <CategoryDropdown panel={panel} onCerrar={() => setPanelActivo(null)} />
             </div>
           )}
         </div>

@@ -17,7 +17,6 @@ export interface PanelCategoriaItem {
   categoria_id: string
   nombre_visible: string | null
   orden: number
-  es_card: boolean
 }
 
 export type PanelCategoriaItemInput = Omit<PanelCategoriaItem, 'id'>

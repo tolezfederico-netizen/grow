@@ -175,14 +175,7 @@ export default function ProductsPage() {
       .in("id", seleccionados)
       .select("imagen_url, imagen_miniatura_url");
     if (err) {
-      if (err.code === "23503") {
-        await notify(
-          "Uno o más productos seleccionados están siendo usados como imagen en un panel de navegación y no pueden eliminarse. Desvinculalos del panel primero desde Paneles.",
-          { titulo: "No se puede eliminar" },
-        );
-      } else {
-        await notify(err.message, { titulo: "Error" });
-      }
+      await notify(err.message, { titulo: "Error" });
       return;
     }
     // Sus imágenes ya no las usa nadie: se borran del bucket. Si falla, el

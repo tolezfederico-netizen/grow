@@ -41,7 +41,7 @@ export default function ProductoImagenSelector({ productos, relaciones, categori
 
   return (
     <div className={styles.wrapper}>
-      <p className={styles.label}>Imágenes para la card (seleccioná hasta 2 productos de esta categoría):</p>
+      <p className={styles.label}>Elegí hasta 2 productos para mostrar su imagen. Si no elegís ninguno, la tienda usa uno de la categoría automáticamente.</p>
       <div className={styles.grilla}>
         {productosFiltrados.map(p => {
           const sel = selectedIds.includes(p.id)
@@ -68,7 +68,7 @@ export default function ProductoImagenSelector({ productos, relaciones, categori
           )
         })}
       </div>
-      {productosFiltrados.length === 0 && <p className={styles.vacio}>No hay productos para esta categoría.</p>}
+      {productosFiltrados.length === 0 && <p className={styles.vacio}>Esta categoría no tiene productos con imagen.</p>}
     </div>
   )
 }

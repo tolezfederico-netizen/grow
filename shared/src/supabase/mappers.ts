@@ -273,7 +273,6 @@ export function mapearPanelCategoriaItem(row: {
   categoria_id: string
   nombre_visible: string | null
   orden: number
-  es_card: boolean
 }): PanelCategoriaItem {
   return { ...row }
 }

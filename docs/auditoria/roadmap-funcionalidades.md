@@ -86,7 +86,7 @@ Lo que mejora la conversión y la operación cuando ya hay pedidos reales.
 | 3.6 | Reseñas reales (tabla moderada por el admin o Google Place) | Medio | M | 1.1 | |
 | 3.7 | Idempotencia del checkout (clave de intento) (C4) | Bajo | S | — | |
 | 3.8 | Optimizaciones: logo comprimido, `exceljs` lazy, imágenes con tamaño (A5) | Bajo | S | — | |
-| 3.9 | Simplificar paneles (modo "solo categorías") | Bajo | M | — | No invertir más en el modo avanzado |
+| 3.9 | Simplificar paneles (modo "solo categorías") | Bajo | M | — | Código listo el 31/10/2026: una sola lista ordenada por sección e imagen automática. Faltan las migraciones `2026-10-31-menu-simple*.sql` y el deploy |
 | 3.10 | Etapa mobile del admin | Medio | M | — | Ya pendiente en v13 |
 
 ## Nota sobre SEO en una SPA de Vite
