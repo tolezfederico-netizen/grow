@@ -36,7 +36,7 @@ Excepciones deliberadas (no son deuda técnica):
 |---|---|---|
 | Colores y tipografías del tema | Variables `:root` de `client/src/index.css` y `admin/src/index.css` | Se ajustan por despliegue; el admin no los edita. |
 | Reseñas de clientes | `client/src/components/home/ReviewsCarousel/ReviewsCarousel.tsx` (10 reseñas de ejemplo ficticias y genéricas, sin promedio ni total; avatares SVG ilustrados en `AvatarIlustrado.tsx`, con los colores del tema) | Decisión de producto: el desarrollador las mantiene, el admin no las edita. Al personalizar para un negocio se reemplazan por reseñas reales o se oculta la sección. |
-| Logo | `client/src/assets/logo.webp` (506 × 160 px, ~24 KB) y `admin/src/assets/logo.png` | Asset gráfico por despliegue, igual que los colores. En la tienda va en WebP liviano: al personalizar, exportarlo a unos 160 px de alto. |
+| Logo | `client/src/assets/logo.webp` y `admin/src/assets/logo.webp` (506 × 160 px, ~20 KB) | Asset gráfico por despliegue, igual que los colores. Va en WebP liviano y duplicado en las dos apps: al personalizar, exportarlo a unos 160 px de alto y reemplazar los dos. |
 | Teléfonos argentinos | `shared/src/utils/telefono.ts`: formato `549` + área + número, códigos de área de 2 y 3 dígitos | Aceptado: los clientes objetivo son growshops de Argentina. Se revisa si aparece uno de otro país. |
 
 Quedan además textos "Grow" fijos que no se ven en la tienda: `<title>` de ambos `index.html`, el título "Grow Admin" del menú lateral y el nombre del archivo de exportación `Clientes_Grow_AAAA-MM-DD.xlsx`.
@@ -75,7 +75,7 @@ Monorepo con npm workspaces (`client`, `admin`, `shared`) en un único repositor
       pages/      HomePage, ProductsPage, ProductDetailPage, ResumePage,
                   LoginPage, RegisterPage, MiCuentaPage (+ miCuentaCache.ts),
                   TerminosCondicionesPage, PoliticaPrivacidadPage, NotFoundPage
-      utils/      redesSociales.tsx
+      utils/      redesSociales.tsx, variantes.ts
       assets/     logo.webp
     public/       favicon.ico, _headers
     vercel.json           (Vercel, sin uso; ver §12.1)
@@ -89,7 +89,7 @@ Monorepo con npm workspaces (`client`, `admin`, `shared`) en un único repositor
       pages/      LoginPage, DashboardPage, OrdersPage, ProductsPage,
                   CategoriesPage, PanelsPage, CustomersPage, SettingsPage
       utils/      iconoEstado.tsx
-      assets/     logo.png
+      assets/     logo.webp
     public/       iconadmin.ico, _headers
     vercel.json           (Vercel, sin uso; ver §12.1)
   shared/
@@ -126,7 +126,7 @@ Convenciones:
 | Frontend | React 18, TypeScript 5, Vite 5, React Router 6, CSS Modules |
 | Backend | Supabase: Postgres, Auth, RLS, RPC, Storage, pg_cron, Edge Functions (Deno) |
 | Emails | Resend (vía Edge Function) |
-| Exportación | `exceljs` en el admin (SheetJS gratuito no soporta estilos de celda) |
+| Exportación | `exceljs` en el admin (SheetJS gratuito no soporta estilos de celda); se descarga recién al exportar |
 | Hosting | Cloudflare Pages (dos proyectos) |
 | Mantenimiento | GitHub Actions (keep-alive) |
 
@@ -155,7 +155,7 @@ npm run typecheck        # los tres paquetes
 - SPA: sin `404.html` en la salida, Pages sirve `index.html` para cualquier ruta que no sea un archivo; no hace falta `_redirects`.
 - Ojo al crear un proyecto nuevo: **Create application** abre por defecto el flujo de Workers (con "Deploy command: `npx wrangler deploy`"). Hay que entrar por la opción de Pages, cuya pantalla se llama "Set up builds and deployments".
 - Auth de Supabase: la Site URL es la de Cloudflare y `https://grow-client.pages.dev/**` está en Redirect URLs, junto con la de Vercel y `http://localhost:5173/**` (el registro usa `emailRedirectTo` con el origen actual).
-- Vercel (dos proyectos con Root Directory `client/` y `admin/`) dejó de usarse el 01/11/2026; lo que falta para darlo de baja está en §12.1. Headers y variables se cambian solo en Cloudflare.
+- Vercel (dos proyectos con Root Directory `client/` y `admin/`) dejó de usarse el 01/11/2026 y queda sin borrar ni mantener (§12.1). Headers y variables se cambian solo en Cloudflare.
 - Headers de seguridad en `client/public/_headers` y `admin/public/_headers` (Vite los copia a `dist`):
   - `Content-Security-Policy`: scripts solo propios; estilos propios y Google Fonts; imágenes propias, `data:`, `blob:` y `*.supabase.co`; conexiones a `*.supabase.co` (https y wss); `frame-ancestors 'none'`; el client además permite frames de Google Maps. Si una instancia usa un dominio propio de Supabase, hay que agregarlo.
   - `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`, `Permissions-Policy` (sin cámara, micrófono, ubicación ni pagos).
@@ -249,6 +249,7 @@ Los datos del header salen de `usePaneles`: las secciones activas con al menos u
 | `useModalAccesible` | Escape, foco atrapado y restaurado en modales; mueve el foco con `preventScroll` para no desplazar la página al abrir o cerrar | Modal de ReviewsCarousel (en el admin existe una copia propia, todavía sin `preventScroll`) |
 | `useFooterVisible` | Indica si el footer entró en pantalla | Botones flotantes |
 | `redesSociales.tsx` | `parseRedSocial` (solo acepta URLs `https:`; WhatsApp se reduce a dígitos) y `RedSocialIcon` | HeaderTop, Banner, Footer |
+| `variantes.ts` | `cargarVariantesDisponibles` (agrupadas por producto) y `precioMinimo` | ProductsPage, FeaturedCarousel, HeaderTop |
 
 `usePaneles`, `useConfiguracionTienda` y `useSucursales` comparten una caché a nivel de módulo: la primera llamada hace la consulta y el resto reusa la misma promesa, una vez por pestaña (si falla, se descarta y el próximo intento reconsulta). Un cambio desde el admin se ve al recargar, igual que antes.
 
@@ -434,7 +435,7 @@ Hecho el 24/10/2026:
 - Cloudflare Pages (1.11): proyectos `grow-client` y `grow-admin` creados (§3.3) y probados en `*.pages.dev` (headers, rutas de la SPA, reserva con WhatsApp, login del admin y subida de imagen).
 
 - Site URL de Supabase Auth cambiada a la URL de Cloudflare.
-- Vercel dejó de usarse el 01/11/2026. Para terminar de darlo de baja: borrar los dos proyectos (siguen con el código que tenían y, si es anterior al menú simple, sin menú desde la limpieza de `es_card`), los dos `vercel.json` y la URL de Vercel de las Redirect URLs.
+- Vercel dejó de usarse el 01/11/2026. Por decisión del dueño, los dos proyectos, los dos `vercel.json` y la URL de Vercel en las Redirect URLs quedan como están, sin mantenimiento: si un proyecto tiene código anterior al menú simple, no muestra menú desde la limpieza de `es_card`.
 - Dominio propio (cuando haya): agregarlo primero en **Custom domains** del proyecto de Pages (un CNAME creado antes da error 522); un dominio raíz necesita los DNS en Cloudflare, un subdominio alcanza con un CNAME a `<proyecto>.pages.dev`. Después, actualizar Site URL y Redirect URLs de Supabase.
 
 ## 12.2 Plan de trabajo (guía, sección 16)
@@ -461,9 +462,7 @@ Hecho el 24/10/2026:
 
 ## 12.5 Deuda técnica
 
-- Cálculo de precio mínimo por variantes repetido en ProductsPage, FeaturedCarousel y la búsqueda de HeaderTop; conviene un hook común. La búsqueda filtra variantes con `estado IN (disponible, sin_stock)` aunque las variantes solo admiten `disponible`/`pausado` (inofensivo).
 - Admin: etapa mobile dedicada (hoy se ve en 375 px pero sin diseño pensado para celular). Los `<select>` nativos muestran sus opciones con el estilo del sistema.
-- Admin: el logo sigue siendo un PNG de 720 KB (el de la tienda ya es WebP de ~24 KB) y el bundle pesa ~1,28 MB.
 - Items de paneles pausados legibles con la anon key (impacto bajo).
 - Seed del admin por email en `rls.sql`: en una instancia nueva, sembrar por id después de verificar el usuario.
 - Archivos huérfanos de antes de octubre de 2026 en el bucket (desde entonces el admin borra las imágenes reemplazadas y las de productos eliminados).

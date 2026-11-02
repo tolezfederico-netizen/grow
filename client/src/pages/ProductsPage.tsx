@@ -1,9 +1,10 @@
 import { useEffect, useState, useCallback, useRef } from 'react'
 
-import { supabase, mapearProductoVariante } from '@shared'
+import { supabase } from '@shared'
 import type { ProductoVariante } from '@shared'
 import { Link, useParams, useSearchParams } from 'react-router-dom'
 import { useCart } from '../context/CartContext'
+import { cargarVariantesDisponibles, precioMinimo } from '../utils/variantes'
 import ProductCard from '../components/product/ProductCard'
 import ArticulosSidebar from '../components/product/ArticulosSidebar'
 import LoadingState from '../components/common/LoadingState'
@@ -24,7 +25,6 @@ interface ProductoRow {
 
 // Solo las columnas que usa la tarjeta (sin especificaciones, que es texto largo)
 const COLUMNAS_TARJETA = 'id, nombre, descripcion, imagen_url, imagen_miniatura_url, tiene_variantes, precio_base, estado'
-const COLUMNAS_VARIANTE = 'id, producto_id, nombre_variante, precio, estado'
 
 /** Productos por página: con "Ver más" se agregan de a esta cantidad. */
 const POR_PAGINA = 24
@@ -143,24 +143,10 @@ export default function ProductsPage() {
 
     const idsConVariantes = raw.filter(r => r.tiene_variantes).map(r => r.id)
 
-    const variantesMap = new Map<string, ProductoVariante[]>()
-    if (idsConVariantes.length > 0) {
-      const { data: vars } = await supabase
-        .from('producto_variantes')
-        .select(COLUMNAS_VARIANTE)
-        .in('producto_id', idsConVariantes)
-        .eq('estado', 'disponible')
-      for (const v of (vars ?? []).map(mapearProductoVariante)) {
-        const arr = variantesMap.get(v.producto_id) ?? []
-        arr.push(v)
-        variantesMap.set(v.producto_id, arr)
-      }
-    }
+    const variantesMap = await cargarVariantesDisponibles(idsConVariantes)
 
     const completos: ProductoConDatos[] = raw.map(r => {
       const variantes = variantesMap.get(r.id) ?? []
-      const precios = variantes.map(v => v.precio)
-      const precioMinimo = precios.length > 0 ? Math.min(...precios) : null
       return {
         id: r.id,
         nombre: r.nombre,
@@ -170,7 +156,7 @@ export default function ProductsPage() {
         tieneVariantes: r.tiene_variantes,
         precioBase: r.precio_base,
         variantes,
-        precioMinimo,
+        precioMinimo: precioMinimo(variantes),
         estado: r.estado,
       }
     })

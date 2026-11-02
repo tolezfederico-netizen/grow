@@ -28,8 +28,8 @@ Client y admin terminados (el admin, salvo una etapa mobile dedicada). Estilo ne
 - React 18 + TypeScript + Vite 5 + React Router 6. CSS Modules (`.module.css` al lado de cada `.tsx`), consumiendo variables del `:root`; no hardcodear colores.
 - Supabase: Postgres + Auth + RLS + RPC + pg_cron + Edge Function en Deno (`supabase/functions/enviar-notificacion-pedido`, emails vía Resend).
 - `@shared/*` → `shared/src/*`, alias resuelto por Vite (sin build intermedio). Las Edge Functions (Deno) **no** pueden importar `@shared`.
-- Admin usa `exceljs` para exportar clientes (no SheetJS: no soporta estilos de celda gratis).
-- Deploy: dos proyectos de Cloudflare Pages sobre el mismo repo (`grow-client` y `grow-admin`, `*.pages.dev`), build desde la raíz con `npm run build:client` / `build:admin`, salida `client/dist` / `admin/dist`, y build watch paths por proyecto. Headers de seguridad en `client/public/_headers` y `admin/public/_headers`; la SPA no necesita `_redirects` (sin `404.html`, Pages sirve `index.html`). Las watch paths se cargan una por una con Enter (con comas quedan como una sola y Pages saltea los pushes). Vercel dejó de usarse el 01/11/2026; falta darlo de baja (v13 §12.1).
+- Admin usa `exceljs` para exportar clientes (no SheetJS: no soporta estilos de celda gratis); se carga recién al exportar.
+- Deploy: dos proyectos de Cloudflare Pages sobre el mismo repo (`grow-client` y `grow-admin`, `*.pages.dev`), build desde la raíz con `npm run build:client` / `build:admin`, salida `client/dist` / `admin/dist`, y build watch paths por proyecto. Headers de seguridad en `client/public/_headers` y `admin/public/_headers`; la SPA no necesita `_redirects` (sin `404.html`, Pages sirve `index.html`). Las watch paths se cargan una por una con Enter (con comas quedan como una sola y Pages saltea los pushes). Vercel dejó de usarse el 01/11/2026 y sus proyectos quedan sin borrar por decisión del dueño (v13 §12.1).
 - Sin tests automatizados en ningún paquete.
 
 ## Comandos (desde la raíz)
@@ -57,7 +57,7 @@ client/src/
              TerminosCondiciones, PoliticaPrivacidad, MiCuenta (+ miCuentaCache.ts,
              cache en memoria), NotFound
   components/common/  CampoTelefono (área + número), PaginaLegal (Términos y privacidad)
-  utils/     redesSociales.tsx
+  utils/     redesSociales.tsx, variantes.ts (variantes disponibles y precio mínimo)
 admin/src/
   components/  AdminLayout, ProtectedRoute, ConfirmDialog, NotificarPedidoModal, forms…
   context/     AuthContext (con esAdmin), ConfirmContext (confirm/notify/toast)
@@ -102,7 +102,6 @@ Las decisiones de producto y el plan por fases están en [guia-auditoria-decisio
 - Antes de vender: dominio propio en Resend → SMTP propio en Supabase, template de confirmación en español y secret `RESEND_FROM`; datos legales y teléfono del local por instancia; instancia de Supabase en una cuenta del cliente.
 - Plan de Supabase: la prueba de carga (24/10/2026, v13 §3.5) dio 0 errores y un techo de ~550 pedidos/s, así que se puede arrancar en Free. Mientras tanto: volcado semanal manual como backup (falta el script) hasta tener la 1.12, keep-alive sin fallas y revisión mensual del uso; pasar a Pro cuando el negocio dependa de la tienda (detalle en v13 §12.4).
 - Seguridad: auditoría 2026-10 en [docs/auditoria/](docs/auditoria/auditoria-seguridad-2026-10.md), aplicada y verificada en producción. Auditoría externa de la fase 1 en [informe-auditoria-codex-fase1.md](docs/auditoria/informe-auditoria-codex-fase1.md) (hallazgos corregidos o diferidos, ver v13 §12.3).
-- Hook compartido para `precioMinimo` (repetido en ProductsPage, FeaturedCarousel y la búsqueda de HeaderTop).
-- Admin responsive: falta una etapa mobile dedicada (las páginas ya se ven en 375px, pero sin revisión pensada para el celular). Logo del admin todavía en PNG de 720 KB.
+- Admin responsive: falta una etapa mobile dedicada (las páginas ya se ven en 375px, pero sin revisión pensada para el celular).
 - `Grow_Arquitectura_v13.docx` desactualizado respecto del Markdown.
 - Sin suite de tests.

@@ -85,7 +85,7 @@ Lo que mejora la conversión y la operación cuando ya hay pedidos reales.
 | 3.5 | Paginación y agregados en SQL en Pedidos y Clientes (P6) | Medio | M | — | Necesario pasado ~1000 pedidos |
 | 3.6 | Reseñas reales (tabla moderada por el admin o Google Place) | Medio | M | 1.1 | |
 | 3.7 | Idempotencia del checkout (clave de intento) (C4) | Bajo | S | — | |
-| 3.8 | Optimizaciones: logo comprimido, `exceljs` lazy, imágenes con tamaño (A5) | Bajo | S | — | |
+| 3.8 | Optimizaciones: logo comprimido, `exceljs` lazy, imágenes con tamaño (A5) | Bajo | S | — | Logo y `exceljs` hechos el 02/11/2026; falta lo de las imágenes |
 | 3.9 | Simplificar paneles (modo "solo categorías") | Bajo | M | — | Hecha el 31/10/2026 (`c3b95c4`): una sola lista ordenada por sección e imagen automática. `2026-10-31-menu-simple.sql` y `2026-10-31-menu-simple-limpieza.sql` aplicadas |
 | 3.10 | Etapa mobile del admin | Medio | M | — | Ya pendiente en v13 |
 

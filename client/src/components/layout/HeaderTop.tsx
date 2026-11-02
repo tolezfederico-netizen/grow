@@ -7,6 +7,7 @@ import { useSucursales } from "../../hooks/useSucursales";
 import type { ConfiguracionTienda, PanelCategoriaCompleto } from "@shared";
 import { formatPrecio, supabase, formatTelefonoAR } from "@shared";
 import { parseRedSocial, RedSocialIcon } from "../../utils/redesSociales";
+import { cargarVariantesDisponibles, precioMinimo } from "../../utils/variantes";
 import logo from "../../assets/logo.webp";
 import styles from "./HeaderTop.module.css";
 
@@ -287,45 +288,17 @@ export default function HeaderTop({
         return;
       }
 
-      let conPrecioMinimo: {
-        id: string;
-        precioMinimo: number | null;
-      }[] = [];
-
       const idsConVariantes = data
         .filter((p) => p.tiene_variantes)
         .map((p) => p.id);
 
-      if (idsConVariantes.length > 0) {
-        const { data: variantes } = await supabase
-          .from("producto_variantes")
-          .select("producto_id, precio")
-          .in("estado", ["disponible", "sin_stock"])
-          .in("producto_id", idsConVariantes);
-
-        if (variantes) {
-          const mapa = new Map<string, number[]>();
-
-          for (const v of variantes) {
-            const arr = mapa.get(v.producto_id) ?? [];
-
-            arr.push(v.precio);
-            mapa.set(v.producto_id, arr);
-          }
-
-          conPrecioMinimo = idsConVariantes.map((id) => ({
-            id,
-            precioMinimo: mapa.has(id) ? Math.min(...mapa.get(id)!) : null,
-          }));
-        }
-      }
+      const variantesMap = await cargarVariantesDisponibles(idsConVariantes);
 
       const completo = data.map((p) => ({
         ...p,
         // Resultados chicos: miniatura si existe, si no la grande
         imagen_url: p.imagen_miniatura_url ?? p.imagen_url,
-        precioMinimo:
-          conPrecioMinimo.find((c) => c.id === p.id)?.precioMinimo ?? null,
+        precioMinimo: precioMinimo(variantesMap.get(p.id) ?? []),
       }));
 
       setResultados(completo as typeof resultados);

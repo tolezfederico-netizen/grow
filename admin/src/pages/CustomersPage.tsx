@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import ExcelJS from "exceljs";
 import {
   supabase,
   mapearCliente,
@@ -249,6 +248,8 @@ export default function CustomersPage() {
       return;
     }
 
+    // Pesa cerca de 1 MB: se descarga recién al exportar
+    const { default: ExcelJS } = await import("exceljs");
     const workbook = new ExcelJS.Workbook();
     const hoja = workbook.addWorksheet("Clientes");
 

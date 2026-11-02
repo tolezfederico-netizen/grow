@@ -217,15 +217,10 @@ function normalizarRedesSociales(valor: Json): Record<string, string> {
 /**
  * Convierte una fila cruda de `sucursales` al tipo de dominio.
  * No requiere validación de literales (solo texto y número).
- *
- * TODO: regenerar database.types.ts con supabase gen types.
  */
-export function mapearSucursal(row: {
-  id: string
-  nombre: string
-  direccion: string
-  orden: number
-}): Sucursal {
+export function mapearSucursal(
+  row: Database['public']['Tables']['sucursales']['Row'],
+): Sucursal {
   return {
     id: row.id,
     nombre: row.nombre,
@@ -239,18 +234,10 @@ export function mapearSucursal(row: {
 /**
  * Convierte una fila cruda de `paneles_categoria` al tipo de dominio.
  * THROW si `estado` no es un literal válido.
- *
- * TODO: regenerar database.types.ts con supabase gen types y reemplazar el
- * inline type row con Database['public']['Tables']['paneles_categoria']['Row'].
  */
-export function mapearPanelCategoria(row: {
-  id: string
-  titulo: string
-  descripcion: string | null
-  orden: number
-  estado: string
-  creado_en: string
-}): PanelCategoria {
+export function mapearPanelCategoria(
+  row: Database['public']['Tables']['paneles_categoria']['Row'],
+): PanelCategoria {
   return {
     id: row.id,
     titulo: row.titulo,
@@ -264,30 +251,19 @@ export function mapearPanelCategoria(row: {
 /**
  * Convierte una fila cruda de `paneles_categoria_items` al tipo de dominio.
  * No requiere validación de literales (no tiene columna estado).
- *
- * TODO: regenerar database.types.ts con supabase gen types.
  */
-export function mapearPanelCategoriaItem(row: {
-  id: string
-  panel_id: string
-  categoria_id: string
-  nombre_visible: string | null
-  orden: number
-}): PanelCategoriaItem {
+export function mapearPanelCategoriaItem(
+  row: Database['public']['Tables']['paneles_categoria_items']['Row'],
+): PanelCategoriaItem {
   return { ...row }
 }
 
 /**
  * Convierte una fila cruda de `paneles_categoria_items_productos` al tipo de dominio.
  * No requiere validación de literales (no tiene columna estado).
- *
- * TODO: regenerar database.types.ts con supabase gen types.
  */
-export function mapearPanelCategoriaItemProducto(row: {
-  id: string
-  item_id: string
-  producto_id: string
-  orden: number
-}): PanelCategoriaItemProducto {
+export function mapearPanelCategoriaItemProducto(
+  row: Database['public']['Tables']['paneles_categoria_items_productos']['Row'],
+): PanelCategoriaItemProducto {
   return { ...row }
 }

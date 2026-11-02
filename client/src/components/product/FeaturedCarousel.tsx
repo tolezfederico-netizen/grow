@@ -1,7 +1,8 @@
 import { useEffect, useState, useRef, useMemo, useLayoutEffect } from 'react'
-import { supabase, mapearProductoVariante } from '@shared'
+import { supabase } from '@shared'
 import type { ProductoVariante } from '@shared'
 import { useCart } from '../../context/CartContext'
+import { cargarVariantesDisponibles, precioMinimo } from '../../utils/variantes'
 import ProductCard from './ProductCard'
 import styles from './FeaturedCarousel.module.css'
 
@@ -69,25 +70,11 @@ export default function FeaturedCarousel() {
       if (!rows || rows.length === 0) return
       const raw = rows
       const idsConVariantes = raw.filter(r => r.tiene_variantes).map(r => r.id)
-      const variantesMap = new Map<string, ProductoVariante[]>()
-      if (idsConVariantes.length > 0) {
-        const { data: vars } = await supabase
-          .from('producto_variantes')
-          .select('id, producto_id, nombre_variante, precio, estado')
-          .in('producto_id', idsConVariantes)
-          .eq('estado', 'disponible')
-        for (const v of (vars ?? []).map(mapearProductoVariante)) {
-          const arr = variantesMap.get(v.producto_id) ?? []
-          arr.push(v)
-          variantesMap.set(v.producto_id, arr)
-        }
-      }
+      const variantesMap = await cargarVariantesDisponibles(idsConVariantes)
       if (!cancel) {
         setProductos(
           raw.map(p => {
             const variantes = variantesMap.get(p.id) ?? []
-            const precios = variantes.map(v => v.precio)
-            const precioMinimo = precios.length > 0 ? Math.min(...precios) : null
             return {
               id: p.id,
               nombre: p.nombre,
@@ -97,7 +84,7 @@ export default function FeaturedCarousel() {
               tieneVariantes: p.tiene_variantes,
               precioBase: p.precio_base,
               variantes,
-              precioMinimo,
+              precioMinimo: precioMinimo(variantes),
               estado: p.estado,
             }
           }),
